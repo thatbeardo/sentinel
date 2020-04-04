@@ -21,7 +21,7 @@ func performRequest(r http.Handler, method, path string) *httptest.ResponseRecor
 func TestResourcesOk(t *testing.T) {
 	// Build our expected body
 	body := gin.H{
-		"message": "resource",
+		"name": "Harshil",
 	}
 	// Grab our router
 	router := server.SetupRouter()
@@ -34,11 +34,11 @@ func TestResourcesOk(t *testing.T) {
 	var response map[string]string
 	err := json.Unmarshal([]byte(w.Body.String()), &response)
 	// Grab the value & whether or not it exists
-	value, exists := response["message"]
+	value, exists := response["name"]
 	// Make some assertions on the correctness of the response.
 	assert.Nil(t, err)
 	assert.True(t, exists)
-	assert.Equal(t, body["message"], value)
+	assert.Equal(t, body["name"], value)
 }
 
 func TestPermissionsOk(t *testing.T) {

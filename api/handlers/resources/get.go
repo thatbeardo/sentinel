@@ -4,12 +4,12 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/thatbeardo/go-sentinel/pkg/resource"
 )
 
 func get() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "resource",
-		})
+		resource := &resource.Resource{Name: "Harshil"}
+		c.JSON(http.StatusOK, resource)
 	}
 }
