@@ -1,7 +1,66 @@
 basePath: /
+definitions:
+  resource.Resource:
+    properties:
+      name:
+        type: string
+      source_id:
+        type: string
+    type: object
+  views.ResourceResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/views.data'
+        type: array
+    type: object
+  views.data:
+    properties:
+      attributes:
+        $ref: '#/definitions/resource.Resource'
+        type: object
+      id:
+        type: string
+      relationships:
+        $ref: '#/definitions/views.relationships'
+        type: object
+      type:
+        type: string
+    type: object
+  views.genericData:
+    properties:
+      id:
+        type: string
+      type:
+        type: string
+    type: object
+  views.parent:
+    properties:
+      data:
+        $ref: '#/definitions/views.genericData'
+        type: object
+    type: object
+  views.policies:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/views.genericData'
+        type: array
+    type: object
+  views.relationships:
+    properties:
+      parent:
+        $ref: '#/definitions/views.parent'
+        type: object
+      policies:
+        $ref: '#/definitions/views.policies'
+        type: object
+    type: object
 host: localhost:8080
 info:
-  contact: {}
+  contact:
+    email: hmavani7@gmail.com
+    name: API Support
   description: |-
     ### A domain agnostic permission management and querying API.
 
@@ -132,5 +191,18 @@ info:
   license: {}
   title: Sentinel API
   version: 0.1.0
-paths: {}
+paths:
+  /resources:
+    get:
+      consumes:
+      - application/json
+      description: Get all the nodes present in the graph
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/views.ResourceResponse'
+      summary: Get all the resources
 swagger: "2.0"

@@ -30,15 +30,19 @@ var doc = `{
     "paths": {
         "/resources": {
             "get": {
+                "description": "Get all the nodes present in the graph",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Retrieves all resources present in the graph",
+                "summary": "Get all the resources",
                 "responses": {
                     "200": {
                         "description": "ok",
                         "schema": {
-                            "$ref": "#/definitions/resources.Data"
+                            "$ref": "#/definitions/views.ResourceResponse"
                         }
                     }
                 }
@@ -57,7 +61,18 @@ var doc = `{
                 }
             }
         },
-        "resources.Data": {
+        "views.ResourceResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/views.data"
+                    }
+                }
+            }
+        },
+        "views.data": {
             "type": "object",
             "properties": {
                 "attributes": {
@@ -68,10 +83,55 @@ var doc = `{
                     "type": "string"
                 },
                 "relationships": {
-                    "type": "RelationshipsPayload"
+                    "type": "object",
+                    "$ref": "#/definitions/views.relationships"
                 },
                 "type": {
                     "type": "string"
+                }
+            }
+        },
+        "views.genericData": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "views.parent": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "$ref": "#/definitions/views.genericData"
+                }
+            }
+        },
+        "views.policies": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/views.genericData"
+                    }
+                }
+            }
+        },
+        "views.relationships": {
+            "type": "object",
+            "properties": {
+                "parent": {
+                    "type": "object",
+                    "$ref": "#/definitions/views.parent"
+                },
+                "policies": {
+                    "type": "object",
+                    "$ref": "#/definitions/views.policies"
                 }
             }
         }
