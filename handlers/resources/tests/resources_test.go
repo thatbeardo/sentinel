@@ -6,10 +6,10 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/thatbeardo/go-sentinel/api/handlers/server"
-	views "github.com/thatbeardo/go-sentinel/api/views/responses/resources"
 	"github.com/thatbeardo/go-sentinel/pkg/resource"
+	"github.com/thatbeardo/go-sentinel/server"
 	"github.com/thatbeardo/go-sentinel/testutil"
+	views "github.com/thatbeardo/go-sentinel/views/responses/resources"
 )
 
 func TestResourcesOk(t *testing.T) {

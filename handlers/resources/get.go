@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	views "github.com/thatbeardo/go-sentinel/api/views/responses/resources"
 	"github.com/thatbeardo/go-sentinel/pkg/resource"
+	views "github.com/thatbeardo/go-sentinel/views/responses/resources"
 )
 
 func get(service resource.Service) gin.HandlerFunc {

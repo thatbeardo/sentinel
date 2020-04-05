@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/thatbeardo/go-sentinel/api/handlers/server"
 	"github.com/thatbeardo/go-sentinel/pkg/resource"
+	"github.com/thatbeardo/go-sentinel/server"
 )
 
 func main() {
