@@ -70,11 +70,19 @@
 		
 		<pre class="file" id="file0" style="display: none">package main
 
-import "github.com/thatbeardo/go-sentinel/api/handlers/server"
+import (
+        "github.com/thatbeardo/go-sentinel/api/handlers/server"
+        "github.com/thatbeardo/go-sentinel/pkg/resource"
+)
 
 func main() <span class="cov0" title="0">{
-        engine := server.SetupRouter()
-        engine.Run()
+        shutdown, session := server.Initialize()
+
+        resourceRepository := resource.NewNeo4jRepository(session)
+        resourceService := resource.NewService(resourceRepository)
+
+        engine := server.SetupRouter(resourceService)
+        server.Orchestrate(engine, shutdown)
 }</span>
 </pre>
 		
