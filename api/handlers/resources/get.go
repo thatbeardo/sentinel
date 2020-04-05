@@ -7,9 +7,9 @@ import (
 	"github.com/thatbeardo/go-sentinel/pkg/resource"
 )
 
-func get() gin.HandlerFunc {
+func get(service resource.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		resource := &resource.Resource{Name: "Harshil"}
+		resource, _ := service.Get()
 		c.JSON(http.StatusOK, resource)
 	}
 }
