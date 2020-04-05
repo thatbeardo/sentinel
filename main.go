@@ -7,12 +7,9 @@ import (
 
 func main() {
 	shutdown, session := server.Initialize()
-	defer shutdown()
 
 	resourceRepository := resource.NewNeo4jRepository(session)
 	resourceService := resource.NewService(resourceRepository)
-
-	// neo4jrepository := resources
 
 	engine := server.SetupRouter(resourceService)
 	server.Orchestrate(engine, shutdown)
