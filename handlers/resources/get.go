@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/thatbeardo/go-sentinel/pkg/resource"
+	"github.com/thatbeardo/go-sentinel/models/resource"
 	views "github.com/thatbeardo/go-sentinel/views/responses/resources"
 )
 

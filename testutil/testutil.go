@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 
-	"github.com/thatbeardo/go-sentinel/pkg/resource"
+	"github.com/thatbeardo/go-sentinel/models/resource"
 )
 
 // MockResourceService struct to mock data returned from neo4j

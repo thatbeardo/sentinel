@@ -4,7 +4,7 @@
 # for detailed Gopkg.toml documentation.
 #
 # required = ["github.com/user/thing/cmd/thing"]
-# ignored = ["github.com/user/project/pkgX", "bitbucket.org/user/project/pkgA/pkgY"]
+# ignored = ["github.com/user/project/modelsX", "bitbucket.org/user/project/modelsA/modelsY"]
 #
 # [[constraint]]
 #   name = "github.com/user/project"

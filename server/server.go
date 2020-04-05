@@ -13,7 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/neo4j/neo4j-go-driver/neo4j"
 	"github.com/thatbeardo/go-sentinel/handlers/resources"
-	"github.com/thatbeardo/go-sentinel/pkg/resource"
+	"github.com/thatbeardo/go-sentinel/models/resource"
 )
 
 // SetupRouter instantiates and initializes a new Router.

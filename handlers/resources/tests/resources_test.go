@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/thatbeardo/go-sentinel/pkg/resource"
+	"github.com/thatbeardo/go-sentinel/models/resource"
 	"github.com/thatbeardo/go-sentinel/server"
 	"github.com/thatbeardo/go-sentinel/testutil"
 	views "github.com/thatbeardo/go-sentinel/views/responses/resources"

@@ -1,6 +1,6 @@
 package views
 
-import "github.com/thatbeardo/go-sentinel/pkg/resource"
+import "github.com/thatbeardo/go-sentinel/models/resource"
 
 // ResourceResponse encapsulates resource get end point response as per json schema
 type ResourceResponse struct {

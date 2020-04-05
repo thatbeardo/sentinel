@@ -2,7 +2,7 @@ package resources
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/thatbeardo/go-sentinel/pkg/resource"
+	"github.com/thatbeardo/go-sentinel/models/resource"
 )
 
 // ResourceRoutes sets up resource specific routes on the engine instance
