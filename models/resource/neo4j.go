@@ -18,6 +18,6 @@ func (repo *neo4jRepository) Get() ([]*Resource, error) {
 	return resourceArray, nil
 }
 
-func (repo *neo4jRepository) Create(resource *Resource) (*Resource, error) {
-	return nil, nil
+func (repo *neo4jRepository) Create(resource *Resource) (*Resource, string, error) {
+	return nil, "", nil
 }
