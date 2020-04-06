@@ -9,11 +9,11 @@ import (
 
 // MockResourceService struct to mock data returned from neo4j
 type MockResourceService struct {
-	mockGetResource func() (*resource.Resource, error)
+	mockGetResource func() ([]*resource.Resource, error)
 }
 
 // Get method returns mock test data
-func (service *MockResourceService) Get() (*resource.Resource, error) {
+func (service *MockResourceService) Get() ([]*resource.Resource, error) {
 	return service.mockGetResource()
 }
 
@@ -30,6 +30,6 @@ func GetMockService() resource.Service {
 	return &MockResourceService{mockGetResource: getResourceMockData}
 }
 
-func getResourceMockData() (*resource.Resource, error) {
-	return &resource.Resource{Name: "Harshil", SourceID: "Mavain"}, nil
+func getResourceMockData() ([]*resource.Resource, error) {
+	return []*resource.Resource{{Name: "Harshil", SourceID: "Mavain"}}, nil
 }

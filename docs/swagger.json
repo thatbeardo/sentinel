@@ -46,18 +46,7 @@
                 }
             }
         },
-        "views.ResourceResponse": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/views.data"
-                    }
-                }
-            }
-        },
-        "views.data": {
+        "views.ResourceDto": {
             "type": "object",
             "properties": {
                 "attributes": {
@@ -76,6 +65,17 @@
                 }
             }
         },
+        "views.ResourceResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/views.ResourceDto"
+                    }
+                }
+            }
+        },
         "views.genericData": {
             "type": "object",
             "properties": {
@@ -83,7 +83,12 @@
                     "type": "string"
                 },
                 "type": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "foo",
+                        "bar",
+                        "baz"
+                    ]
                 }
             }
         },

@@ -9,12 +9,12 @@ import (
 	"github.com/thatbeardo/go-sentinel/models/resource"
 	"github.com/thatbeardo/go-sentinel/server"
 	"github.com/thatbeardo/go-sentinel/testutil"
-	views "github.com/thatbeardo/go-sentinel/views/responses/resources"
+	views "github.com/thatbeardo/go-sentinel/views/dto/resources"
 )
 
-func TestResourcesOk(t *testing.T) {
+func TestGetResourcesOk(t *testing.T) {
 
-	expectedBody := views.WrapGetResource(resource.Resource{Name: "Harshil", SourceID: "Mavain"})
+	expectedBody := views.WrapGetResources([]*resource.Resource{{Name: "Harshil", SourceID: "Mavain"}})
 
 	router := server.SetupRouter(testutil.GetMockService())
 	w := testutil.PerformRequest(router, "GET", "/resources/")

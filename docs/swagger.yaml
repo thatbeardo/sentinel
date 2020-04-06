@@ -7,14 +7,7 @@ definitions:
       source_id:
         type: string
     type: object
-  views.ResourceResponse:
-    properties:
-      data:
-        items:
-          $ref: '#/definitions/views.data'
-        type: array
-    type: object
-  views.data:
+  views.ResourceDto:
     properties:
       attributes:
         $ref: '#/definitions/resource.Resource'
@@ -27,11 +20,22 @@ definitions:
       type:
         type: string
     type: object
+  views.ResourceResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/views.ResourceDto'
+        type: array
+    type: object
   views.genericData:
     properties:
       id:
         type: string
       type:
+        enum:
+        - foo
+        - bar
+        - baz
         type: string
     type: object
   views.parent:

@@ -11,7 +11,13 @@ func NewNeo4jRepository(session neo4j.Session) Repository {
 	return &neo4jRepository{session}
 }
 
-// Create function adds a resource node
-func (repo *neo4jRepository) Get() (*Resource, error) {
-	return &Resource{Name: "Harshil", SourceID: "Mavain"}, nil
+var resourceArray = []*Resource{}
+
+// Get function adds a resource node
+func (repo *neo4jRepository) Get() ([]*Resource, error) {
+	return resourceArray, nil
+}
+
+func (repo *neo4jRepository) Create(resource *Resource) (*Resource, error) {
+	return nil, nil
 }
