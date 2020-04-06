@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	views "github.com/thatbeardo/go-sentinel/api/views/dto/resources"
 	"github.com/thatbeardo/go-sentinel/models/resource"
-	views "github.com/thatbeardo/go-sentinel/views/dto/resources"
 )
 
 // @Summary Get all the resources
