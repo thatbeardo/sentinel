@@ -1,7 +1,9 @@
 // @title Sentinel API
 // @version 0.1.0
-// @contact.name API Support
-// @contact.email hmavani7@gmail.com
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
 // @description ### A domain agnostic permission management and querying API.
 // @description
 // @description At the most basic level the Sentinel API offers a way for consumers to manage access of application resources to other application resources through the use of policies.

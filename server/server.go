@@ -10,8 +10,11 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/neo4j/neo4j-go-driver/neo4j"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/thatbeardo/go-sentinel/api/handlers/resources"
 	"github.com/thatbeardo/go-sentinel/models/resource"
 )
@@ -19,6 +22,11 @@ import (
 // SetupRouter instantiates and initializes a new Router.
 func SetupRouter(service resource.Service) *gin.Engine {
 	r := gin.Default()
+	r.Use(cors.Default())
+
+	r.StaticFile("/docs/", "./docs/swagger.json")
+	url := ginSwagger.URL("http://localhost:8080/docs/")
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 
 	resources.ResourceRoutes(r, service)
 

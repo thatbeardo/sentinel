@@ -93,9 +93,7 @@ definitions:
     type: object
 host: localhost:8080
 info:
-  contact:
-    email: hmavani7@gmail.com
-    name: API Support
+  contact: {}
   description: |-
     ### A domain agnostic permission management and querying API.
 
@@ -223,7 +221,9 @@ info:
 
     ### Getting Started
     Review the [Getting Started Guide](http://localhost:3000/documentation/GettingStarted.md) for minimal setup instructions
-  license: {}
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
   title: Sentinel API
   version: 0.1.0
 paths:
