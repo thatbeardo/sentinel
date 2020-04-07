@@ -11,8 +11,8 @@ import (
 // @Description Add a new resource to existing resources
 // @Accept  json
 // @Produce  json
-// @Success 202 {object} views.ResourceResponse	"ok"
-// @Failure 400 string "error"
+// @Param input body resource.Input true "Resource to be created"
+// @Success 202 {object} resource.Response	"ok"
 // @Router /resources [post]
 func post(service resource.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {

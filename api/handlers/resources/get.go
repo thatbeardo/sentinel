@@ -11,7 +11,7 @@ import (
 // @Description Get all the nodes present in the graph
 // @Accept  json
 // @Produce  json
-// @Success 200 {object} views.ResourceResponse	"ok"
+// @Success 200 {object} resource.Response	"ok"
 // @Router /resources [get]
 func get(service resource.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {

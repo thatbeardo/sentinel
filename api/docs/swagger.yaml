@@ -1,83 +1,11 @@
 basePath: /
 definitions:
-  resource.Dto:
-    properties:
-      attributes:
-        $ref: '#/definitions/resource.Resource'
-        type: object
-      id:
-        type: string
-      relationships:
-        $ref: '#/definitions/resource.relationships'
-        type: object
-      type:
-        type: string
-    required:
-    - attributes
-    - type
-    type: object
-  resource.Input:
-    properties:
-      attributes:
-        $ref: '#/definitions/resource.Resource'
-        type: object
-      id:
-        type: string
-      type:
-        type: string
-    required:
-    - attributes
-    - type
-    type: object
-  resource.Resource:
-    properties:
-      name:
-        type: string
-      source_id:
-        type: string
-    required:
-    - source_id
-    type: object
   resource.Response:
     properties:
       data:
         items:
-          $ref: '#/definitions/resource.Dto'
+          type: Dto
         type: array
-    type: object
-  resource.identifier:
-    properties:
-      id:
-        type: string
-      type:
-        enum:
-        - policy
-        - ' resource'
-        - ' grant'
-        - ' permission'
-        type: string
-    type: object
-  resource.parent:
-    properties:
-      data:
-        $ref: '#/definitions/resource.identifier'
-        type: object
-    type: object
-  resource.policies:
-    properties:
-      data:
-        items:
-          $ref: '#/definitions/resource.identifier'
-        type: array
-    type: object
-  resource.relationships:
-    properties:
-      parent:
-        $ref: '#/definitions/resource.parent'
-        type: object
-      policies:
-        $ref: '#/definitions/resource.policies'
-        type: object
     type: object
 host: localhost:8080
 info:
@@ -232,13 +160,6 @@ paths:
       consumes:
       - application/json
       description: Add a new resource to existing resources
-      parameters:
-      - description: Resource to be created
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/resource.Input'
       produces:
       - application/json
       responses:

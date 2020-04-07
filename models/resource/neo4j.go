@@ -24,7 +24,7 @@ func (repo *neo4jRepository) Get() (Response, error) {
 		return Response{}, err
 	}
 
-	var resources []Resource
+	var resources []Resource = []Resource{}
 	var ids []string
 	for result.Next() {
 		resourceName := fmt.Sprint(result.Record().GetByIndex(0))
@@ -38,8 +38,8 @@ func (repo *neo4jRepository) Get() (Response, error) {
 func (repo *neo4jRepository) Create(resource *Input) (Response, error) {
 	result, err := repo.session.Run("CREATE (n:Resource { name: $name, source_id: $source_id, id: randomUUID() }) RETURN n.id",
 		map[string]interface{}{
-			"name":      resource.Attributes.Name,
-			"source_id": resource.Attributes.SourceID,
+			"name":      resource.Data.Attributes.Name,
+			"source_id": resource.Data.Attributes.SourceID,
 		})
 	if err != nil {
 		return Response{Data: []Dto{}}, err
@@ -48,5 +48,5 @@ func (repo *neo4jRepository) Create(resource *Input) (Response, error) {
 	for result.Next() {
 		id = fmt.Sprint(result.Record().GetByIndex(0))
 	}
-	return constructResourceResponse([]Resource{resource.Attributes}, []string{id}), nil
+	return constructResourceResponse([]Resource{resource.Data.Attributes}, []string{id}), nil
 }

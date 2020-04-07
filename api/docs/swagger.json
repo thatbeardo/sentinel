@@ -41,17 +41,6 @@
                     "application/json"
                 ],
                 "summary": "Create a new Resource",
-                "parameters": [
-                    {
-                        "description": "Resource to be created",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/resource.Input"
-                        }
-                    }
-                ],
                 "responses": {
                     "202": {
                         "description": "ok",
@@ -64,120 +53,14 @@
         }
     },
     "definitions": {
-        "resource.Dto": {
-            "type": "object",
-            "required": [
-                "attributes",
-                "type"
-            ],
-            "properties": {
-                "attributes": {
-                    "type": "object",
-                    "$ref": "#/definitions/resource.Resource"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "relationships": {
-                    "type": "object",
-                    "$ref": "#/definitions/resource.relationships"
-                },
-                "type": {
-                    "type": "string"
-                }
-            }
-        },
-        "resource.Input": {
-            "type": "object",
-            "required": [
-                "attributes",
-                "type"
-            ],
-            "properties": {
-                "attributes": {
-                    "type": "object",
-                    "$ref": "#/definitions/resource.Resource"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                }
-            }
-        },
-        "resource.Resource": {
-            "type": "object",
-            "required": [
-                "source_id"
-            ],
-            "properties": {
-                "name": {
-                    "type": "string"
-                },
-                "source_id": {
-                    "type": "string"
-                }
-            }
-        },
         "resource.Response": {
             "type": "object",
             "properties": {
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/resource.Dto"
+                        "type": "Dto"
                     }
-                }
-            }
-        },
-        "resource.identifier": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string",
-                    "enum": [
-                        "policy",
-                        " resource",
-                        " grant",
-                        " permission"
-                    ]
-                }
-            }
-        },
-        "resource.parent": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "type": "object",
-                    "$ref": "#/definitions/resource.identifier"
-                }
-            }
-        },
-        "resource.policies": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/resource.identifier"
-                    }
-                }
-            }
-        },
-        "resource.relationships": {
-            "type": "object",
-            "properties": {
-                "parent": {
-                    "type": "object",
-                    "$ref": "#/definitions/resource.parent"
-                },
-                "policies": {
-                    "type": "object",
-                    "$ref": "#/definitions/resource.policies"
                 }
             }
         }
