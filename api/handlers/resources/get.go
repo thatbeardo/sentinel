@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	views "github.com/thatbeardo/go-sentinel/api/views/dto/resources"
 	"github.com/thatbeardo/go-sentinel/models/resource"
 )
 
@@ -17,6 +16,6 @@ import (
 func get(service resource.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		resources, _ := service.Get()
-		c.JSON(http.StatusOK, views.WrapGetResources(resources))
+		c.JSON(http.StatusOK, resources)
 	}
 }

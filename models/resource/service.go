@@ -2,8 +2,8 @@ package resource
 
 // Service recieves commands from handlers and forwards them to the repository
 type Service interface {
-	Get() ([]*Resource, error)
-	Create(*Resource) (*Resource, string, error)
+	Get() (Response, error)
+	Create(*Input) (Response, error)
 }
 
 type service struct {
@@ -15,10 +15,10 @@ func NewService(repository Repository) Service {
 	return &service{repository: repository}
 }
 
-func (service *service) Get() ([]*Resource, error) {
+func (service *service) Get() (Response, error) {
 	return service.repository.Get()
 }
 
-func (service *service) Create(resource *Resource) (*Resource, string, error) {
-	return service.Create(resource)
+func (service *service) Create(resource *Input) (Response, error) {
+	return service.repository.Create(resource)
 }

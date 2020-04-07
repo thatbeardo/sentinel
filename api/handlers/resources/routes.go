@@ -9,4 +9,6 @@ import (
 func ResourceRoutes(r *gin.Engine, service resource.Service) {
 	router := r.Group("/resources")
 	router.GET("/", get(service))
+
+	router.POST("/", post(service))
 }
