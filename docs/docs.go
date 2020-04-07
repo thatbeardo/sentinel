@@ -71,7 +71,7 @@ var doc = `{
                     "202": {
                         "description": "ok",
                         "schema": {
-                            "$ref": "#/definitions/resource.Response"
+                            "$ref": "#/definitions/resource.Element"
                         }
                     }
                 }
@@ -79,7 +79,7 @@ var doc = `{
         }
     },
     "definitions": {
-        "resource.Dto": {
+        "resource.Element": {
             "type": "object",
             "required": [
                 "attributes",
@@ -104,20 +104,10 @@ var doc = `{
         },
         "resource.Input": {
             "type": "object",
-            "required": [
-                "attributes",
-                "type"
-            ],
             "properties": {
-                "attributes": {
+                "data": {
                     "type": "object",
-                    "$ref": "#/definitions/resource.Resource"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
+                    "$ref": "#/definitions/resource.resourceInput"
                 }
             }
         },
@@ -141,7 +131,7 @@ var doc = `{
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/resource.Dto"
+                        "$ref": "#/definitions/resource.Element"
                     }
                 }
             }
@@ -193,6 +183,34 @@ var doc = `{
                 "policies": {
                     "type": "object",
                     "$ref": "#/definitions/resource.policies"
+                }
+            }
+        },
+        "resource.relationshipsInput": {
+            "type": "object",
+            "properties": {
+                "parent": {
+                    "type": "object",
+                    "$ref": "#/definitions/resource.parent"
+                }
+            }
+        },
+        "resource.resourceInput": {
+            "type": "object",
+            "required": [
+                "attributes"
+            ],
+            "properties": {
+                "attributes": {
+                    "type": "object",
+                    "$ref": "#/definitions/resource.Resource"
+                },
+                "relationships": {
+                    "type": "object",
+                    "$ref": "#/definitions/resource.relationshipsInput"
+                },
+                "type": {
+                    "type": "string"
                 }
             }
         }

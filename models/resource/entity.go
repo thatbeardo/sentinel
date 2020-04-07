@@ -17,11 +17,11 @@ type relationshipsInput struct {
 
 // Response represents the final payload sent back to the user
 type Response struct {
-	Data []Dto `json:"data"`
+	Data []Element `json:"data"`
 }
 
-// Dto consists of all details of a resource
-type Dto struct {
+// Element consists of all details of a resource
+type Element struct {
 	Type          string        `json:"type" binding:"required"`
 	ID            string        `json:"id"`
 	Attributes    Resource      `json:"attributes" binding:"required"`
@@ -52,19 +52,14 @@ type Resource struct {
 	SourceID string `json:"source_id" binding:"required"`
 }
 
-func constructResourceResponse(resources []Resource, id []string) Response {
-	var resourcesArray []Dto
-	for index, resourceElement := range resources {
-		relationships := generateResourceRelationship()
-		payload := Dto{
-			Type:          "resource",
-			ID:            id[index],
-			Attributes:    resourceElement,
-			Relationships: relationships,
-		}
-		resourcesArray = append(resourcesArray, payload)
+func constructResourceResponse(resource Resource, id string) Element {
+	relationships := generateResourceRelationship()
+	return Element{
+		Type:          "resource",
+		ID:            id,
+		Attributes:    resource,
+		Relationships: relationships,
 	}
-	return Response{Data: resourcesArray}
 }
 
 func generateResourceRelationship() relationships {

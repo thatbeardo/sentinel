@@ -10,7 +10,7 @@ import (
 // MockResourceService struct to mock data returned from neo4j
 type MockResourceService struct {
 	mockGetResource    func() (resource.Response, error)
-	mockCreateResource func(*resource.Input) (resource.Response, error)
+	mockCreateResource func(*resource.Input) (resource.Element, error)
 }
 
 // Get method returns mock test data
@@ -19,7 +19,7 @@ func (service *MockResourceService) Get() (resource.Response, error) {
 }
 
 // Create method creates a new node on the graph
-func (service *MockResourceService) Create(resource *resource.Input) (resource.Response, error) {
+func (service *MockResourceService) Create(resource *resource.Input) (resource.Element, error) {
 	return service.mockCreateResource(resource)
 }
 
@@ -40,9 +40,9 @@ func GetMockService() resource.Service {
 }
 
 func getResourceMockData() (resource.Response, error) {
-	return resource.Response{Data: []resource.Dto{}}, nil
+	return resource.Response{Data: []resource.Element{}}, nil
 }
 
-func createResourceMockData(*resource.Input) (resource.Response, error) {
-	return resource.Response{}, nil
+func createResourceMockData(*resource.Input) (resource.Element, error) {
+	return resource.Element{}, nil
 }

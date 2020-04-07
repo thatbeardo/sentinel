@@ -1,6 +1,6 @@
 basePath: /
 definitions:
-  resource.Dto:
+  resource.Element:
     properties:
       attributes:
         $ref: '#/definitions/resource.Resource'
@@ -18,16 +18,9 @@ definitions:
     type: object
   resource.Input:
     properties:
-      attributes:
-        $ref: '#/definitions/resource.Resource'
+      data:
+        $ref: '#/definitions/resource.resourceInput'
         type: object
-      id:
-        type: string
-      type:
-        type: string
-    required:
-    - attributes
-    - type
     type: object
   resource.Resource:
     properties:
@@ -42,7 +35,7 @@ definitions:
     properties:
       data:
         items:
-          $ref: '#/definitions/resource.Dto'
+          $ref: '#/definitions/resource.Element'
         type: array
     type: object
   resource.identifier:
@@ -78,6 +71,25 @@ definitions:
       policies:
         $ref: '#/definitions/resource.policies'
         type: object
+    type: object
+  resource.relationshipsInput:
+    properties:
+      parent:
+        $ref: '#/definitions/resource.parent'
+        type: object
+    type: object
+  resource.resourceInput:
+    properties:
+      attributes:
+        $ref: '#/definitions/resource.Resource'
+        type: object
+      relationships:
+        $ref: '#/definitions/resource.relationshipsInput'
+        type: object
+      type:
+        type: string
+    required:
+    - attributes
     type: object
 host: localhost:8080
 info:
@@ -245,6 +257,6 @@ paths:
         "202":
           description: ok
           schema:
-            $ref: '#/definitions/resource.Response'
+            $ref: '#/definitions/resource.Element'
       summary: Create a new Resource
 swagger: "2.0"

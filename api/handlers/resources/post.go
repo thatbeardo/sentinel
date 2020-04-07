@@ -12,7 +12,7 @@ import (
 // @Accept  json
 // @Produce  json
 // @Param input body resource.Input true "Resource to be created"
-// @Success 202 {object} resource.Response	"ok"
+// @Success 202 {object} resource.Element	"ok"
 // @Router /resources [post]
 func post(service resource.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {

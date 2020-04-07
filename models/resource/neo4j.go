@@ -23,30 +23,28 @@ func (repo *neo4jRepository) Get() (Response, error) {
 	if err != nil {
 		return Response{}, err
 	}
-
-	var resources []Resource = []Resource{}
-	var ids []string
+	var dtos []Element = []Element{}
 	for result.Next() {
 		resourceName := fmt.Sprint(result.Record().GetByIndex(0))
 		resourceSourceID := fmt.Sprint(result.Record().GetByIndex(1))
-		resources = append(resources, Resource{Name: resourceName, SourceID: resourceSourceID})
-		ids = append(ids, fmt.Sprint(result.Record().GetByIndex(2)))
+		id := fmt.Sprint(result.Record().GetByIndex(2))
+		dtos = append(dtos, constructResourceResponse(Resource{Name: resourceName, SourceID: resourceSourceID}, id))
 	}
-	return constructResourceResponse(resources, ids), nil
+	return Response{Data: dtos}, nil
 }
 
-func (repo *neo4jRepository) Create(resource *Input) (Response, error) {
+func (repo *neo4jRepository) Create(resource *Input) (Element, error) {
 	result, err := repo.session.Run("CREATE (n:Resource { name: $name, source_id: $source_id, id: randomUUID() }) RETURN n.id",
 		map[string]interface{}{
 			"name":      resource.Data.Attributes.Name,
 			"source_id": resource.Data.Attributes.SourceID,
 		})
 	if err != nil {
-		return Response{Data: []Dto{}}, err
+		return Element{}, err
 	}
 	var id string
 	for result.Next() {
 		id = fmt.Sprint(result.Record().GetByIndex(0))
 	}
-	return constructResourceResponse([]Resource{resource.Data.Attributes}, []string{id}), nil
+	return constructResourceResponse(resource.Data.Attributes, id), nil
 }
