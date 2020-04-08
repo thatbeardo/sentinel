@@ -54,7 +54,11 @@
 			<div id="nav">
 				<select id="files">
 				
-				<option value="file0">github.com/thatbeardo/go-sentinel/main.go (0.0%)</option>
+				<option value="file0">github.com/thatbeardo/go-sentinel/api/handlers/resources/get.go (100.0%)</option>
+				
+				<option value="file1">github.com/thatbeardo/go-sentinel/api/handlers/resources/post.go (14.3%)</option>
+				
+				<option value="file2">github.com/thatbeardo/go-sentinel/api/handlers/resources/routes.go (100.0%)</option>
 				
 				</select>
 			</div>
@@ -68,21 +72,80 @@
 		</div>
 		<div id="content">
 		
-		<pre class="file" id="file0" style="display: none">package main
+		<pre class="file" id="file0" style="display: none">package resources
 
 import (
-        "github.com/thatbeardo/go-sentinel/api/handlers/server"
-        "github.com/thatbeardo/go-sentinel/pkg/resource"
+        "net/http"
+
+        "github.com/gin-gonic/gin"
+        "github.com/thatbeardo/go-sentinel/api/views"
+        "github.com/thatbeardo/go-sentinel/models/resource"
 )
 
-func main() <span class="cov0" title="0">{
-        shutdown, session := server.Initialize()
+// @Summary Get all the resources
+// @Tags Resources
+// @Description Get all the nodes present in the graph
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} resource.Response        "ok"
+// @Success 500 {object} views.ErrView
+// @Router /v1/resources [get]
+func get(service resource.Service) gin.HandlerFunc <span class="cov8" title="1">{
+        return func(c *gin.Context) </span><span class="cov8" title="1">{
+                resources, err := service.Get()
+                if err != nil </span><span class="cov8" title="1">{
+                        views.Wrap(err, c)
+                        return
+                }</span>
+                <span class="cov8" title="1">c.JSON(http.StatusOK, resources)</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package resources
 
-        resourceRepository := resource.NewNeo4jRepository(session)
-        resourceService := resource.NewService(resourceRepository)
+import (
+        "net/http"
 
-        engine := server.SetupRouter(resourceService)
-        server.Orchestrate(engine, shutdown)
+        "github.com/gin-gonic/gin"
+        "github.com/thatbeardo/go-sentinel/models/resource"
+)
+
+// @Summary Create a new Resource
+// @Description Add a new resource to existing resources
+// @Tags Resources
+// @Accept  json
+// @Produce  json
+// @Param input body resource.Input true "Resource to be created"
+// @Success 202 {object} resource.Element        "ok"
+// @Failure 500 {object} views.ErrView        "ok"
+// @Router /v1/resources [post]
+func post(service resource.Service) gin.HandlerFunc <span class="cov8" title="1">{
+        return func(c *gin.Context) </span><span class="cov0" title="0">{
+                resourceInput := &amp;resource.Input{}
+                if err := c.ShouldBind(resourceInput); err != nil </span><span class="cov0" title="0">{
+                        c.JSON(http.StatusBadRequest, err.Error())
+                        return
+                }</span>
+                <span class="cov0" title="0">resourceResponse, _ := service.Create(resourceInput)
+                c.JSON(http.StatusAccepted, resourceResponse)</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package resources
+
+import (
+        "github.com/gin-gonic/gin"
+        "github.com/thatbeardo/go-sentinel/models/resource"
+)
+
+// ResourceRoutes sets up resource specific routes on the engine instance
+func ResourceRoutes(r *gin.RouterGroup, service resource.Service) <span class="cov8" title="1">{
+        router := r.Group("/resources")
+
+        router.GET("/", get(service))
+        router.POST("/", post(service))
 }</span>
 </pre>
 		

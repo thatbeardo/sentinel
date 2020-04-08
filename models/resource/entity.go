@@ -2,17 +2,18 @@ package resource
 
 // Input is the payload that a POST endpoint expects.
 type Input struct {
-	Data resourceInput `json:"data" bindings:"required"`
+	Data InputElement `json:"data" bindings:"required"`
 }
 
-type resourceInput struct {
+// InputElement is the paylaod sent when creating a new resource
+type InputElement struct {
 	Type          string             `json:"type" bindings:"required"`
 	Attributes    Resource           `json:"attributes" binding:"required"`
 	Relationships relationshipsInput `json:"relationships"`
 }
 
 type relationshipsInput struct {
-	Parent parent `json:"parent"`
+	Parent Parent `json:"parent"`
 }
 
 // Response represents the final payload sent back to the user
@@ -25,25 +26,29 @@ type Element struct {
 	Type          string        `json:"type" binding:"required"`
 	ID            string        `json:"id"`
 	Attributes    Resource      `json:"attributes" binding:"required"`
-	Relationships relationships `json:"relationships"`
+	Relationships Relationships `json:"relationships"`
 }
 
-type relationships struct {
-	Parent   parent   `json:"parent"`
-	Policies policies `json:"policies"`
+// Relationships provides details about a given resource like policies and parent
+type Relationships struct {
+	Parent   Parent   `json:"parent"`
+	Policies Policies `json:"policies"`
 }
 
-type identifier struct {
+// Identifier helps acts as a reference to any given entity
+type Identifier struct {
 	Type string `json:"type" enums:"policy, resource, grant, permission"`
 	ID   string `json:"id"`
 }
 
-type parent struct {
-	Data identifier `json:"data"`
+// Parent is the parent resource of this resource
+type Parent struct {
+	Data Identifier `json:"data"`
 }
 
-type policies struct {
-	Data []identifier `json:"data"`
+// Policies defined list of policies applicable to this resource
+type Policies struct {
+	Data []Identifier `json:"data"`
 }
 
 // Resource represents an entity created by the user.
@@ -62,11 +67,11 @@ func constructResourceResponse(resource Resource, id string) Element {
 	}
 }
 
-func generateResourceRelationship() relationships {
-	policy := identifier{Type: "policy", ID: "some-id"}
-	policies := policies{Data: []identifier{policy}}
+func generateResourceRelationship() Relationships {
+	policy := Identifier{Type: "policy", ID: "some-id"}
+	policies := Policies{Data: []Identifier{policy}}
 
-	parent := parent{Data: identifier{Type: "resource", ID: "some-id"}}
-	relationships := relationships{Parent: parent, Policies: policies}
+	parent := Parent{Data: Identifier{Type: "resource", ID: "some-id"}}
+	relationships := Relationships{Parent: parent, Policies: policies}
 	return relationships
 }
