@@ -9,11 +9,13 @@ import (
 
 // @Summary Create a new Resource
 // @Description Add a new resource to existing resources
+// @Tags Resources
 // @Accept  json
 // @Produce  json
 // @Param input body resource.Input true "Resource to be created"
 // @Success 202 {object} resource.Element	"ok"
-// @Router /resources [post]
+// @Failure 500 {object} views.ErrView	"ok"
+// @Router /v1/resources [post]
 func post(service resource.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		resourceInput := &resource.Input{}

@@ -17,6 +17,9 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/thatbeardo/go-sentinel/api/handlers/resources"
 	"github.com/thatbeardo/go-sentinel/models/resource"
+
+	// Swaggo import
+	_ "github.com/thatbeardo/go-sentinel/docs"
 )
 
 // SetupRouter instantiates and initializes a new Router.
@@ -28,7 +31,8 @@ func SetupRouter(service resource.Service) *gin.Engine {
 	url := ginSwagger.URL("http://localhost:8080/docs/")
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 
-	resources.ResourceRoutes(r, service)
+	router := r.Group("/v1")
+	resources.ResourceRoutes(router, service)
 
 	return r
 }

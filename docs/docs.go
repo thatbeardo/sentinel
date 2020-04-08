@@ -28,7 +28,7 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/resources": {
+        "/v1/resources": {
             "get": {
                 "description": "Get all the nodes present in the graph",
                 "consumes": [
@@ -37,12 +37,21 @@ var doc = `{
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "Resources"
+                ],
                 "summary": "Get all the resources",
                 "responses": {
                     "200": {
                         "description": "ok",
                         "schema": {
                             "$ref": "#/definitions/resource.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/views.ErrView"
                         }
                     }
                 }
@@ -54,6 +63,9 @@ var doc = `{
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "Resources"
                 ],
                 "summary": "Create a new Resource",
                 "parameters": [
@@ -72,6 +84,12 @@ var doc = `{
                         "description": "ok",
                         "schema": {
                             "$ref": "#/definitions/resource.Element"
+                        }
+                    },
+                    "500": {
+                        "description": "ok",
+                        "schema": {
+                            "$ref": "#/definitions/views.ErrView"
                         }
                     }
                 }
@@ -210,6 +228,35 @@ var doc = `{
                     "$ref": "#/definitions/resource.relationshipsInput"
                 },
                 "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "views.ErrView": {
+            "type": "object",
+            "properties": {
+                "detail": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "object",
+                    "$ref": "#/definitions/views.Source"
+                },
+                "status": {
+                    "type": "integer"
+                }
+            }
+        },
+        "views.Source": {
+            "type": "object",
+            "properties": {
+                "parameter": {
+                    "type": "string"
+                },
+                "pointer": {
                     "type": "string"
                 }
             }

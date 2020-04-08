@@ -6,9 +6,9 @@ import (
 )
 
 // ResourceRoutes sets up resource specific routes on the engine instance
-func ResourceRoutes(r *gin.Engine, service resource.Service) {
+func ResourceRoutes(r *gin.RouterGroup, service resource.Service) {
 	router := r.Group("/resources")
-	router.GET("/", get(service))
 
+	router.GET("/", get(service))
 	router.POST("/", post(service))
 }

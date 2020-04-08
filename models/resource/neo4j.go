@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/neo4j/neo4j-go-driver/neo4j"
+	models "github.com/thatbeardo/go-sentinel/models"
 )
 
 type neo4jRepository struct {
@@ -21,7 +22,7 @@ var resourceArray = []*Resource{&Resource{Name: "Harshil", SourceID: "Mavani"}}
 func (repo *neo4jRepository) Get() (Response, error) {
 	result, err := repo.session.Run("MATCH(n:Resource) RETURN n.name, n.source_id, n.id", map[string]interface{}{})
 	if err != nil {
-		return Response{}, err
+		return Response{}, models.ErrDatabase
 	}
 	var dtos []Element = []Element{}
 	for result.Next() {
@@ -33,6 +34,7 @@ func (repo *neo4jRepository) Get() (Response, error) {
 	return Response{Data: dtos}, nil
 }
 
+// Create function adds a node to the graph
 func (repo *neo4jRepository) Create(resource *Input) (Element, error) {
 	result, err := repo.session.Run("CREATE (n:Resource { name: $name, source_id: $source_id, id: randomUUID() }) RETURN n.id",
 		map[string]interface{}{
@@ -40,7 +42,7 @@ func (repo *neo4jRepository) Create(resource *Input) (Element, error) {
 			"source_id": resource.Data.Attributes.SourceID,
 		})
 	if err != nil {
-		return Element{}, err
+		return Element{}, models.ErrDatabase
 	}
 	var id string
 	for result.Next() {

@@ -91,6 +91,25 @@ definitions:
     required:
     - attributes
     type: object
+  views.ErrView:
+    properties:
+      detail:
+        type: string
+      id:
+        type: string
+      source:
+        $ref: '#/definitions/views.Source'
+        type: object
+      status:
+        type: integer
+    type: object
+  views.Source:
+    properties:
+      parameter:
+        type: string
+      pointer:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact: {}
@@ -227,7 +246,7 @@ info:
   title: Sentinel API
   version: 0.1.0
 paths:
-  /resources:
+  /v1/resources:
     get:
       consumes:
       - application/json
@@ -239,7 +258,13 @@ paths:
           description: ok
           schema:
             $ref: '#/definitions/resource.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/views.ErrView'
       summary: Get all the resources
+      tags:
+      - Resources
     post:
       consumes:
       - application/json
@@ -258,5 +283,11 @@ paths:
           description: ok
           schema:
             $ref: '#/definitions/resource.Element'
+        "500":
+          description: ok
+          schema:
+            $ref: '#/definitions/views.ErrView'
       summary: Create a new Resource
+      tags:
+      - Resources
 swagger: "2.0"
