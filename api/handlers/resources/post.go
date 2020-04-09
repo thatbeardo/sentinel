@@ -18,12 +18,12 @@ import (
 // @Router /v1/resources [post]
 func post(service resource.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		resourceInput := &resource.Input{}
-		if err := c.ShouldBind(resourceInput); err != nil {
+		var resourceInput resource.Input
+		if err := c.ShouldBind(&resourceInput); err != nil {
 			c.JSON(http.StatusBadRequest, err.Error())
 			return
 		}
-		resourceResponse, _ := service.Create(resourceInput)
+		resourceResponse, _ := service.Create(&resourceInput)
 		c.JSON(http.StatusAccepted, resourceResponse)
 	}
 }

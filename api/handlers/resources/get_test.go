@@ -16,7 +16,8 @@ func TestGetResourcesOk(t *testing.T) {
 	mockService := testutil.NewMockGetService(getResourceMockResponseNoErrors)
 
 	router := server.SetupRouter(mockService)
-	response := testutil.PerformRequest(router, "GET", "/v1/resources/", "")
+	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/resources/", "")
+	defer cleanup()
 
 	testutil.ValidateResponse(t, response, generateResponse(), http.StatusOK)
 }
@@ -26,7 +27,8 @@ func TestGetResourcesDatabaseError(t *testing.T) {
 	mockService := testutil.NewMockGetService(getReourceMockResponse500)
 
 	router := server.SetupRouter(mockService)
-	response := testutil.PerformRequest(router, "GET", "/v1/resources/", "")
+	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/resources/", "")
+	defer cleanup()
 
 	testutil.ValidateResponse(t, response, generateError("/v1/resources/", "query-parameter-todo", "Database Error"),
 		http.StatusInternalServerError)

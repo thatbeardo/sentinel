@@ -9,20 +9,19 @@ import (
 	"github.com/thatbeardo/go-sentinel/testutil"
 )
 
+const payload = `{"data":{"type":"eer","attributes":{"source_id":"anothertest"}}}`
+
 func TestPostResourcesOk(t *testing.T) {
 
 	mockService := testutil.NewMockCreateService(createResourceMockResponseNoErrors)
 
 	router := server.SetupRouter(mockService)
-	response := testutil.PerformRequest(router, "POST", "/v1/resources/", createInput())
+	response, cleanup := testutil.PerformRequest(router, "POST", "/v1/resources/", payload)
+	defer cleanup()
 
 	testutil.ValidateResponse(t, response, generateElement(), http.StatusAccepted)
 }
 
 func createResourceMockResponseNoErrors(*resource.Input) (resource.Element, error) {
 	return generateElement(), nil
-}
-
-func createInput() string {
-	return `{"input":{"data":{"attributes":{"source_id":"asd"}}},"data":{"attributes":{"name":"string","source_id":"string"},"relationships":{"parent":{"data":{"id":"string","type":"policy"}}},"type":"string"}}`
 }

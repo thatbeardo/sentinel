@@ -2,13 +2,13 @@ package resource
 
 // Input is the payload that a POST endpoint expects.
 type Input struct {
-	Data InputElement `json:"data" bindings:"required"`
+	Data InputElement `json:"data" binding:"required,dive"`
 }
 
 // InputElement is the paylaod sent when creating a new resource
 type InputElement struct {
-	Type          string             `json:"type" bindings:"required"`
-	Attributes    Resource           `json:"attributes" binding:"required"`
+	Type          string             `json:"type" binding:"required"`
+	Attributes    Resource           `json:"attributes" binding:"required,dive"`
 	Relationships RelationshipsInput `json:"relationships"`
 }
 
@@ -26,7 +26,7 @@ type Response struct {
 type Element struct {
 	Type          string        `json:"type" binding:"required"`
 	ID            string        `json:"id"`
-	Attributes    Resource      `json:"attributes" binding:"required"`
+	Attributes    Resource      `json:"attributes" binding:"required,dive"`
 	Relationships Relationships `json:"relationships"`
 }
 

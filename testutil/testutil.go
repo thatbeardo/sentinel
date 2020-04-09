@@ -43,11 +43,14 @@ func NewMockCreateService(mock func(*resource.Input) (resource.Element, error)) 
 }
 
 // PerformRequest creates and returns an initialized ResponseRecorder
-func PerformRequest(r http.Handler, method, path string, body string) *http.Response {
+func PerformRequest(r http.Handler, method, path string, body string) (*http.Response, func() error) {
 	req, _ := http.NewRequest(method, path, strings.NewReader(body))
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
-	return w.Result()
+	req.Header.Set("Content-Type", "application/json")
+	recorder := httptest.NewRecorder()
+
+	r.ServeHTTP(recorder, req)
+	response := recorder.Result()
+	return response, response.Body.Close
 }
 
 // ValidateResponse reads and asserts the response body content
