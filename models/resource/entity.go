@@ -9,10 +9,11 @@ type Input struct {
 type InputElement struct {
 	Type          string             `json:"type" bindings:"required"`
 	Attributes    Resource           `json:"attributes" binding:"required"`
-	Relationships relationshipsInput `json:"relationships"`
+	Relationships RelationshipsInput `json:"relationships"`
 }
 
-type relationshipsInput struct {
+// RelationshipsInput represent the relationships of an input payload
+type RelationshipsInput struct {
 	Parent Parent `json:"parent"`
 }
 

@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -34,9 +35,16 @@ func NewMockGetService(mock func() (resource.Response, error)) resource.Service 
 	}
 }
 
+// NewMockCreateService mocks the service with desired data to be returned when POST is called
+func NewMockCreateService(mock func(*resource.Input) (resource.Element, error)) resource.Service {
+	return &MockResourceService{
+		mockCreateResourceResponse: mock,
+	}
+}
+
 // PerformRequest creates and returns an initialized ResponseRecorder
-func PerformRequest(r http.Handler, method, path string) *http.Response {
-	req, _ := http.NewRequest(method, path, nil)
+func PerformRequest(r http.Handler, method, path string, body string) *http.Response {
+	req, _ := http.NewRequest(method, path, strings.NewReader(body))
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 	return w.Result()

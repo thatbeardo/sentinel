@@ -16,8 +16,6 @@ func NewNeo4jRepository(session neo4j.Session) Repository {
 	return &neo4jRepository{session}
 }
 
-var resourceArray = []*Resource{&Resource{Name: "Harshil", SourceID: "Mavani"}}
-
 // Get function adds a resource node
 func (repo *neo4jRepository) Get() (Response, error) {
 	result, err := repo.session.Run("MATCH(n:Resource) RETURN n.name, n.source_id, n.id", map[string]interface{}{})
