@@ -2,6 +2,7 @@ package views
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	models "github.com/thatbeardo/go-sentinel/models"
@@ -32,12 +33,17 @@ func Wrap(err error, c *gin.Context) {
 	msg := err.Error()
 	code := ErrHTTPStatusMap[msg]
 	if code == 0 {
-		code = http.StatusInternalServerError
+		if strings.Contains(msg, "Key:") && strings.Contains(msg, "Error:") {
+			code = http.StatusBadRequest
+		} else {
+			code = http.StatusInternalServerError
+		}
 	}
-	c.AbortWithStatusJSON(code, generateErrorResponse(code, msg, c.FullPath()))
+	c.AbortWithStatusJSON(code, GenerateErrorResponse(code, msg, c.FullPath()))
 }
 
-func generateErrorResponse(code int, msg string, path string) ErrView {
+// GenerateErrorResponse creates an error payload to be sent to the user
+func GenerateErrorResponse(code int, msg string, path string) ErrView {
 	source := Source{
 		Pointer:   path,
 		Parameter: "query-parameter-todo",

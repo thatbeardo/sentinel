@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/thatbeardo/go-sentinel/api/views"
 	"github.com/thatbeardo/go-sentinel/models/resource"
 )
 
@@ -20,7 +21,7 @@ func post(service resource.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var resourceInput resource.Input
 		if err := c.ShouldBind(&resourceInput); err != nil {
-			c.JSON(http.StatusBadRequest, err.Error())
+			views.Wrap(err, c)
 			return
 		}
 		resourceResponse, _ := service.Create(&resourceInput)
