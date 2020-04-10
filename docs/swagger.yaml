@@ -8,7 +8,7 @@ definitions:
       id:
         type: string
       relationships:
-        $ref: '#/definitions/resource.relationships'
+        $ref: '#/definitions/resource.Relationships'
         type: object
       type:
         type: string
@@ -16,10 +16,66 @@ definitions:
     - attributes
     - type
     type: object
+  resource.Identifier:
+    properties:
+      id:
+        type: string
+      type:
+        enum:
+        - policy
+        - ' resource'
+        - ' grant'
+        - ' permission'
+        type: string
+    type: object
   resource.Input:
     properties:
       data:
-        $ref: '#/definitions/resource.resourceInput'
+        $ref: '#/definitions/resource.InputElement'
+        type: object
+    required:
+    - data
+    type: object
+  resource.InputElement:
+    properties:
+      attributes:
+        $ref: '#/definitions/resource.Resource'
+        type: object
+      relationships:
+        $ref: '#/definitions/resource.RelationshipsInput'
+        type: object
+      type:
+        type: string
+    required:
+    - attributes
+    - type
+    type: object
+  resource.Parent:
+    properties:
+      data:
+        $ref: '#/definitions/resource.Identifier'
+        type: object
+    type: object
+  resource.Policies:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/resource.Identifier'
+        type: array
+    type: object
+  resource.Relationships:
+    properties:
+      parent:
+        $ref: '#/definitions/resource.Parent'
+        type: object
+      policies:
+        $ref: '#/definitions/resource.Policies'
+        type: object
+    type: object
+  resource.RelationshipsInput:
+    properties:
+      parent:
+        $ref: '#/definitions/resource.Parent'
         type: object
     type: object
   resource.Resource:
@@ -37,59 +93,6 @@ definitions:
         items:
           $ref: '#/definitions/resource.Element'
         type: array
-    type: object
-  resource.identifier:
-    properties:
-      id:
-        type: string
-      type:
-        enum:
-        - policy
-        - ' resource'
-        - ' grant'
-        - ' permission'
-        type: string
-    type: object
-  resource.parent:
-    properties:
-      data:
-        $ref: '#/definitions/resource.identifier'
-        type: object
-    type: object
-  resource.policies:
-    properties:
-      data:
-        items:
-          $ref: '#/definitions/resource.identifier'
-        type: array
-    type: object
-  resource.relationships:
-    properties:
-      parent:
-        $ref: '#/definitions/resource.parent'
-        type: object
-      policies:
-        $ref: '#/definitions/resource.policies'
-        type: object
-    type: object
-  resource.relationshipsInput:
-    properties:
-      parent:
-        $ref: '#/definitions/resource.parent'
-        type: object
-    type: object
-  resource.resourceInput:
-    properties:
-      attributes:
-        $ref: '#/definitions/resource.Resource'
-        type: object
-      relationships:
-        $ref: '#/definitions/resource.relationshipsInput'
-        type: object
-      type:
-        type: string
-    required:
-    - attributes
     type: object
   views.ErrView:
     properties:
@@ -250,7 +253,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Get all the nodes present in the graph
+      description: Get all the resources stored
       produces:
       - application/json
       responses:
@@ -288,6 +291,59 @@ paths:
           schema:
             $ref: '#/definitions/views.ErrView'
       summary: Create a new Resource
+      tags:
+      - Resources
+  /v1/resources/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a resource by its ID
+      parameters:
+      - description: Resource ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ok
+          schema:
+            $ref: '#/definitions/resource.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/views.ErrView'
+      summary: Delete a resource by its ID
+      tags:
+      - Resources
+    get:
+      consumes:
+      - application/json
+      description: Get a resource by its ID
+      parameters:
+      - description: Resource ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/resource.Element'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/views.ErrView'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/views.ErrView'
+      summary: Get resource by ID
       tags:
       - Resources
 swagger: "2.0"

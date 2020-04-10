@@ -5,6 +5,7 @@ type Service interface {
 	Get() (Response, error)
 	Create(*Input) (Element, error)
 	GetByID(string) (Element, error)
+	Delete(string) error
 }
 
 type service struct {
@@ -26,4 +27,8 @@ func (service *service) GetByID(id string) (Element, error) {
 
 func (service *service) Create(resource *Input) (Element, error) {
 	return service.repository.Create(resource)
+}
+
+func (service *service) Delete(id string) error {
+	return service.repository.Delete(id)
 }

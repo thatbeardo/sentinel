@@ -34,7 +34,7 @@ func (repo *neo4jRepository) Get() (Response, error) {
 
 // GetByID function adds a resource node
 func (repo *neo4jRepository) GetByID(id string) (Element, error) {
-	result, err := repo.session.Run("MATCH(n:Resource) WHERE n.id = $id", map[string]interface{}{
+	result, err := repo.session.Run("MATCH(n:Resource) WHERE n.id = $id RETURN n.name, n.source_id", map[string]interface{}{
 		"id": id,
 	})
 	if err != nil {
@@ -49,7 +49,7 @@ func (repo *neo4jRepository) GetByID(id string) (Element, error) {
 	if response.ID == "" {
 		err = models.ErrNotFound
 	}
-	return response, nil
+	return response, err
 }
 
 // Create function adds a node to the graph
@@ -67,4 +67,17 @@ func (repo *neo4jRepository) Create(resource *Input) (Element, error) {
 		id = fmt.Sprint(result.Record().GetByIndex(0))
 	}
 	return constructResourceResponse(resource.Data.Attributes, id), nil
+}
+
+// Delete function deletes a node from the graph
+func (repo *neo4jRepository) Delete(id string) error {
+	result, err := repo.session.Run(`MATCH(n:Resource) WHERE n.id = $id DETACH DELETE n`,
+		map[string]interface{}{
+			"id": id,
+		})
+	fmt.Println(result)
+	if err != nil {
+		return models.ErrDatabase
+	}
+	return nil
 }

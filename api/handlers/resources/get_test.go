@@ -11,6 +11,17 @@ import (
 	testutil "github.com/thatbeardo/go-sentinel/testutil/resources"
 )
 
+func TestInvalidPath(t *testing.T) {
+
+	mockService := testutil.NewMockGetService(getResourceMockResponseNoErrors)
+
+	router := server.SetupRouter(mockService)
+	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/resurces/", "")
+	defer cleanup()
+
+	testutil.ValidateResponse(t, response, generateError("", "query-parameter-todo", "Path not found", http.StatusNotFound), http.StatusNotFound)
+}
+
 func TestGetResourcesOk(t *testing.T) {
 
 	mockService := testutil.NewMockGetService(getResourceMockResponseNoErrors)

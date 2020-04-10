@@ -30,7 +30,7 @@ var doc = `{
     "paths": {
         "/v1/resources": {
             "get": {
-                "description": "Get all the nodes present in the graph",
+                "description": "Get all the resources stored",
                 "consumes": [
                     "application/json"
                 ],
@@ -94,6 +94,86 @@ var doc = `{
                     }
                 }
             }
+        },
+        "/v1/resources/{id}": {
+            "get": {
+                "description": "Get a resource by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Resources"
+                ],
+                "summary": "Get resource by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Resource ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "$ref": "#/definitions/resource.Element"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/views.ErrView"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/views.ErrView"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a resource by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Resources"
+                ],
+                "summary": "Delete a resource by its ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Resource ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "ok",
+                        "schema": {
+                            "$ref": "#/definitions/resource.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/views.ErrView"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -113,19 +193,101 @@ var doc = `{
                 },
                 "relationships": {
                     "type": "object",
-                    "$ref": "#/definitions/resource.relationships"
+                    "$ref": "#/definitions/resource.Relationships"
                 },
                 "type": {
                     "type": "string"
                 }
             }
         },
+        "resource.Identifier": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "policy",
+                        " resource",
+                        " grant",
+                        " permission"
+                    ]
+                }
+            }
+        },
         "resource.Input": {
+            "type": "object",
+            "required": [
+                "data"
+            ],
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "$ref": "#/definitions/resource.InputElement"
+                }
+            }
+        },
+        "resource.InputElement": {
+            "type": "object",
+            "required": [
+                "attributes",
+                "type"
+            ],
+            "properties": {
+                "attributes": {
+                    "type": "object",
+                    "$ref": "#/definitions/resource.Resource"
+                },
+                "relationships": {
+                    "type": "object",
+                    "$ref": "#/definitions/resource.RelationshipsInput"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "resource.Parent": {
             "type": "object",
             "properties": {
                 "data": {
                     "type": "object",
-                    "$ref": "#/definitions/resource.resourceInput"
+                    "$ref": "#/definitions/resource.Identifier"
+                }
+            }
+        },
+        "resource.Policies": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/resource.Identifier"
+                    }
+                }
+            }
+        },
+        "resource.Relationships": {
+            "type": "object",
+            "properties": {
+                "parent": {
+                    "type": "object",
+                    "$ref": "#/definitions/resource.Parent"
+                },
+                "policies": {
+                    "type": "object",
+                    "$ref": "#/definitions/resource.Policies"
+                }
+            }
+        },
+        "resource.RelationshipsInput": {
+            "type": "object",
+            "properties": {
+                "parent": {
+                    "type": "object",
+                    "$ref": "#/definitions/resource.Parent"
                 }
             }
         },
@@ -151,84 +313,6 @@ var doc = `{
                     "items": {
                         "$ref": "#/definitions/resource.Element"
                     }
-                }
-            }
-        },
-        "resource.identifier": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string",
-                    "enum": [
-                        "policy",
-                        " resource",
-                        " grant",
-                        " permission"
-                    ]
-                }
-            }
-        },
-        "resource.parent": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "type": "object",
-                    "$ref": "#/definitions/resource.identifier"
-                }
-            }
-        },
-        "resource.policies": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/resource.identifier"
-                    }
-                }
-            }
-        },
-        "resource.relationships": {
-            "type": "object",
-            "properties": {
-                "parent": {
-                    "type": "object",
-                    "$ref": "#/definitions/resource.parent"
-                },
-                "policies": {
-                    "type": "object",
-                    "$ref": "#/definitions/resource.policies"
-                }
-            }
-        },
-        "resource.relationshipsInput": {
-            "type": "object",
-            "properties": {
-                "parent": {
-                    "type": "object",
-                    "$ref": "#/definitions/resource.parent"
-                }
-            }
-        },
-        "resource.resourceInput": {
-            "type": "object",
-            "required": [
-                "attributes"
-            ],
-            "properties": {
-                "attributes": {
-                    "type": "object",
-                    "$ref": "#/definitions/resource.Resource"
-                },
-                "relationships": {
-                    "type": "object",
-                    "$ref": "#/definitions/resource.relationshipsInput"
-                },
-                "type": {
-                    "type": "string"
                 }
             }
         },
