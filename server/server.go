@@ -15,6 +15,7 @@ import (
 	"github.com/neo4j/neo4j-go-driver/neo4j"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	handler "github.com/thatbeardo/go-sentinel/api/handlers"
 	"github.com/thatbeardo/go-sentinel/api/handlers/resources"
 	"github.com/thatbeardo/go-sentinel/models/resource"
 
@@ -30,6 +31,8 @@ func SetupRouter(service resource.Service) *gin.Engine {
 	r.StaticFile("/docs/", "./docs/swagger.json")
 	url := ginSwagger.URL("http://localhost:8080/docs/")
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
+
+	r.NoRoute(handler.NoRoute)
 
 	router := r.Group("/v1")
 	resources.ResourceRoutes(router, service)

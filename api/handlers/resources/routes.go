@@ -10,5 +10,6 @@ func ResourceRoutes(r *gin.RouterGroup, service resource.Service) {
 	router := r.Group("/resources")
 
 	router.GET("/", get(service))
+	router.GET("/:id", getByID(service))
 	router.POST("/", post(service))
 }

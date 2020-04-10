@@ -4,4 +4,5 @@ package resource
 type Repository interface {
 	Get() (Response, error)
 	Create(*Input) (Element, error)
+	GetByID(string) (Element, error)
 }

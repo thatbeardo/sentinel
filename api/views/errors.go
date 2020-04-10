@@ -24,8 +24,10 @@ type Source struct {
 
 // ErrHTTPStatusMap determines the status code to be sent back to the user based on the error message
 var ErrHTTPStatusMap = map[string]int{
-	models.ErrNoContent.Error(): http.StatusNotFound,
-	models.ErrDatabase.Error():  http.StatusInternalServerError,
+	models.ErrNoContent.Error():    http.StatusNotFound,
+	models.ErrDatabase.Error():     http.StatusInternalServerError,
+	models.ErrNotFound.Error():     http.StatusNotFound,
+	models.ErrPathNotFound.Error(): http.StatusNotFound,
 }
 
 // Wrap generates Errors to be returned to the user

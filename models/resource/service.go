@@ -4,6 +4,7 @@ package resource
 type Service interface {
 	Get() (Response, error)
 	Create(*Input) (Element, error)
+	GetByID(string) (Element, error)
 }
 
 type service struct {
@@ -17,6 +18,10 @@ func NewService(repository Repository) Service {
 
 func (service *service) Get() (Response, error) {
 	return service.repository.Get()
+}
+
+func (service *service) GetByID(id string) (Element, error) {
+	return service.repository.GetByID(id)
 }
 
 func (service *service) Create(resource *Input) (Element, error) {

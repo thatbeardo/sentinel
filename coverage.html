@@ -84,7 +84,7 @@ import (
 
 // @Summary Get all the resources
 // @Tags Resources
-// @Description Get all the nodes present in the graph
+// @Description Get all the resources stored
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} resource.Response        "ok"
@@ -100,6 +100,27 @@ func get(service resource.Service) gin.HandlerFunc <span class="cov8" title="1">
                 <span class="cov8" title="1">c.JSON(http.StatusOK, resources)</span>
         }
 }
+
+// @Summary Get resource by ID
+// @Tags Resources
+// @Description Get a resource by its ID
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} resource.Element        "ok"
+// @Success 404 {object} views.ErrView
+// @Success 500 {object} views.ErrView
+// @Router /v1/resources [get]
+func getByID(service resource.Service) gin.HandlerFunc <span class="cov8" title="1">{
+        return func(c *gin.Context) </span><span class="cov8" title="1">{
+                id := c.Param("id")
+                resources, err := service.GetByID(id)
+                if err != nil </span><span class="cov8" title="1">{
+                        views.Wrap(err, c)
+                        return
+                }</span>
+                <span class="cov8" title="1">c.JSON(http.StatusOK, resources)</span>
+        }
+}
 </pre>
 		
 		<pre class="file" id="file1" style="display: none">package resources
@@ -108,6 +129,7 @@ import (
         "net/http"
 
         "github.com/gin-gonic/gin"
+        "github.com/thatbeardo/go-sentinel/api/views"
         "github.com/thatbeardo/go-sentinel/models/resource"
 )
 
@@ -124,7 +146,7 @@ func post(service resource.Service) gin.HandlerFunc <span class="cov8" title="1"
         return func(c *gin.Context) </span><span class="cov8" title="1">{
                 var resourceInput resource.Input
                 if err := c.ShouldBind(&amp;resourceInput); err != nil </span><span class="cov8" title="1">{
-                        c.JSON(http.StatusBadRequest, err.Error())
+                        views.Wrap(err, c)
                         return
                 }</span>
                 <span class="cov8" title="1">resourceResponse, _ := service.Create(&amp;resourceInput)
@@ -145,6 +167,7 @@ func ResourceRoutes(r *gin.RouterGroup, service resource.Service) <span class="c
         router := r.Group("/resources")
 
         router.GET("/", get(service))
+        router.GET("/:id", getByID(service))
         router.POST("/", post(service))
 }</span>
 </pre>

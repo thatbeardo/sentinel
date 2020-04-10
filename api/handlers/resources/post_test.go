@@ -7,7 +7,7 @@ import (
 	"github.com/thatbeardo/go-sentinel/api/views"
 	"github.com/thatbeardo/go-sentinel/models/resource"
 	"github.com/thatbeardo/go-sentinel/server"
-	"github.com/thatbeardo/go-sentinel/testutil"
+	testutil "github.com/thatbeardo/go-sentinel/testutil/resources"
 )
 
 const noErrors = `{"data":{"type":"resource","attributes":{"source_id":"much-required"}}}`

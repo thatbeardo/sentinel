@@ -8,7 +8,7 @@ import (
 	"github.com/thatbeardo/go-sentinel/api/views"
 	"github.com/thatbeardo/go-sentinel/models/resource"
 	"github.com/thatbeardo/go-sentinel/server"
-	"github.com/thatbeardo/go-sentinel/testutil"
+	testutil "github.com/thatbeardo/go-sentinel/testutil/resources"
 )
 
 func TestGetResourcesOk(t *testing.T) {
@@ -30,12 +30,42 @@ func TestGetResourcesDatabaseError(t *testing.T) {
 	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/resources/", "")
 	defer cleanup()
 
-	testutil.ValidateResponse(t, response, generateError("/v1/resources/", "query-parameter-todo", "Database Error"),
+	testutil.ValidateResponse(t, response, generateError("/v1/resources/", "query-parameter-todo", "Database Error", http.StatusInternalServerError),
 		http.StatusInternalServerError)
+}
+
+func TestGetResourceByIDOk(t *testing.T) {
+
+	mockService := testutil.NewMockGetByIDService(getResourceByIdMockResponseNoErrors)
+
+	router := server.SetupRouter(mockService)
+	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/resources/sample-id", "")
+	defer cleanup()
+
+	testutil.ValidateResponse(t, response, generateElement(), http.StatusOK)
+}
+
+func TestGetResourceByIDNoResourceFound(t *testing.T) {
+
+	mockService := testutil.NewMockGetByIDService(getResourceByIdMockResponseNoResource)
+
+	router := server.SetupRouter(mockService)
+	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/resources/sample-id", "")
+	defer cleanup()
+
+	testutil.ValidateResponse(t, response, generateError("/v1/resources/:id", "query-parameter-todo", "Document not found", http.StatusNotFound), http.StatusNotFound)
 }
 
 func getResourceMockResponseNoErrors() (resource.Response, error) {
 	return generateResponse(), nil
+}
+
+func getResourceByIdMockResponseNoErrors(string) (resource.Element, error) {
+	return generateElement(), nil
+}
+
+func getResourceByIdMockResponseNoResource(string) (resource.Element, error) {
+	return generateElement(), errors.New("Document not found")
 }
 
 func getReourceMockResponse500() (resource.Response, error) {
@@ -55,14 +85,14 @@ func generateElement() resource.Element {
 	return resource.Element{Relationships: relationships, Attributes: userResource, Type: "resource", ID: "uuid"}
 }
 
-func generateError(pointer string, parameter string, detail string) views.ErrView {
+func generateError(pointer string, parameter string, detail string, code int) views.ErrView {
 	source := views.Source{
 		Pointer:   pointer,
 		Parameter: parameter,
 	}
 	return views.ErrView{
 		ID:     "error-id-todo",
-		Status: 500,
+		Status: code,
 		Source: source,
 		Detail: detail,
 	}

@@ -14,32 +14,9 @@ import (
 
 // MockResourceService struct to mock data returned from neo4j
 type MockResourceService struct {
-	mockGetResourceResponse    func() (resource.Response, error)
-	mockCreateResourceResponse func(*resource.Input) (resource.Element, error)
-}
-
-// Get method returns mock test data
-func (service *MockResourceService) Get() (resource.Response, error) {
-	return service.mockGetResourceResponse()
-}
-
-// Create method creates a new node on the graph
-func (service *MockResourceService) Create(resource *resource.Input) (resource.Element, error) {
-	return service.mockCreateResourceResponse(resource)
-}
-
-// NewMockGetService mocks the service with desired data to be returned
-func NewMockGetService(mock func() (resource.Response, error)) resource.Service {
-	return &MockResourceService{
-		mockGetResourceResponse: mock,
-	}
-}
-
-// NewMockCreateService mocks the service with desired data to be returned when POST is called
-func NewMockCreateService(mock func(*resource.Input) (resource.Element, error)) resource.Service {
-	return &MockResourceService{
-		mockCreateResourceResponse: mock,
-	}
+	mockGetResourceResponse     func() (resource.Response, error)
+	mockGetResourceByIDResponse func(string) (resource.Element, error)
+	mockCreateResourceResponse  func(*resource.Input) (resource.Element, error)
 }
 
 // PerformRequest creates and returns an initialized ResponseRecorder
