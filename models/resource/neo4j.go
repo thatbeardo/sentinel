@@ -7,12 +7,19 @@ import (
 	models "github.com/thatbeardo/go-sentinel/models"
 )
 
+// Neo4jSession is used to communicate with the underlying Graph database
+type Neo4jSession interface {
+	Run(cypher string, params map[string]interface{}, configurers ...func(*neo4j.TransactionConfig)) (neo4j.Result, error)
+	Close() error
+}
+
 type neo4jRepository struct {
-	session neo4j.Session
+	session Neo4jSession
 }
 
 // NewNeo4jRepository is a factory method to create a neo4j repository
-func NewNeo4jRepository(session neo4j.Session) Repository {
+func NewNeo4jRepository(session Neo4jSession) Repository {
+
 	return &neo4jRepository{session}
 }
 
@@ -71,11 +78,10 @@ func (repo *neo4jRepository) Create(resource *Input) (Element, error) {
 
 // Delete function deletes a node from the graph
 func (repo *neo4jRepository) Delete(id string) error {
-	result, err := repo.session.Run(`MATCH(n:Resource) WHERE n.id = $id DETACH DELETE n`,
+	_, err := repo.session.Run(`MATCH(n:Resource) WHERE n.id = $id DETACH DELETE n`,
 		map[string]interface{}{
 			"id": id,
 		})
-	fmt.Println(result)
 	if err != nil {
 		return models.ErrDatabase
 	}

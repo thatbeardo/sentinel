@@ -1,6 +1,8 @@
-package testutil
+package mocks
 
-import "github.com/thatbeardo/go-sentinel/models/resource"
+import (
+	"github.com/thatbeardo/go-sentinel/models/resource"
+)
 
 // Create method creates a new node on the graph
 func (service *MockResourceService) Create(resource *resource.Input) (resource.Element, error) {

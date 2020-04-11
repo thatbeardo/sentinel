@@ -41,7 +41,7 @@ func SetupRouter(service resource.Service) *gin.Engine {
 }
 
 // Initialize connects to the database and returns a shut down function
-func Initialize() (func(), neo4j.Session) {
+func Initialize() (func(), resource.Neo4jSession) {
 	session, driver, err := ConnectToDB()
 	fmt.Println(err)
 	return func() {
@@ -51,7 +51,7 @@ func Initialize() (func(), neo4j.Session) {
 }
 
 // ConnectToDB establishes connection to the neo4j database
-func ConnectToDB() (neo4j.Session, neo4j.Driver, error) {
+func ConnectToDB() (resource.Neo4jSession, neo4j.Driver, error) {
 	// define driver, session and result vars
 	var (
 		driver  neo4j.Driver

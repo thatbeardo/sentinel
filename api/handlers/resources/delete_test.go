@@ -5,13 +5,14 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	mocks "github.com/thatbeardo/go-sentinel/mocks/resource-service"
 	"github.com/thatbeardo/go-sentinel/server"
-	testutil "github.com/thatbeardo/go-sentinel/testutil/resources"
+	"github.com/thatbeardo/go-sentinel/testutil"
 )
 
 func TestDeleteResourcesOk(t *testing.T) {
 
-	mockService := testutil.NewMockDeleteService(deleteResourceMockResponseNoErrors)
+	mockService := mocks.NewMockDeleteService(deleteResourceMockResponseNoErrors)
 
 	router := server.SetupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "DELETE", "/v1/resources/sample-id", "")

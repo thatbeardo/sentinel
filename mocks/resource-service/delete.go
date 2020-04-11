@@ -1,6 +1,8 @@
-package testutil
+package mocks
 
-import "github.com/thatbeardo/go-sentinel/models/resource"
+import (
+	"github.com/thatbeardo/go-sentinel/models/resource"
+)
 
 // Delete function to delete a node from the graph
 func (service *MockResourceService) Delete(id string) error {

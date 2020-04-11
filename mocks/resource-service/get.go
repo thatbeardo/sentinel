@@ -1,6 +1,8 @@
-package testutil
+package mocks
 
-import "github.com/thatbeardo/go-sentinel/models/resource"
+import (
+	"github.com/thatbeardo/go-sentinel/models/resource"
+)
 
 // NewMockGetService mocks the service with desired data to be returned
 func NewMockGetService(mock func() (resource.Response, error)) resource.Service {

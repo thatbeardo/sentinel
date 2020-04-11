@@ -6,14 +6,15 @@ import (
 	"testing"
 
 	"github.com/thatbeardo/go-sentinel/api/views"
+	mocks "github.com/thatbeardo/go-sentinel/mocks/resource-service"
 	"github.com/thatbeardo/go-sentinel/models/resource"
 	"github.com/thatbeardo/go-sentinel/server"
-	testutil "github.com/thatbeardo/go-sentinel/testutil/resources"
+	"github.com/thatbeardo/go-sentinel/testutil"
 )
 
 func TestInvalidPath(t *testing.T) {
 
-	mockService := testutil.NewMockGetService(getResourceMockResponseNoErrors)
+	mockService := mocks.NewMockGetService(getResourceMockResponseNoErrors)
 
 	router := server.SetupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/resurces/", "")
@@ -24,7 +25,7 @@ func TestInvalidPath(t *testing.T) {
 
 func TestGetResourcesOk(t *testing.T) {
 
-	mockService := testutil.NewMockGetService(getResourceMockResponseNoErrors)
+	mockService := mocks.NewMockGetService(getResourceMockResponseNoErrors)
 
 	router := server.SetupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/resources/", "")
@@ -35,7 +36,7 @@ func TestGetResourcesOk(t *testing.T) {
 
 func TestGetResourcesDatabaseError(t *testing.T) {
 
-	mockService := testutil.NewMockGetService(getReourceMockResponse500)
+	mockService := mocks.NewMockGetService(getReourceMockResponse500)
 
 	router := server.SetupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/resources/", "")
@@ -47,7 +48,7 @@ func TestGetResourcesDatabaseError(t *testing.T) {
 
 func TestGetResourceByIDOk(t *testing.T) {
 
-	mockService := testutil.NewMockGetByIDService(getResourceByIdMockResponseNoErrors)
+	mockService := mocks.NewMockGetByIDService(getResourceByIdMockResponseNoErrors)
 
 	router := server.SetupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/resources/sample-id", "")
@@ -58,7 +59,7 @@ func TestGetResourceByIDOk(t *testing.T) {
 
 func TestGetResourceByIDNoResourceFound(t *testing.T) {
 
-	mockService := testutil.NewMockGetByIDService(getResourceByIdMockResponseNoResource)
+	mockService := mocks.NewMockGetByIDService(getResourceByIdMockResponseNoResource)
 
 	router := server.SetupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/resources/sample-id", "")

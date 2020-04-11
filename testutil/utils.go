@@ -9,16 +9,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/thatbeardo/go-sentinel/models/resource"
 )
-
-// MockResourceService struct to mock data returned from neo4j
-type MockResourceService struct {
-	mockGetResourceResponse     func() (resource.Response, error)
-	mockGetResourceByIDResponse func(string) (resource.Element, error)
-	mockCreateResourceResponse  func(*resource.Input) (resource.Element, error)
-	mockDeleteResourceResponse  func(string) error
-}
 
 // PerformRequest creates and returns an initialized ResponseRecorder
 func PerformRequest(r http.Handler, method, path string, body string) (*http.Response, func() error) {
