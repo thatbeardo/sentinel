@@ -10,13 +10,31 @@ import (
 	"github.com/thatbeardo/go-sentinel/models/resource"
 )
 
-func TestGetResourcesOk(t *testing.T) {
+func TestGetResourcesDatabaseError(t *testing.T) {
 	mockSession := mocks.MockSession{
 		SetResponse: errorFromDatabase,
 	}
 	repository := resource.NewNeo4jRepository(mockSession)
 	_, err := repository.Get()
 	assert.NotNil(t, err, "Should not be empty")
+}
+
+func TestGetResourcesSingleResource(t *testing.T) {
+	mockSession := mocks.MockSession{
+		SetResponse: validResourceFromDatabase,
+	}
+	repository := resource.NewNeo4jRepository(mockSession)
+	resources, _ := repository.Get()
+
+	var dtos []resource.Element = []resource.Element{}
+	dtos = append(dtos, resource.ConstructResourceResponse(resource.Resource{Name: "test-resource", SourceID: "test-source-id"}, "test-id"))
+	response := resource.Response{Data: dtos}
+
+	assert.Equal(t, response, resources)
+}
+
+func validResourceFromDatabase() (neo4j.Result, error) {
+	return mocks.GetMockResult(), nil
 }
 
 func errorFromDatabase() (neo4j.Result, error) {

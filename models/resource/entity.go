@@ -58,7 +58,8 @@ type Resource struct {
 	SourceID string `json:"source_id" binding:"required"`
 }
 
-func constructResourceResponse(resource Resource, id string) Element {
+// ConstructResourceResponse used to generate respose element from resource
+func ConstructResourceResponse(resource Resource, id string) Element {
 	relationships := generateResourceRelationship()
 	return Element{
 		Type:          "resource",
