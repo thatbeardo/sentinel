@@ -6,6 +6,7 @@ import (
 
 	"github.com/neo4j/neo4j-go-driver/neo4j"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/thatbeardo/go-sentinel/mocks"
 	"github.com/thatbeardo/go-sentinel/mocks/data"
 	models "github.com/thatbeardo/go-sentinel/models"
@@ -13,9 +14,8 @@ import (
 )
 
 func TestGetResourcesDatabaseError(t *testing.T) {
-	mockSession := mocks.MockSession{
-		SetResponse: errorFromDatabase,
-	}
+	mockSession := &mocks.Session{}
+	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(errorFromDatabase())
 	repository := resource.NewNeo4jRepository(mockSession)
 	_, err := repository.Get()
 	assert.Equal(t, models.ErrDatabase, err, "Error model does not match")
@@ -23,9 +23,12 @@ func TestGetResourcesDatabaseError(t *testing.T) {
 }
 
 func TestGetResourcesNoResourcesPresent(t *testing.T) {
-	mockSession := mocks.MockSession{
-		SetResponse: noResourcesFromDatabase,
-	}
+	mockSession := &mocks.Session{}
+	mockResult := &mocks.Result{}
+
+	mockResult.On("Next").Return(false).Once()
+	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(noResourcesFromDatabase())
+
 	repository := resource.NewNeo4jRepository(mockSession)
 	resources, err := repository.Get()
 
@@ -37,9 +40,9 @@ func TestGetResourcesNoResourcesPresent(t *testing.T) {
 }
 
 func TestGetResourcesSingleResource(t *testing.T) {
-	mockSession := mocks.MockSession{
-		SetResponse: validResourceFromDatabase,
-	}
+	mockSession := &mocks.Session{}
+	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(validResourceFromDatabase())
+
 	repository := resource.NewNeo4jRepository(mockSession)
 	resources, err := repository.Get()
 
@@ -51,9 +54,9 @@ func TestGetResourcesSingleResource(t *testing.T) {
 }
 
 func TestGetResourcesByIdSingleResource(t *testing.T) {
-	mockSession := mocks.MockSession{
-		SetResponse: validResourceFromDatabase,
-	}
+	mockSession := &mocks.Session{}
+	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(validResourceFromDatabase())
+
 	repository := resource.NewNeo4jRepository(mockSession)
 	resources, err := repository.GetByID("test-id")
 
@@ -64,9 +67,9 @@ func TestGetResourcesByIdSingleResource(t *testing.T) {
 }
 
 func TestGetResourcesByIdDatabaseError(t *testing.T) {
-	mockSession := mocks.MockSession{
-		SetResponse: errorFromDatabase,
-	}
+	mockSession := &mocks.Session{}
+	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(errorFromDatabase())
+
 	repository := resource.NewNeo4jRepository(mockSession)
 	_, err := repository.GetByID("test-id")
 
@@ -75,9 +78,9 @@ func TestGetResourcesByIdDatabaseError(t *testing.T) {
 }
 
 func TestGetResourcesByIdResourceNotFound(t *testing.T) {
-	mockSession := mocks.MockSession{
-		SetResponse: noResourcesFromDatabase,
-	}
+	mockSession := &mocks.Session{}
+	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(noResourcesFromDatabase())
+
 	repository := resource.NewNeo4jRepository(mockSession)
 	_, err := repository.GetByID("test-id")
 
@@ -86,9 +89,9 @@ func TestGetResourcesByIdResourceNotFound(t *testing.T) {
 }
 
 func TestCreateResourcesSuccessful(t *testing.T) {
-	mockSession := mocks.MockSession{
-		SetResponse: createResourcesSuccessful,
-	}
+	mockSession := &mocks.Session{}
+	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(createResourcesSuccessful())
+
 	repository := resource.NewNeo4jRepository(mockSession)
 	element, err := repository.Create(&data.Input)
 
@@ -97,9 +100,9 @@ func TestCreateResourcesSuccessful(t *testing.T) {
 }
 
 func TestCreateResourcesDatabaseError(t *testing.T) {
-	mockSession := mocks.MockSession{
-		SetResponse: errorFromDatabase,
-	}
+	mockSession := &mocks.Session{}
+	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(errorFromDatabase())
+
 	repository := resource.NewNeo4jRepository(mockSession)
 	_, err := repository.Create(&data.Input)
 
@@ -108,14 +111,34 @@ func TestCreateResourcesDatabaseError(t *testing.T) {
 }
 
 func TestDeleteResourcesDatabaseError(t *testing.T) {
-	mockSession := mocks.MockSession{
-		SetResponse: errorFromDatabase,
-	}
+	mockSession := &mocks.Session{}
+	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(errorFromDatabase())
+
 	repository := resource.NewNeo4jRepository(mockSession)
 	err := repository.Delete("test-id")
 
 	assert.NotNil(t, err, "Error should be empty")
 	assert.Equal(t, models.ErrDatabase, err, "Error model does not match")
+}
+
+func TestDeleteResourceSuccessful(t *testing.T) {
+	mockSession := &mocks.Session{}
+	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(deleteResourceSuccessful())
+
+	repository := resource.NewNeo4jRepository(mockSession)
+	err := repository.Delete("test-id")
+
+	assert.Nil(t, err, "Error should be empty")
+}
+
+func TestDeleteResourcesNoNodesDeleted(t *testing.T) {
+	mockSession := &mocks.Session{}
+	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(deleteResourceNoNodesDeleted())
+
+	repository := resource.NewNeo4jRepository(mockSession)
+	err := repository.Delete("test-id")
+
+	assert.Equal(t, err, models.ErrNotFound, "Error schemas do not match")
 }
 
 func createResourcesSuccessful() (neo4j.Result, error) {
@@ -128,6 +151,14 @@ func noResourcesFromDatabase() (neo4j.Result, error) {
 
 func validResourceFromDatabase() (neo4j.Result, error) {
 	return mocks.GetMockResult(), nil
+}
+
+func deleteResourceSuccessful() (neo4j.Result, error) {
+	return mocks.DeleteResourceSuccessful(), nil
+}
+
+func deleteResourceNoNodesDeleted() (neo4j.Result, error) {
+	return mocks.DeleteResourceNoNodesDeleted(), nil
 }
 
 func errorFromDatabase() (neo4j.Result, error) {

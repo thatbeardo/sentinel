@@ -2,7 +2,6 @@ package resource
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/neo4j/neo4j-go-driver/neo4j"
 	models "github.com/thatbeardo/go-sentinel/models"
@@ -79,13 +78,19 @@ func (repo *neo4jRepository) Create(resource *Input) (Element, error) {
 
 // Delete function deletes a node from the graph
 func (repo *neo4jRepository) Delete(id string) error {
-	response, err := repo.session.Run(`MATCH(n:Resource) WHERE n.id = $id DETACH DELETE n`,
+	var result neo4j.Result
+	var err error
+	if result, err = repo.session.Run(`MATCH (n:Resource { id: $id }) DETACH DELETE n`,
 		map[string]interface{}{
 			"id": id,
-		})
-	log.Println(response)
-	if err != nil {
+		}); err != nil {
 		return models.ErrDatabase
+	}
+	result.Next()
+	summary, err := result.Summary()
+	nodesDeleted := summary.Counters().NodesDeleted()
+	if nodesDeleted == 0 {
+		return models.ErrNotFound
 	}
 	return nil
 }

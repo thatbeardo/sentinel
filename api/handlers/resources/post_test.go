@@ -5,7 +5,9 @@ import (
 	"testing"
 
 	"github.com/thatbeardo/go-sentinel/api/views"
-	mocks "github.com/thatbeardo/go-sentinel/mocks/resource-service"
+	"github.com/thatbeardo/go-sentinel/mocks"
+
+	m "github.com/stretchr/testify/mock"
 	"github.com/thatbeardo/go-sentinel/models/resource"
 	"github.com/thatbeardo/go-sentinel/server"
 	"github.com/thatbeardo/go-sentinel/testutil"
@@ -18,8 +20,8 @@ const typeAbsent = `{"data":{"typoo":"resource","attributes":{"source_id":"not-m
 const typeBlank = `{"data":{"type":"","attributes":{"source_id":"much-required"}}}`
 
 func TestPostResourcesOk(t *testing.T) {
-
-	mockService := mocks.NewMockCreateService(createResourceMockResponseNoErrors)
+	mockService := &mocks.Service{}
+	mockService.On("Create", m.AnythingOfType("*resource.Input")).Return(createResourceMockResponseNoErrors())
 
 	router := server.SetupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "POST", "/v1/resources/", noErrors)
@@ -30,7 +32,7 @@ func TestPostResourcesOk(t *testing.T) {
 
 func TestPostResourcesSourceIdBlank(t *testing.T) {
 
-	mockService := mocks.NewMockCreateService(createResourceMockResponseNoErrors)
+	mockService := &mocks.Service{}
 
 	router := server.SetupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "POST", "/v1/resources/", sourceIdBlank)
@@ -41,7 +43,7 @@ func TestPostResourcesSourceIdBlank(t *testing.T) {
 
 func TestPostResourcesSourceIdAbsent(t *testing.T) {
 
-	mockService := mocks.NewMockCreateService(createResourceMockResponseNoErrors)
+	mockService := &mocks.Service{}
 
 	router := server.SetupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "POST", "/v1/resources/", sourceIdAbsent)
@@ -52,7 +54,7 @@ func TestPostResourcesSourceIdAbsent(t *testing.T) {
 
 func TestPostResourcesTypeBlank(t *testing.T) {
 
-	mockService := mocks.NewMockCreateService(createResourceMockResponseNoErrors)
+	mockService := &mocks.Service{}
 
 	router := server.SetupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "POST", "/v1/resources/", typeBlank)
@@ -63,7 +65,7 @@ func TestPostResourcesTypeBlank(t *testing.T) {
 
 func TestPostResourcesTypeAbsent(t *testing.T) {
 
-	mockService := mocks.NewMockCreateService(createResourceMockResponseNoErrors)
+	mockService := &mocks.Service{}
 
 	router := server.SetupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "POST", "/v1/resources/", typeAbsent)
@@ -72,6 +74,6 @@ func TestPostResourcesTypeAbsent(t *testing.T) {
 	testutil.ValidateResponse(t, response, views.GenerateErrorResponse(http.StatusBadRequest, "Key: 'Input.Data.Type' Error:Field validation for 'Type' failed on the 'required' tag", "/v1/resources/"), http.StatusBadRequest)
 }
 
-func createResourceMockResponseNoErrors(*resource.Input) (resource.Element, error) {
+func createResourceMockResponseNoErrors() (resource.Element, error) {
 	return generateElement(), nil
 }

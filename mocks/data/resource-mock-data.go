@@ -51,6 +51,11 @@ var Element = resource.Element{
 // Input represente the payload sent by the user to the service
 var Input = resource.Input{Data: inputElement}
 
+// Response is the payload sent to the user
+var Response = resource.Response{
+	Data: []resource.Element{Element},
+}
+
 func generateResourceRelationship() resource.Relationships {
 	policy := resource.Identifier{Type: "policy", ID: "some-id"}
 	policies := resource.Policies{Data: []resource.Identifier{policy}}

@@ -6,7 +6,8 @@ import (
 	"testing"
 
 	"github.com/thatbeardo/go-sentinel/api/views"
-	mocks "github.com/thatbeardo/go-sentinel/mocks/resource-service"
+	"github.com/thatbeardo/go-sentinel/mocks"
+
 	"github.com/thatbeardo/go-sentinel/models/resource"
 	"github.com/thatbeardo/go-sentinel/server"
 	"github.com/thatbeardo/go-sentinel/testutil"
@@ -14,7 +15,7 @@ import (
 
 func TestInvalidPath(t *testing.T) {
 
-	mockService := mocks.NewMockGetService(getResourceMockResponseNoErrors)
+	mockService := &mocks.Service{}
 
 	router := server.SetupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/resurces/", "")
@@ -25,7 +26,8 @@ func TestInvalidPath(t *testing.T) {
 
 func TestGetResourcesOk(t *testing.T) {
 
-	mockService := mocks.NewMockGetService(getResourceMockResponseNoErrors)
+	mockService := &mocks.Service{}
+	mockService.On("Get").Return(getResourceMockResponseNoErrors())
 
 	router := server.SetupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/resources/", "")
@@ -36,7 +38,8 @@ func TestGetResourcesOk(t *testing.T) {
 
 func TestGetResourcesDatabaseError(t *testing.T) {
 
-	mockService := mocks.NewMockGetService(getReourceMockResponse500)
+	mockService := &mocks.Service{}
+	mockService.On("Get").Return(getReourceReturns500())
 
 	router := server.SetupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/resources/", "")
@@ -48,10 +51,11 @@ func TestGetResourcesDatabaseError(t *testing.T) {
 
 func TestGetResourceByIDOk(t *testing.T) {
 
-	mockService := mocks.NewMockGetByIDService(getResourceByIdMockResponseNoErrors)
+	mockService := &mocks.Service{}
+	mockService.On("GetByID", "test-id").Return(getResourceByIdMockResponseNoErrors())
 
 	router := server.SetupRouter(mockService)
-	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/resources/sample-id", "")
+	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/resources/test-id", "")
 	defer cleanup()
 
 	testutil.ValidateResponse(t, response, generateElement(), http.StatusOK)
@@ -59,10 +63,11 @@ func TestGetResourceByIDOk(t *testing.T) {
 
 func TestGetResourceByIDNoResourceFound(t *testing.T) {
 
-	mockService := mocks.NewMockGetByIDService(getResourceByIdMockResponseNoResource)
+	mockService := &mocks.Service{}
+	mockService.On("GetByID", "test-id").Return(getResourceByIdMockResponseNoResource())
 
 	router := server.SetupRouter(mockService)
-	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/resources/sample-id", "")
+	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/resources/test-id", "")
 	defer cleanup()
 
 	testutil.ValidateResponse(t, response, generateError("/v1/resources/:id", "query-parameter-todo", "Document not found", http.StatusNotFound), http.StatusNotFound)
@@ -72,15 +77,15 @@ func getResourceMockResponseNoErrors() (resource.Response, error) {
 	return generateResponse(), nil
 }
 
-func getResourceByIdMockResponseNoErrors(string) (resource.Element, error) {
+func getResourceByIdMockResponseNoErrors() (resource.Element, error) {
 	return generateElement(), nil
 }
 
-func getResourceByIdMockResponseNoResource(string) (resource.Element, error) {
+func getResourceByIdMockResponseNoResource() (resource.Element, error) {
 	return generateElement(), errors.New("Document not found")
 }
 
-func getReourceMockResponse500() (resource.Response, error) {
+func getReourceReturns500() (resource.Response, error) {
 	return resource.Response{}, errors.New("Database Error")
 }
 
