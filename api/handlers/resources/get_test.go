@@ -1,13 +1,12 @@
 package resources_test
 
 import (
-	"errors"
 	"net/http"
 	"testing"
 
 	"github.com/thatbeardo/go-sentinel/api/views"
 	"github.com/thatbeardo/go-sentinel/mocks"
-
+	models "github.com/thatbeardo/go-sentinel/models"
 	"github.com/thatbeardo/go-sentinel/models/resource"
 	"github.com/thatbeardo/go-sentinel/server"
 	"github.com/thatbeardo/go-sentinel/testutil"
@@ -82,11 +81,11 @@ func getResourceByIdMockResponseNoErrors() (resource.Element, error) {
 }
 
 func getResourceByIdMockResponseNoResource() (resource.Element, error) {
-	return generateElement(), errors.New("Document not found")
+	return generateElement(), models.ErrNotFound
 }
 
 func getReourceReturns500() (resource.Response, error) {
-	return resource.Response{}, errors.New("Database Error")
+	return resource.Response{}, models.ErrDatabase
 }
 
 func generateResponse() resource.Response {
