@@ -88,6 +88,17 @@ func TestCreateResourceRepositoryError(t *testing.T) {
 	assert.Equal(t, err, models.ErrDatabase, "Schemas don't match")
 }
 
+func TestCreateResourceParentAbsent(t *testing.T) {
+	repository := &mocks.Repository{}
+	repository.On("GetByID", "parent-id").Return(errorFromRepositoryNotFound())
+
+	service := resource.NewService(repository)
+	_, err := service.Create(&data.Input)
+
+	assert.NotNil(t, err, "Should have thrown an error")
+	assert.Equal(t, err, models.ErrNotFound, "Schemas don't match")
+}
+
 func TestDeleteResourceRepositoryError(t *testing.T) {
 	repository := &mocks.Repository{}
 	repository.On("Delete", "test-id").Return(models.ErrDatabase)

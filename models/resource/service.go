@@ -26,7 +26,9 @@ func (service *service) GetByID(id string) (Element, error) {
 }
 
 func (service *service) Create(resource *Input) (Element, error) {
-	// Check if parent exists
+	if _, err := service.repository.GetByID(resource.Data.Relationships.Parent.Data.ID); err != nil {
+		return Element{}, err
+	}
 	return service.repository.Create(resource)
 }
 
