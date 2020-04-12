@@ -2,6 +2,7 @@ package resource
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/neo4j/neo4j-go-driver/neo4j"
 	models "github.com/thatbeardo/go-sentinel/models"
@@ -34,7 +35,7 @@ func (repo *neo4jRepository) Get() (Response, error) {
 		resourceName := fmt.Sprint(result.Record().GetByIndex(0))
 		resourceSourceID := fmt.Sprint(result.Record().GetByIndex(1))
 		id := fmt.Sprint(result.Record().GetByIndex(2))
-		dtos = append(dtos, ConstructResourceResponse(Resource{Name: resourceName, SourceID: resourceSourceID}, id))
+		dtos = append(dtos, constructResourceResponse(Resource{Name: resourceName, SourceID: resourceSourceID}, id))
 	}
 	return Response{Data: dtos}, nil
 }
@@ -51,7 +52,7 @@ func (repo *neo4jRepository) GetByID(id string) (Element, error) {
 	for result.Next() {
 		resourceName := fmt.Sprint(result.Record().GetByIndex(0))
 		resourceSourceID := fmt.Sprint(result.Record().GetByIndex(1))
-		response = ConstructResourceResponse(Resource{Name: resourceName, SourceID: resourceSourceID}, id)
+		response = constructResourceResponse(Resource{Name: resourceName, SourceID: resourceSourceID}, id)
 	}
 	if response.ID == "" {
 		err = models.ErrNotFound
@@ -73,15 +74,16 @@ func (repo *neo4jRepository) Create(resource *Input) (Element, error) {
 	for result.Next() {
 		id = fmt.Sprint(result.Record().GetByIndex(0))
 	}
-	return ConstructResourceResponse(resource.Data.Attributes, id), nil
+	return constructResourceResponse(resource.Data.Attributes, id), nil
 }
 
 // Delete function deletes a node from the graph
 func (repo *neo4jRepository) Delete(id string) error {
-	_, err := repo.session.Run(`MATCH(n:Resource) WHERE n.id = $id DETACH DELETE n`,
+	response, err := repo.session.Run(`MATCH(n:Resource) WHERE n.id = $id DETACH DELETE n`,
 		map[string]interface{}{
 			"id": id,
 		})
+	log.Println(response)
 	if err != nil {
 		return models.ErrDatabase
 	}

@@ -166,8 +166,8 @@ var doc = `{
                             "$ref": "#/definitions/resource.Response"
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/views.ErrView"
                         }

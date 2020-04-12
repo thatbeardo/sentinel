@@ -15,7 +15,7 @@ import (
 // @Produce  json
 // @Param id path string true "Resource ID"
 // @Success 204 {object} resource.Response	"ok"
-// @Success 500 {object} views.ErrView
+// @Success 404 {object} views.ErrView
 // @Router /v1/resources/{id} [delete]
 func delete(service resource.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {

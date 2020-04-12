@@ -58,8 +58,7 @@ type Resource struct {
 	SourceID string `json:"source_id" binding:"required"`
 }
 
-// ConstructResourceResponse used to generate respose element from resource
-func ConstructResourceResponse(resource Resource, id string) Element {
+func constructResourceResponse(resource Resource, id string) Element {
 	relationships := generateResourceRelationship()
 	return Element{
 		Type:          "resource",
@@ -70,10 +69,10 @@ func ConstructResourceResponse(resource Resource, id string) Element {
 }
 
 func generateResourceRelationship() Relationships {
-	policy := Identifier{Type: "policy", ID: "some-id"}
+	policy := Identifier{Type: "policy", ID: "policy-id"}
 	policies := Policies{Data: []Identifier{policy}}
 
-	parent := Parent{Data: Identifier{Type: "resource", ID: "some-id"}}
+	parent := Parent{Data: Identifier{Type: "resource", ID: "parent-id"}}
 	relationships := Relationships{Parent: parent, Policies: policies}
 	return relationships
 }

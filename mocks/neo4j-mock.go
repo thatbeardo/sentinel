@@ -31,3 +31,23 @@ func GetMockResult() *Result {
 	mockResult.On("Record").Return(mockRecord)
 	return mockResult
 }
+
+// GetEmptyResult represents a case when there are no resources in the database
+func GetEmptyResult() *Result {
+	mockResult := &Result{}
+	mockRecord := &Record{}
+	mockResult.On("Next").Return(false).Once()
+	mockResult.On("Record").Return(mockRecord)
+	return mockResult
+}
+
+// CreateResourceSuccessful mimics a condition when a resource was added and uuid is returned
+func CreateResourceSuccessful() *Result {
+	mockResult := &Result{}
+	mockRecord := &Record{}
+	mockRecord.On("GetByIndex", 0).Return("test-id")
+	mockResult.On("Next").Return(true).Once()
+	mockResult.On("Next").Return(false).Once()
+	mockResult.On("Record").Return(mockRecord)
+	return mockResult
+}
