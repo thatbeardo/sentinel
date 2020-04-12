@@ -63,13 +63,13 @@ func TestGetResourceByIDOk(t *testing.T) {
 func TestGetResourceByIDNoResourceFound(t *testing.T) {
 
 	mockService := &mocks.Service{}
-	mockService.On("GetByID", "test-id").Return(getResourceByIdMockResponseNoResource())
+	mockService.On("GetByID", "test-id").Return(getResourceByIdNoResource())
 
 	router := server.SetupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/resources/test-id", "")
 	defer cleanup()
 
-	testutil.ValidateResponse(t, response, generateError("/v1/resources/:id", "query-parameter-todo", "Document not found", http.StatusNotFound), http.StatusNotFound)
+	testutil.ValidateResponse(t, response, generateError("/v1/resources/:id", "query-parameter-todo", "Data not found", http.StatusNotFound), http.StatusNotFound)
 }
 
 func getResourceMockResponseNoErrors() (resource.Response, error) {
@@ -80,7 +80,7 @@ func getResourceByIdMockResponseNoErrors() (resource.Element, error) {
 	return generateElement(), nil
 }
 
-func getResourceByIdMockResponseNoResource() (resource.Element, error) {
+func getResourceByIdNoResource() (resource.Element, error) {
 	return generateElement(), models.ErrNotFound
 }
 

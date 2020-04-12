@@ -141,6 +141,16 @@ func TestDeleteResourcesNoNodesDeleted(t *testing.T) {
 	assert.Equal(t, err, models.ErrNotFound, "Error schemas do not match")
 }
 
+// func TestCreateEdgeNoErrors(t *testing.T) {
+// 	mockSession := &mocks.Session{}
+// 	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return()
+
+// 	repository := resource.NewNeo4jRepository(mockSession)
+// 	err := repository.Delete("test-id")
+
+// 	assert.Equal(t, err, models.ErrNotFound, "Error schemas do not match")
+// }
+
 func createResourcesSuccessful() (neo4j.Result, error) {
 	return mocks.CreateResourceSuccessful(), nil
 }

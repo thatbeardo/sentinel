@@ -68,6 +68,7 @@ func TestGetByIdServiceRepositoryError(t *testing.T) {
 
 func TestCreateResourceNoErrors(t *testing.T) {
 	repository := &mocks.Repository{}
+	repository.On("GetByID", "parent-id").Return(elementWithoutErrors())
 	repository.On("Create", m.AnythingOfType("*resource.Input")).Return(elementWithoutErrors())
 
 	service := resource.NewService(repository)
@@ -79,6 +80,7 @@ func TestCreateResourceNoErrors(t *testing.T) {
 
 func TestCreateResourceRepositoryError(t *testing.T) {
 	repository := &mocks.Repository{}
+	repository.On("GetByID", "parent-id").Return(elementWithoutErrors())
 	repository.On("Create", m.AnythingOfType("*resource.Input")).Return(databaseErrorFromRepository())
 
 	service := resource.NewService(repository)
