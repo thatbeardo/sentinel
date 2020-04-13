@@ -26,8 +26,12 @@ func (service *service) GetByID(id string) (Element, error) {
 }
 
 func (service *service) Create(resource *Input) (Element, error) {
-	if _, err := service.repository.GetByID(resource.Data.Relationships.Parent.Data.ID); err != nil {
-		return Element{}, err
+	if resource.Data.Relationships != nil {
+		_, err := service.repository.GetByID(resource.Data.Relationships.Parent.Data.ID)
+		if err != nil {
+			return Element{}, err
+		}
+		return service.repository.Create(resource)
 	}
 	return service.repository.Create(resource)
 }

@@ -218,19 +218,19 @@ func ResourceRoutes(r *gin.RouterGroup, service resource.Service) <span class="c
 
 // Input is the payload that a POST endpoint expects.
 type Input struct {
-        Data InputElement `json:"data" binding:"required,dive"`
+        Data *InputElement `json:"data" binding:"required,dive"`
 }
 
 // InputElement is the paylaod sent when creating a new resource
 type InputElement struct {
-        Type          string             `json:"type" binding:"required"`
-        Attributes    Resource           `json:"attributes" binding:"required,dive"`
-        Relationships RelationshipsInput `json:"relationships"`
+        Type          string              `json:"type" binding:"required"`
+        Attributes    *Resource           `json:"attributes" binding:"required,dive"`
+        Relationships *RelationshipsInput `json:"relationships,omitempty"`
 }
 
 // RelationshipsInput represent the relationships of an input payload
 type RelationshipsInput struct {
-        Parent Parent `json:"parent"`
+        Parent *Parent `json:"parent,omitempty" binding:"required,dive"`
 }
 
 // Response represents the final payload sent back to the user
@@ -240,32 +240,32 @@ type Response struct {
 
 // Element consists of all details of a resource
 type Element struct {
-        Type          string        `json:"type" binding:"required"`
-        ID            string        `json:"id"`
-        Attributes    Resource      `json:"attributes" binding:"required,dive"`
-        Relationships Relationships `json:"relationships"`
+        Type          string         `json:"type" binding:"required"`
+        ID            string         `json:"id"`
+        Attributes    *Resource      `json:"attributes" binding:"required,dive"`
+        Relationships *Relationships `json:"relationships"`
 }
 
 // Relationships provides details about a given resource like policies and parent
 type Relationships struct {
-        Parent   Parent   `json:"parent"`
-        Policies Policies `json:"policies"`
+        Parent   *Parent   `json:"parent"`
+        Policies *Policies `json:"policies"`
 }
 
 // Identifier helps acts as a reference to any given entity
 type Identifier struct {
-        Type string `json:"type" enums:"policy, resource, grant, permission"`
-        ID   string `json:"id"`
+        Type string `json:"type,omitempty" enums:"policy, resource, grant, permission" binding:"required"`
+        ID   string `json:"id,omitempty" binding:"required"`
 }
 
 // Parent is the parent resource of this resource
 type Parent struct {
-        Data Identifier `json:"data"`
+        Data *Identifier `json:"data,omitempty" binding:"required,dive"`
 }
 
 // Policies defined list of policies applicable to this resource
 type Policies struct {
-        Data []Identifier `json:"data"`
+        Data []*Identifier `json:"data"`
 }
 
 // Resource represents an entity created by the user.
@@ -274,7 +274,7 @@ type Resource struct {
         SourceID string `json:"source_id" binding:"required"`
 }
 
-func constructResourceResponse(resource Resource, id string) Element <span class="cov8" title="1">{
+func constructResourceResponse(resource *Resource, id string) Element <span class="cov8" title="1">{
         relationships := generateResourceRelationship()
         return Element{
                 Type:          "resource",
@@ -284,12 +284,12 @@ func constructResourceResponse(resource Resource, id string) Element <span class
         }
 }</span>
 
-func generateResourceRelationship() Relationships <span class="cov8" title="1">{
-        policy := Identifier{Type: "policy", ID: "policy-id"}
-        policies := Policies{Data: []Identifier{policy}}
+func generateResourceRelationship() *Relationships <span class="cov8" title="1">{
+        policy := &amp;Identifier{Type: "policy", ID: "policy-id"}
+        policies := &amp;Policies{Data: []*Identifier{policy}}
 
-        parent := Parent{Data: Identifier{Type: "resource", ID: "parent-id"}}
-        relationships := Relationships{Parent: parent, Policies: policies}
+        parent := &amp;Parent{Data: &amp;Identifier{Type: "resource", ID: "parent-id"}}
+        relationships := &amp;Relationships{Parent: parent, Policies: policies}
         return relationships
 }</span>
 </pre>
@@ -303,19 +303,12 @@ import (
         models "github.com/thatbeardo/go-sentinel/models"
 )
 
-// Neo4jSession is used to communicate with the underlying Graph database
-type Neo4jSession interface {
-        Run(cypher string, params map[string]interface{}, configurers ...func(*neo4j.TransactionConfig)) (neo4j.Result, error)
-        Close() error
-}
-
 type neo4jRepository struct {
-        session Neo4jSession
+        session neo4j.Session
 }
 
 // NewNeo4jRepository is a factory method to create a neo4j repository
-func NewNeo4jRepository(session Neo4jSession) Repository <span class="cov8" title="1">{
-
+func NewNeo4jRepository(session neo4j.Session) Repository <span class="cov8" title="1">{
         return &amp;neo4jRepository{session}
 }</span>
 
@@ -330,7 +323,7 @@ func (repo *neo4jRepository) Get() (Response, error) <span class="cov8" title="1
                 resourceName := fmt.Sprint(result.Record().GetByIndex(0))
                 resourceSourceID := fmt.Sprint(result.Record().GetByIndex(1))
                 id := fmt.Sprint(result.Record().GetByIndex(2))
-                dtos = append(dtos, constructResourceResponse(Resource{Name: resourceName, SourceID: resourceSourceID}, id))
+                dtos = append(dtos, constructResourceResponse(&amp;Resource{Name: resourceName, SourceID: resourceSourceID}, id))
         }</span>
         <span class="cov8" title="1">return Response{Data: dtos}, nil</span>
 }
@@ -347,7 +340,7 @@ func (repo *neo4jRepository) GetByID(id string) (Element, error) <span class="co
         for result.Next() </span><span class="cov8" title="1">{
                 resourceName := fmt.Sprint(result.Record().GetByIndex(0))
                 resourceSourceID := fmt.Sprint(result.Record().GetByIndex(1))
-                response = constructResourceResponse(Resource{Name: resourceName, SourceID: resourceSourceID}, id)
+                response = constructResourceResponse(&amp;Resource{Name: resourceName, SourceID: resourceSourceID}, id)
         }</span>
         <span class="cov8" title="1">if response.ID == "" </span><span class="cov8" title="1">{
                 err = models.ErrNotFound
@@ -374,18 +367,16 @@ func (repo *neo4jRepository) Create(resource *Input) (Element, error) <span clas
 
 // Delete function deletes a node from the graph
 func (repo *neo4jRepository) Delete(id string) error <span class="cov8" title="1">{
-        var result neo4j.Result
-        var err error
-        if result, err = repo.session.Run(`MATCH (n:Resource { id: $id }) DETACH DELETE n`,
+        result, err := repo.session.Run(`MATCH (n:Resource { id: $id }) DETACH DELETE n`,
                 map[string]interface{}{
                         "id": id,
-                }); err != nil </span><span class="cov8" title="1">{
+                })
+        if err != nil </span><span class="cov8" title="1">{
                 return models.ErrDatabase
         }</span>
         <span class="cov8" title="1">result.Next()
         summary, err := result.Summary()
-        nodesDeleted := summary.Counters().NodesDeleted()
-        if nodesDeleted == 0 </span><span class="cov8" title="1">{
+        if summary.Counters().NodesDeleted() == 0 </span><span class="cov8" title="1">{
                 return models.ErrNotFound
         }</span>
         <span class="cov8" title="1">return nil</span>
@@ -420,9 +411,12 @@ func (service *service) GetByID(id string) (Element, error) <span class="cov8" t
 }</span>
 
 func (service *service) Create(resource *Input) (Element, error) <span class="cov8" title="1">{
-        // Check if parent exists
-        return service.repository.Create(resource)
-}</span>
+        _, err := service.repository.GetByID(resource.Data.Relationships.Parent.Data.ID)
+        if err != nil </span><span class="cov8" title="1">{
+                return Element{}, err
+        }</span>
+        <span class="cov8" title="1">return service.repository.Create(resource)</span>
+}
 
 func (service *service) Delete(id string) error <span class="cov8" title="1">{
         return service.repository.Delete(id)

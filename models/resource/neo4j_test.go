@@ -93,7 +93,7 @@ func TestCreateResourcesSuccessful(t *testing.T) {
 	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(createResourcesSuccessful())
 
 	repository := resource.NewNeo4jRepository(mockSession)
-	element, err := repository.Create(&data.Input)
+	element, err := repository.Create(data.Input)
 
 	assert.Nil(t, err, "Error should be empty")
 	assert.Equal(t, data.Element, element, "Error model does not match")
@@ -104,7 +104,7 @@ func TestCreateResourcesDatabaseError(t *testing.T) {
 	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(errorFromDatabase())
 
 	repository := resource.NewNeo4jRepository(mockSession)
-	_, err := repository.Create(&data.Input)
+	_, err := repository.Create(data.Input)
 
 	assert.NotNil(t, err, "Error should be empty")
 	assert.Equal(t, models.ErrDatabase, err, "Error model does not match")

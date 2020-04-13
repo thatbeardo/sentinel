@@ -94,10 +94,10 @@ func generateResponse() resource.Response {
 }
 
 func generateElement() resource.Element {
-	policies := resource.Policies{Data: []resource.Identifier{}}
-	parent := resource.Parent{Data: resource.Identifier{Type: "parent-resource", ID: "parent-resource-id"}}
-	relationships := resource.Relationships{Parent: parent, Policies: policies}
-	userResource := resource.Resource{Name: "my-resource", SourceID: "my-source-id"}
+	policies := &resource.Policies{Data: []*resource.Identifier{}}
+	parent := &resource.Parent{Data: &resource.Identifier{Type: "parent-resource", ID: "parent-resource-id"}}
+	relationships := &resource.Relationships{Parent: parent, Policies: policies}
+	userResource := &resource.Resource{Name: "my-resource", SourceID: "my-source-id"}
 	return resource.Element{Relationships: relationships, Attributes: userResource, Type: "resource", ID: "uuid"}
 }
 
