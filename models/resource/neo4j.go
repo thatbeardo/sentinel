@@ -85,3 +85,19 @@ func (repo *neo4jRepository) Delete(id string) error {
 	}
 	return nil
 }
+
+// CreateEdge function creates an edge between two resources
+func (repo *neo4jRepository) CreateEdge(source string, destination string) error {
+	result, err := repo.session.Run(`MATCH (parent:Resource),(child:Resource) WHERE child.id = $source AND parent.id = $destination CREATE (child)-[r:OWNED_BY]->(parent) RETURN type(r)`,
+		map[string]interface{}{
+			"source":      source,
+			"destination": destination,
+		})
+	if err != nil {
+		return models.ErrDatabase
+	}
+	if result.Next(); result.Record().GetByIndex(0) != "OWNED_BY" {
+		return models.ErrNotFound
+	}
+	return err
+}

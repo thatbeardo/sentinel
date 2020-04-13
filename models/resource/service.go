@@ -27,11 +27,22 @@ func (service *service) GetByID(id string) (Element, error) {
 
 func (service *service) Create(resource *Input) (Element, error) {
 	if resource.Data.Relationships != nil {
-		_, err := service.repository.GetByID(resource.Data.Relationships.Parent.Data.ID)
+		parent, err := service.repository.GetByID(resource.Data.Relationships.Parent.Data.ID)
 		if err != nil {
 			return Element{}, err
 		}
-		return service.repository.Create(resource)
+
+		var child Element
+		child, err = service.repository.Create(resource)
+		if err != nil {
+			return Element{}, err
+		}
+
+		err = service.repository.CreateEdge(child.ID, parent.ID)
+		if err != nil {
+			return Element{}, err
+		}
+		return child, nil
 	}
 	return service.repository.Create(resource)
 }

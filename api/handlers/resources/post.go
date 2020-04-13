@@ -24,7 +24,11 @@ func post(service resource.Service) gin.HandlerFunc {
 			views.Wrap(err, c)
 			return
 		}
-		resourceResponse, _ := service.Create(&resourceInput)
+		resourceResponse, err := service.Create(&resourceInput)
+		if err != nil {
+			views.Wrap(err, c)
+			return
+		}
 		c.JSON(http.StatusAccepted, resourceResponse)
 	}
 }

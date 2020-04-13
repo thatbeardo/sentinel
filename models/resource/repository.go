@@ -6,4 +6,6 @@ type Repository interface {
 	Create(*Input) (Element, error)
 	GetByID(string) (Element, error)
 	Delete(string) error
+
+	CreateEdge(string, string) error
 }

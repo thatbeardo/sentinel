@@ -104,12 +104,51 @@ func TestCreateResourceValidParent(t *testing.T) {
 	repository := &mocks.Repository{}
 	repository.On("Create", m.AnythingOfType("*resource.Input")).Return(elementWithoutErrors())
 	repository.On("GetByID", "parent-id").Return(parentElementWithoutErrors())
+	repository.On("CreateEdge", m.AnythingOfType("string"), m.AnythingOfType("string")).Return(nil)
 
 	service := resource.NewService(repository)
 	response, err := service.Create(data.Input)
 
 	assert.Nil(t, err, "Should not have thrown an error")
 	assert.Equal(t, data.Element, response, "Schemas don't match")
+}
+
+func TestCreateResourceCreateFails(t *testing.T) {
+	repository := &mocks.Repository{}
+	repository.On("Create", m.AnythingOfType("*resource.Input")).Return(databaseErrorFromRepository())
+	repository.On("GetByID", "parent-id").Return(parentElementWithoutErrors())
+
+	service := resource.NewService(repository)
+	_, err := service.Create(data.Input)
+
+	assert.NotNil(t, err, "Should have thrown an error")
+	assert.Equal(t, models.ErrDatabase, err, "Schemas don't match")
+}
+
+func TestCreateResourceCreateEdgeFailsDatabaseError(t *testing.T) {
+	repository := &mocks.Repository{}
+	repository.On("Create", m.AnythingOfType("*resource.Input")).Return(elementWithoutErrors())
+	repository.On("GetByID", "parent-id").Return(parentElementWithoutErrors())
+	repository.On("CreateEdge", m.AnythingOfType("string"), m.AnythingOfType("string")).Return(models.ErrDatabase)
+
+	service := resource.NewService(repository)
+	_, err := service.Create(data.Input)
+
+	assert.NotNil(t, err, "Should have thrown an error")
+	assert.Equal(t, models.ErrDatabase, err, "Schemas don't match")
+}
+
+func TestCreateResourceCreateEdgeFailsNodesNotFound(t *testing.T) {
+	repository := &mocks.Repository{}
+	repository.On("Create", m.AnythingOfType("*resource.Input")).Return(elementWithoutErrors())
+	repository.On("GetByID", "parent-id").Return(parentElementWithoutErrors())
+	repository.On("CreateEdge", m.AnythingOfType("string"), m.AnythingOfType("string")).Return(models.ErrNotFound)
+
+	service := resource.NewService(repository)
+	_, err := service.Create(data.Input)
+
+	assert.NotNil(t, err, "Should have thrown an error")
+	assert.Equal(t, models.ErrNotFound, err, "Schemas don't match")
 }
 
 func TestDeleteResourceRepositoryError(t *testing.T) {
