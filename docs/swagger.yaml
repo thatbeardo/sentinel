@@ -27,6 +27,9 @@ definitions:
         - ' grant'
         - ' permission'
         type: string
+    required:
+    - id
+    - type
     type: object
   resource.Input:
     properties:
@@ -55,6 +58,8 @@ definitions:
       data:
         $ref: '#/definitions/resource.Identifier'
         type: object
+    required:
+    - data
     type: object
   resource.Policies:
     properties:
@@ -77,6 +82,8 @@ definitions:
       parent:
         $ref: '#/definitions/resource.Parent'
         type: object
+    required:
+    - parent
     type: object
   resource.Resource:
     properties:
@@ -344,6 +351,36 @@ paths:
           schema:
             $ref: '#/definitions/views.ErrView'
       summary: Get resource by ID
+      tags:
+      - Resources
+    patch:
+      consumes:
+      - application/json
+      description: Update resource name, sourceID, parent, etc
+      parameters:
+      - description: Resource ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Resource to be created
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/resource.Input'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ok
+          schema:
+            $ref: '#/definitions/resource.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/views.ErrView'
+      summary: Update a resource by it's ID
       tags:
       - Resources
 swagger: "2.0"

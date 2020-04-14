@@ -8,15 +8,16 @@ import (
 	"github.com/thatbeardo/go-sentinel/models/resource"
 )
 
-// @Summary Create a new Resource
-// @Description Add a new resource to existing resources
+// @Summary Update a resource by it's ID
 // @Tags Resources
+// @Description Update resource name, sourceID, parent, etc
 // @Accept  json
 // @Produce  json
+// @Param id path string true "Resource ID"
 // @Param input body resource.Input true "Resource to be created"
-// @Success 202 {object} resource.Element	"ok"
-// @Failure 500 {object} views.ErrView	"ok"
-// @Router /v1/resources [post]
+// @Success 204 {object} resource.Response	"ok"
+// @Success 404 {object} views.ErrView
+// @Router /v1/resources/{id} [patch]
 func patch(service resource.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id := c.Param("id")

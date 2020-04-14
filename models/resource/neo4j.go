@@ -80,6 +80,9 @@ func (repo *neo4jRepository) Delete(id string) error {
 	}
 	result.Next()
 	summary, err := result.Summary()
+	if err != nil {
+		return models.ErrDatabase
+	}
 	if summary.Counters().NodesDeleted() == 0 {
 		return models.ErrNotFound
 	}
@@ -100,6 +103,27 @@ func (repo *neo4jRepository) CreateEdge(source string, destination string) error
 		return models.ErrNotFound
 	}
 	return err
+}
+
+// CreateEdge function creates an edge between two resources
+func (repo *neo4jRepository) DeleteEdge(source string, destination string) error {
+	result, err := repo.session.Run(`MATCH (n { id: $source }) -[r:OWNED_BY]->(m {id:$destination}) DELETE r`,
+		map[string]interface{}{
+			"source":      source,
+			"destination": destination,
+		})
+	if err != nil {
+		return models.ErrDatabase
+	}
+	result.Next()
+	summary, err := result.Summary()
+	if err != nil {
+		return models.ErrDatabase
+	}
+	if summary.Counters().RelationshipsDeleted() == 0 {
+		return models.ErrNotFound
+	}
+	return nil
 }
 
 // Update function Edits the contents of a node

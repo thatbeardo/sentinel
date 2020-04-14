@@ -172,20 +172,10 @@ func TestDeleteResourceRepositoryNoError(t *testing.T) {
 	assert.Nil(t, err, "Should not have thrown an error")
 }
 
-func TestUpdateResourceRepositoryNoError(t *testing.T) {
+func TestUpdateResourceInvalidParent(t *testing.T) {
 	repository := &mocks.Repository{}
-	repository.On("Update", "test-id", m.AnythingOfType("*resource.Input")).Return(elementWithoutErrors())
-
-	service := resource.NewService(repository)
-	response, err := service.Update("test-id", data.Input)
-
-	assert.Nil(t, err, "Should not have thrown an error")
-	assert.Equal(t, response, data.Element, "Schemas don't match")
-}
-
-func TestUpdateResourceRepositoryNotFoundError(t *testing.T) {
-	repository := &mocks.Repository{}
-	repository.On("Update", "test-id", m.AnythingOfType("*resource.Input")).Return(errorFromRepositoryNotFound())
+	repository.On("GetByID", "test-id").Return(elementWithoutErrors())
+	repository.On("GetByID", "parent-id").Return(errorFromRepositoryNotFound())
 
 	service := resource.NewService(repository)
 	_, err := service.Update("test-id", data.Input)
@@ -194,9 +184,11 @@ func TestUpdateResourceRepositoryNotFoundError(t *testing.T) {
 	assert.Equal(t, err, models.ErrNotFound, "Schemas don't match")
 }
 
-func TestUpdateResourceRepositoryError(t *testing.T) {
+func TestUpdateResourceValidParentEdgeError(t *testing.T) {
 	repository := &mocks.Repository{}
-	repository.On("Update", "test-id", m.AnythingOfType("*resource.Input")).Return(databaseErrorFromRepository())
+	repository.On("GetByID", "parent-id").Return(elementWithoutErrors())
+	repository.On("GetByID", "test-id").Return(elementWithoutErrors())
+	repository.On("CreateEdge", m.AnythingOfType("string"), m.AnythingOfType("string")).Return(models.ErrDatabase)
 
 	service := resource.NewService(repository)
 	_, err := service.Update("test-id", data.Input)
@@ -205,12 +197,69 @@ func TestUpdateResourceRepositoryError(t *testing.T) {
 	assert.Equal(t, err, models.ErrDatabase, "Schemas don't match")
 }
 
+func TestUpdateNoErrors(t *testing.T) {
+	repository := &mocks.Repository{}
+	repository.On("GetByID", "parent-id").Return(elementWithoutErrors())
+	repository.On("GetByID", "test-id").Return(elementWithoutErrors())
+	repository.On("CreateEdge", m.AnythingOfType("string"), m.AnythingOfType("string")).Return(nil)
+	repository.On("DeleteEdge", m.AnythingOfType("string"), m.AnythingOfType("string")).Return(nil)
+	repository.On("Update", m.AnythingOfType("string"), m.AnythingOfType("*resource.Input")).Return(elementWithoutErrors())
+
+	service := resource.NewService(repository)
+	_, err := service.Update("test-id", data.Input)
+
+	assert.Nil(t, err, "Should not have thrown an error")
+}
+
+func TestUpdateResourceNodeNotFound(t *testing.T) {
+	repository := &mocks.Repository{}
+	repository.On("GetByID", "test-id").Return(errorFromRepositoryNotFound())
+
+	service := resource.NewService(repository)
+	_, err := service.Update("test-id", data.Input)
+
+	assert.NotNil(t, err, "Should not have thrown an error")
+	assert.Equal(t, err, models.ErrNotFound, "Schemas don't match")
+}
+
+func TestUpdateResourceDeleteEdgeError(t *testing.T) {
+	repository := &mocks.Repository{}
+	repository.On("GetByID", "parent-id").Return(elementWithoutErrors())
+	repository.On("GetByID", "test-id").Return(elementWithoutErrors())
+	repository.On("CreateEdge", m.AnythingOfType("string"), m.AnythingOfType("string")).Return(nil)
+	repository.On("DeleteEdge", m.AnythingOfType("string"), m.AnythingOfType("string")).Return(models.ErrDatabase)
+
+	service := resource.NewService(repository)
+	_, err := service.Update("test-id", data.Input)
+
+	assert.NotNil(t, err, "Should not have thrown an error")
+	assert.Equal(t, err, models.ErrDatabase, "Schemas don't match")
+}
+
+func TestUpdateResourceValidParentDeleteEdgeError(t *testing.T) {
+	repository := &mocks.Repository{}
+	repository.On("GetByID", "parent-id").Return(elementWithoutErrors())
+	repository.On("GetByID", "test-id").Return(elementWithoutRelationshipsNoErrors())
+	repository.On("CreateEdge", m.AnythingOfType("string"), m.AnythingOfType("string")).Return(nil)
+	repository.On("Update", m.AnythingOfType("string"), m.AnythingOfType("*resource.Input")).Return(elementWithoutErrors())
+
+	service := resource.NewService(repository)
+	response, err := service.Update("test-id", data.Input)
+
+	assert.Nil(t, err, "Should not have thrown an error")
+	assert.Equal(t, response, data.Element, "Schemas don't match")
+}
+
 func getAllResourcesNoErrors() (resource.Response, error) {
 	return data.Response, nil
 }
 
 func elementWithoutErrors() (resource.Element, error) {
 	return data.Element, nil
+}
+
+func elementWithoutRelationshipsNoErrors() (resource.Element, error) {
+	return data.ElementRelationshipsAbsent, nil
 }
 
 func parentElementWithoutErrors() (resource.Element, error) {

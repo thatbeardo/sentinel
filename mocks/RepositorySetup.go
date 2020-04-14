@@ -1,5 +1,7 @@
 package mocks
 
+import "errors"
+
 // GetMockResult returns
 func GetMockResult() *Result {
 	mockResult := &Result{}
@@ -53,10 +55,42 @@ func CreateEdgeFails() *Result {
 	return mockResult
 }
 
+// DeleteEdgeFails mimics a case when the relationships updated is 0
+func DeleteEdgeFails() *Result {
+	mockCounter := &Counters{}
+	mockCounter.On("RelationshipsDeleted").Return(0)
+	mockSummary := &ResultSummary{}
+	mockSummary.On("Counters").Return(mockCounter)
+	mockResult := &Result{}
+	mockResult.On("Next").Return(true).Once()
+	mockResult.On("Summary").Return(mockSummary, nil)
+	return mockResult
+}
+
+// SummaryFailure mimics a case when the calling the summary results in failrue
+func SummaryFailure() *Result {
+	mockResult := &Result{}
+	mockResult.On("Next").Return(true).Once()
+	mockResult.On("Summary").Return(nil, errors.New("Some summary error"))
+	return mockResult
+}
+
 // DeleteResourceSuccessful mimics a condition when a resource is deleted succesfully
 func DeleteResourceSuccessful() *Result {
 	mockCounter := &Counters{}
 	mockCounter.On("NodesDeleted").Return(1)
+	mockSummary := &ResultSummary{}
+	mockSummary.On("Counters").Return(mockCounter)
+	mockResult := &Result{}
+	mockResult.On("Next").Return(true).Once()
+	mockResult.On("Summary").Return(mockSummary, nil)
+	return mockResult
+}
+
+// DeleteRelationshipSuccessful mimics a condition when a edge is deleted
+func DeleteRelationshipSuccessful() *Result {
+	mockCounter := &Counters{}
+	mockCounter.On("RelationshipsDeleted").Return(1)
 	mockSummary := &ResultSummary{}
 	mockSummary.On("Counters").Return(mockCounter)
 	mockResult := &Result{}

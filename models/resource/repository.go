@@ -9,4 +9,5 @@ type Repository interface {
 	Delete(string) error
 
 	CreateEdge(string, string) error
+	DeleteEdge(string, string) error
 }

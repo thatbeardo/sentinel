@@ -173,6 +173,51 @@ var doc = `{
                         }
                     }
                 }
+            },
+            "patch": {
+                "description": "Update resource name, sourceID, parent, etc",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Resources"
+                ],
+                "summary": "Update a resource by it's ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Resource ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Resource to be created",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/resource.Input"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "ok",
+                        "schema": {
+                            "$ref": "#/definitions/resource.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/views.ErrView"
+                        }
+                    }
+                }
             }
         }
     },
@@ -202,6 +247,10 @@ var doc = `{
         },
         "resource.Identifier": {
             "type": "object",
+            "required": [
+                "id",
+                "type"
+            ],
             "properties": {
                 "id": {
                     "type": "string"
@@ -251,6 +300,9 @@ var doc = `{
         },
         "resource.Parent": {
             "type": "object",
+            "required": [
+                "data"
+            ],
             "properties": {
                 "data": {
                     "type": "object",
@@ -284,6 +336,9 @@ var doc = `{
         },
         "resource.RelationshipsInput": {
             "type": "object",
+            "required": [
+                "parent"
+            ],
             "properties": {
                 "parent": {
                     "type": "object",

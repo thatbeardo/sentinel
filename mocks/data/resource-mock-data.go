@@ -58,6 +58,13 @@ var Element = resource.Element{
 	ID:            "test-id",
 }
 
+// ElementRelationshipsAbsent represents response to be displayed to the user
+var ElementRelationshipsAbsent = resource.Element{
+	Type:       "resource",
+	Attributes: attributes,
+	ID:         "test-id",
+}
+
 // ParentElement represents response to be displayed to the user
 var ParentElement = resource.Element{
 	Type:       "resource",
