@@ -12,5 +12,6 @@ func ResourceRoutes(r *gin.RouterGroup, service resource.Service) {
 	router.GET("/", get(service))
 	router.GET("/:id", getByID(service))
 	router.POST("/", post(service))
+	router.PATCH("/:id", patch(service))
 	router.DELETE("/:id", delete(service))
 }

@@ -101,3 +101,20 @@ func (repo *neo4jRepository) CreateEdge(source string, destination string) error
 	}
 	return err
 }
+
+// Update function Edits the contents of a node
+func (repo *neo4jRepository) Update(id string, resource *Input) (Element, error) {
+	result, err := repo.session.Run("MATCH (n:Resource { id: $id }) SET n.name = $name, n.source_id = $source_id RETURN n.name, n.source_id",
+		map[string]interface{}{
+			"id":        id,
+			"name":      resource.Data.Attributes.Name,
+			"source_id": resource.Data.Attributes.SourceID,
+		})
+	if err != nil {
+		return Element{}, models.ErrDatabase
+	}
+	for result.Next() {
+		id = fmt.Sprint(result.Record().GetByIndex(0))
+	}
+	return constructResourceResponse(resource.Data.Attributes, id), nil
+}

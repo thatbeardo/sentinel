@@ -173,6 +173,28 @@ func TestCreateEdgeDatabaseError(t *testing.T) {
 	assert.Equal(t, err, models.ErrDatabase, "Error schemas do not match")
 }
 
+func TestUpdateResourceDatabaseError(t *testing.T) {
+	mockSession := &mocks.Session{}
+	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(errorFromDatabase())
+
+	repository := resource.NewNeo4jRepository(mockSession)
+	_, err := repository.Update("test-id", data.Input)
+
+	assert.NotNil(t, err)
+	assert.Equal(t, err, models.ErrDatabase, "Error schemas do not match")
+}
+
+func TestUpdateResourceNoErrors(t *testing.T) {
+	mockSession := &mocks.Session{}
+	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(createResourcesSuccessful())
+
+	repository := resource.NewNeo4jRepository(mockSession)
+	response, err := repository.Update("test-id", data.Input)
+
+	assert.Nil(t, err)
+	assert.Equal(t, response, data.Element, "Error schemas do not match")
+}
+
 func createResourcesSuccessful() (neo4j.Result, error) {
 	return mocks.CreateResourceSuccessful(), nil
 }

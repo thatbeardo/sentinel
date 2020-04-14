@@ -3,8 +3,9 @@ package resource
 // Service recieves commands from handlers and forwards them to the repository
 type Service interface {
 	Get() (Response, error)
-	Create(*Input) (Element, error)
 	GetByID(string) (Element, error)
+	Create(*Input) (Element, error)
+	Update(string, *Input) (Element, error)
 	Delete(string) error
 }
 
@@ -23,6 +24,10 @@ func (service *service) Get() (Response, error) {
 
 func (service *service) GetByID(id string) (Element, error) {
 	return service.repository.GetByID(id)
+}
+
+func (service *service) Update(id string, resource *Input) (Element, error) {
+	return service.repository.Update(id, resource)
 }
 
 func (service *service) Create(resource *Input) (Element, error) {

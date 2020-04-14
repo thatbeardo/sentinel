@@ -190,8 +190,12 @@ func post(service resource.Service) gin.HandlerFunc <span class="cov8" title="1"
                         views.Wrap(err, c)
                         return
                 }</span>
-                <span class="cov8" title="1">resourceResponse, _ := service.Create(&amp;resourceInput)
-                c.JSON(http.StatusAccepted, resourceResponse)</span>
+                <span class="cov8" title="1">resourceResponse, err := service.Create(&amp;resourceInput)
+                if err != nil </span><span class="cov8" title="1">{
+                        views.Wrap(err, c)
+                        return
+                }</span>
+                <span class="cov8" title="1">c.JSON(http.StatusAccepted, resourceResponse)</span>
         }
 }
 </pre>
@@ -381,6 +385,22 @@ func (repo *neo4jRepository) Delete(id string) error <span class="cov8" title="1
         }</span>
         <span class="cov8" title="1">return nil</span>
 }
+
+// CreateEdge function creates an edge between two resources
+func (repo *neo4jRepository) CreateEdge(source string, destination string) error <span class="cov8" title="1">{
+        result, err := repo.session.Run(`MATCH (parent:Resource),(child:Resource) WHERE child.id = $source AND parent.id = $destination CREATE (child)-[r:OWNED_BY]-&gt;(parent) RETURN type(r)`,
+                map[string]interface{}{
+                        "source":      source,
+                        "destination": destination,
+                })
+        if err != nil </span><span class="cov8" title="1">{
+                return models.ErrDatabase
+        }</span>
+        <span class="cov8" title="1">if result.Next(); result.Record().GetByIndex(0) != "OWNED_BY" </span><span class="cov8" title="1">{
+                return models.ErrNotFound
+        }</span>
+        <span class="cov8" title="1">return err</span>
+}
 </pre>
 		
 		<pre class="file" id="file6" style="display: none">package resource
@@ -411,10 +431,24 @@ func (service *service) GetByID(id string) (Element, error) <span class="cov8" t
 }</span>
 
 func (service *service) Create(resource *Input) (Element, error) <span class="cov8" title="1">{
-        _, err := service.repository.GetByID(resource.Data.Relationships.Parent.Data.ID)
-        if err != nil </span><span class="cov8" title="1">{
-                return Element{}, err
-        }</span>
+        if resource.Data.Relationships != nil </span><span class="cov8" title="1">{
+                parent, err := service.repository.GetByID(resource.Data.Relationships.Parent.Data.ID)
+                if err != nil </span><span class="cov8" title="1">{
+                        return Element{}, err
+                }</span>
+
+                <span class="cov8" title="1">var child Element
+                child, err = service.repository.Create(resource)
+                if err != nil </span><span class="cov8" title="1">{
+                        return Element{}, err
+                }</span>
+
+                <span class="cov8" title="1">err = service.repository.CreateEdge(child.ID, parent.ID)
+                if err != nil </span><span class="cov8" title="1">{
+                        return Element{}, err
+                }</span>
+                <span class="cov8" title="1">return child, nil</span>
+        }
         <span class="cov8" title="1">return service.repository.Create(resource)</span>
 }
 

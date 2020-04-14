@@ -172,6 +172,39 @@ func TestDeleteResourceRepositoryNoError(t *testing.T) {
 	assert.Nil(t, err, "Should not have thrown an error")
 }
 
+func TestUpdateResourceRepositoryNoError(t *testing.T) {
+	repository := &mocks.Repository{}
+	repository.On("Update", "test-id", m.AnythingOfType("*resource.Input")).Return(elementWithoutErrors())
+
+	service := resource.NewService(repository)
+	response, err := service.Update("test-id", data.Input)
+
+	assert.Nil(t, err, "Should not have thrown an error")
+	assert.Equal(t, response, data.Element, "Schemas don't match")
+}
+
+func TestUpdateResourceRepositoryNotFoundError(t *testing.T) {
+	repository := &mocks.Repository{}
+	repository.On("Update", "test-id", m.AnythingOfType("*resource.Input")).Return(errorFromRepositoryNotFound())
+
+	service := resource.NewService(repository)
+	_, err := service.Update("test-id", data.Input)
+
+	assert.NotNil(t, err, "Should not have thrown an error")
+	assert.Equal(t, err, models.ErrNotFound, "Schemas don't match")
+}
+
+func TestUpdateResourceRepositoryError(t *testing.T) {
+	repository := &mocks.Repository{}
+	repository.On("Update", "test-id", m.AnythingOfType("*resource.Input")).Return(databaseErrorFromRepository())
+
+	service := resource.NewService(repository)
+	_, err := service.Update("test-id", data.Input)
+
+	assert.NotNil(t, err, "Should not have thrown an error")
+	assert.Equal(t, err, models.ErrDatabase, "Schemas don't match")
+}
+
 func getAllResourcesNoErrors() (resource.Response, error) {
 	return data.Response, nil
 }

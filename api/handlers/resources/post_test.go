@@ -137,3 +137,7 @@ func createResourceNoErrors() (resource.Element, error) {
 func createResourceParentNotFound() (resource.Element, error) {
 	return resource.Element{}, models.ErrNotFound
 }
+
+func databaseError() (resource.Element, error) {
+	return resource.Element{}, models.ErrDatabase
+}
