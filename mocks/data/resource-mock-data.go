@@ -29,6 +29,10 @@ var relationships = &resource.Relationships{
 	Policies: policies,
 }
 
+var relationshipsWithoutParent = &resource.Relationships{
+	Policies: policies,
+}
+
 var attributes = &resource.Resource{
 	Name:     "test-resource",
 	SourceID: "test-source-id",
@@ -55,6 +59,14 @@ var Element = resource.Element{
 	Type:          "resource",
 	Attributes:    attributes,
 	Relationships: relationships,
+	ID:            "test-id",
+}
+
+// ElementWithoutParent represents standalone resource without any parents
+var ElementWithoutParent = resource.Element{
+	Type:          "resource",
+	Attributes:    attributes,
+	Relationships: relationshipsWithoutParent,
 	ID:            "test-id",
 }
 

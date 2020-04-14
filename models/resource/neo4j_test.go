@@ -46,7 +46,7 @@ func TestGetResourcesSingleResource(t *testing.T) {
 	repository := resource.NewNeo4jRepository(mockSession)
 	resources, err := repository.Get()
 
-	var dtos []resource.Element = []resource.Element{data.Element}
+	var dtos []resource.Element = []resource.Element{data.ElementWithoutParent}
 	response := resource.Response{Data: dtos}
 
 	assert.Nil(t, err, "Should be empty")
@@ -59,8 +59,7 @@ func TestGetResourcesByIdSingleResource(t *testing.T) {
 
 	repository := resource.NewNeo4jRepository(mockSession)
 	resources, err := repository.GetByID("test-id")
-
-	response := data.Element
+	response := data.ElementWithoutParent
 
 	assert.Nil(t, err, "Should be empty")
 	assert.Equal(t, response, resources, "Response schemas don't match")
@@ -96,7 +95,7 @@ func TestCreateResourcesSuccessful(t *testing.T) {
 	element, err := repository.Create(data.Input)
 
 	assert.Nil(t, err, "Error should be empty")
-	assert.Equal(t, data.Element, element, "Error model does not match")
+	assert.Equal(t, data.ElementWithoutParent, element, "Error model does not match")
 }
 
 func TestCreateResourcesDatabaseError(t *testing.T) {
@@ -202,7 +201,7 @@ func TestUpdateResourceNoErrors(t *testing.T) {
 	response, err := repository.Update("test-id", data.Input)
 
 	assert.Nil(t, err)
-	assert.Equal(t, response, data.Element, "Error schemas do not match")
+	assert.Equal(t, response, data.ElementWithoutParent, "Error schemas do not match")
 }
 
 func TestDeleteEdgeNoErrors(t *testing.T) {
@@ -257,7 +256,7 @@ func noResourcesFromDatabase() (neo4j.Result, error) {
 }
 
 func validResourceFromDatabase() (neo4j.Result, error) {
-	return mocks.GetMockResult(), nil
+	return mocks.ResourceWithoutParent(), nil
 }
 
 func deleteResourceSuccessful() (neo4j.Result, error) {

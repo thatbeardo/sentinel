@@ -2,8 +2,21 @@ package mocks
 
 import "errors"
 
-// GetMockResult returns
-func GetMockResult() *Result {
+// ResourceWithoutParent returns
+func ResourceWithoutParent() *Result {
+	mockResult := &Result{}
+	mockRecord := &Record{}
+	mockRecord.On("GetByIndex", 0).Return("test-resource")
+	mockRecord.On("GetByIndex", 1).Return("test-source-id")
+	mockRecord.On("GetByIndex", 2).Return("test-id")
+	mockResult.On("Next").Return(true).Once()
+	mockResult.On("Next").Return(false).Once()
+	mockResult.On("Record").Return(mockRecord)
+	return mockResult
+}
+
+// ResourceWithParent mocks a resource returned without any parent
+func ResourceWithParent() *Result {
 	mockResult := &Result{}
 	mockRecord := &Record{}
 	mockRecord.On("GetByIndex", 0).Return("test-resource")

@@ -58,21 +58,24 @@ type Resource struct {
 	SourceID string `json:"source_id" binding:"required"`
 }
 
-func constructResourceResponse(resource *Resource, id string) Element {
-	relationships := generateResourceRelationship()
+func constructResourceResponse(resource *Resource, id ...string) Element {
+	relationships := generateResourceRelationship(id)
 	return Element{
 		Type:          "resource",
-		ID:            id,
+		ID:            id[0],
 		Attributes:    resource,
 		Relationships: relationships,
 	}
 }
 
-func generateResourceRelationship() *Relationships {
+func generateResourceRelationship(ids []string) *Relationships {
 	policy := &Identifier{Type: "policy", ID: "policy-id"}
 	policies := &Policies{Data: []*Identifier{policy}}
+	var parent *Parent
 
-	parent := &Parent{Data: &Identifier{Type: "resource", ID: "parent-id"}}
+	if len(ids) == 2 {
+		parent = &Parent{Data: &Identifier{Type: "resource", ID: "parent-id"}}
+	}
 	relationships := &Relationships{Parent: parent, Policies: policies}
 	return relationships
 }
