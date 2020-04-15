@@ -32,7 +32,7 @@ type Element struct {
 
 // Relationships provides details about a given resource like policies and parent
 type Relationships struct {
-	Parent   *Parent   `json:"parent"`
+	Parent   *Parent   `json:"parent,omitempty"`
 	Policies *Policies `json:"policies"`
 }
 
@@ -59,7 +59,7 @@ type Resource struct {
 }
 
 func constructResourceResponse(resource *Resource, id ...string) Element {
-	relationships := generateResourceRelationship(id)
+	relationships := generateResourceRelationship(id[1])
 	return Element{
 		Type:          "resource",
 		ID:            id[0],
@@ -68,13 +68,13 @@ func constructResourceResponse(resource *Resource, id ...string) Element {
 	}
 }
 
-func generateResourceRelationship(ids []string) *Relationships {
+func generateResourceRelationship(id string) *Relationships {
 	policy := &Identifier{Type: "policy", ID: "policy-id"}
 	policies := &Policies{Data: []*Identifier{policy}}
 	var parent *Parent
 
-	if len(ids) == 2 {
-		parent = &Parent{Data: &Identifier{Type: "resource", ID: "parent-id"}}
+	if id != "" {
+		parent = &Parent{Data: &Identifier{Type: "resource", ID: id}}
 	}
 	relationships := &Relationships{Parent: parent, Policies: policies}
 	return relationships

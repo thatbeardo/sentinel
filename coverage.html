@@ -58,15 +58,17 @@
 				
 				<option value="file1">github.com/thatbeardo/go-sentinel/api/handlers/resources/get.go (100.0%)</option>
 				
-				<option value="file2">github.com/thatbeardo/go-sentinel/api/handlers/resources/post.go (100.0%)</option>
+				<option value="file2">github.com/thatbeardo/go-sentinel/api/handlers/resources/patch.go (100.0%)</option>
 				
-				<option value="file3">github.com/thatbeardo/go-sentinel/api/handlers/resources/routes.go (100.0%)</option>
+				<option value="file3">github.com/thatbeardo/go-sentinel/api/handlers/resources/post.go (100.0%)</option>
 				
-				<option value="file4">github.com/thatbeardo/go-sentinel/models/resource/entity.go (100.0%)</option>
+				<option value="file4">github.com/thatbeardo/go-sentinel/api/handlers/resources/routes.go (100.0%)</option>
 				
-				<option value="file5">github.com/thatbeardo/go-sentinel/models/resource/neo4j.go (100.0%)</option>
+				<option value="file5">github.com/thatbeardo/go-sentinel/models/resource/entity.go (100.0%)</option>
 				
-				<option value="file6">github.com/thatbeardo/go-sentinel/models/resource/service.go (100.0%)</option>
+				<option value="file6">github.com/thatbeardo/go-sentinel/models/resource/neo4j.go (100.0%)</option>
+				
+				<option value="file7">github.com/thatbeardo/go-sentinel/models/resource/service.go (100.0%)</option>
 				
 				</select>
 			</div>
@@ -174,6 +176,44 @@ import (
         "github.com/thatbeardo/go-sentinel/models/resource"
 )
 
+// @Summary Update a resource by it's ID
+// @Tags Resources
+// @Description Update resource name, sourceID, parent, etc
+// @Accept  json
+// @Produce  json
+// @Param id path string true "Resource ID"
+// @Param input body resource.Input true "Resource to be created"
+// @Success 204 {object} resource.Response        "ok"
+// @Success 404 {object} views.ErrView
+// @Router /v1/resources/{id} [patch]
+func patch(service resource.Service) gin.HandlerFunc <span class="cov8" title="1">{
+        return func(c *gin.Context) </span><span class="cov8" title="1">{
+                id := c.Param("id")
+                var resourceInput resource.Input
+                if err := c.ShouldBind(&amp;resourceInput); err != nil </span><span class="cov8" title="1">{
+                        views.Wrap(err, c)
+                        return
+                }</span>
+                <span class="cov8" title="1">resourceResponse, err := service.Update(id, &amp;resourceInput)
+                if err != nil </span><span class="cov8" title="1">{
+                        views.Wrap(err, c)
+                        return
+                }</span>
+                <span class="cov8" title="1">c.JSON(http.StatusAccepted, resourceResponse)</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package resources
+
+import (
+        "net/http"
+
+        "github.com/gin-gonic/gin"
+        "github.com/thatbeardo/go-sentinel/api/views"
+        "github.com/thatbeardo/go-sentinel/models/resource"
+)
+
 // @Summary Create a new Resource
 // @Description Add a new resource to existing resources
 // @Tags Resources
@@ -200,7 +240,7 @@ func post(service resource.Service) gin.HandlerFunc <span class="cov8" title="1"
 }
 </pre>
 		
-		<pre class="file" id="file3" style="display: none">package resources
+		<pre class="file" id="file4" style="display: none">package resources
 
 import (
         "github.com/gin-gonic/gin"
@@ -214,11 +254,12 @@ func ResourceRoutes(r *gin.RouterGroup, service resource.Service) <span class="c
         router.GET("/", get(service))
         router.GET("/:id", getByID(service))
         router.POST("/", post(service))
+        router.PATCH("/:id", patch(service))
         router.DELETE("/:id", delete(service))
 }</span>
 </pre>
 		
-		<pre class="file" id="file4" style="display: none">package resource
+		<pre class="file" id="file5" style="display: none">package resource
 
 // Input is the payload that a POST endpoint expects.
 type Input struct {
@@ -252,7 +293,7 @@ type Element struct {
 
 // Relationships provides details about a given resource like policies and parent
 type Relationships struct {
-        Parent   *Parent   `json:"parent"`
+        Parent   *Parent   `json:"parent,omitempty"`
         Policies *Policies `json:"policies"`
 }
 
@@ -278,27 +319,30 @@ type Resource struct {
         SourceID string `json:"source_id" binding:"required"`
 }
 
-func constructResourceResponse(resource *Resource, id string) Element <span class="cov8" title="1">{
-        relationships := generateResourceRelationship()
+func constructResourceResponse(resource *Resource, id ...string) Element <span class="cov8" title="1">{
+        relationships := generateResourceRelationship(id[1])
         return Element{
                 Type:          "resource",
-                ID:            id,
+                ID:            id[0],
                 Attributes:    resource,
                 Relationships: relationships,
         }
 }</span>
 
-func generateResourceRelationship() *Relationships <span class="cov8" title="1">{
+func generateResourceRelationship(id string) *Relationships <span class="cov8" title="1">{
         policy := &amp;Identifier{Type: "policy", ID: "policy-id"}
         policies := &amp;Policies{Data: []*Identifier{policy}}
+        var parent *Parent
 
-        parent := &amp;Parent{Data: &amp;Identifier{Type: "resource", ID: "parent-id"}}
-        relationships := &amp;Relationships{Parent: parent, Policies: policies}
-        return relationships
-}</span>
+        if id != "" </span><span class="cov8" title="1">{
+                parent = &amp;Parent{Data: &amp;Identifier{Type: "resource", ID: id}}
+        }</span>
+        <span class="cov8" title="1">relationships := &amp;Relationships{Parent: parent, Policies: policies}
+        return relationships</span>
+}
 </pre>
 		
-		<pre class="file" id="file5" style="display: none">package resource
+		<pre class="file" id="file6" style="display: none">package resource
 
 import (
         "fmt"
@@ -318,7 +362,7 @@ func NewNeo4jRepository(session neo4j.Session) Repository <span class="cov8" tit
 
 // Get retrieves all the resources present in the graph
 func (repo *neo4jRepository) Get() (Response, error) <span class="cov8" title="1">{
-        result, err := repo.session.Run("MATCH(n:Resource) RETURN n.name, n.source_id, n.id", map[string]interface{}{})
+        result, err := repo.session.Run("MATCH(child:Resource) OPTIONAL MATCH (child: Resource)-[:OWNED_BY]-&gt;(parent: Resource) RETURN child.name, child.source_id, child.id, parent.id", map[string]interface{}{})
         if err != nil </span><span class="cov8" title="1">{
                 return Response{}, models.ErrDatabase
         }</span>
@@ -327,14 +371,15 @@ func (repo *neo4jRepository) Get() (Response, error) <span class="cov8" title="1
                 resourceName := fmt.Sprint(result.Record().GetByIndex(0))
                 resourceSourceID := fmt.Sprint(result.Record().GetByIndex(1))
                 id := fmt.Sprint(result.Record().GetByIndex(2))
-                dtos = append(dtos, constructResourceResponse(&amp;Resource{Name: resourceName, SourceID: resourceSourceID}, id))
+                parentID := decodeParentID(result.Record().GetByIndex(3))
+                dtos = append(dtos, constructResourceResponse(&amp;Resource{Name: resourceName, SourceID: resourceSourceID}, id, parentID))
         }</span>
         <span class="cov8" title="1">return Response{Data: dtos}, nil</span>
 }
 
 // GetByID function adds a resource node
 func (repo *neo4jRepository) GetByID(id string) (Element, error) <span class="cov8" title="1">{
-        result, err := repo.session.Run("MATCH(n:Resource) WHERE n.id = $id RETURN n.name, n.source_id", map[string]interface{}{
+        result, err := repo.session.Run("MATCH(child:Resource) WHERE child.id = $id OPTIONAL MATCH (child: Resource)-[:OWNED_BY]-&gt;(parent: Resource) RETURN child.name, child.source_id, parent.id", map[string]interface{}{
                 "id": id,
         })
         if err != nil </span><span class="cov8" title="1">{
@@ -344,7 +389,8 @@ func (repo *neo4jRepository) GetByID(id string) (Element, error) <span class="co
         for result.Next() </span><span class="cov8" title="1">{
                 resourceName := fmt.Sprint(result.Record().GetByIndex(0))
                 resourceSourceID := fmt.Sprint(result.Record().GetByIndex(1))
-                response = constructResourceResponse(&amp;Resource{Name: resourceName, SourceID: resourceSourceID}, id)
+                parentID := decodeParentID(result.Record().GetByIndex(2))
+                response = constructResourceResponse(&amp;Resource{Name: resourceName, SourceID: resourceSourceID}, id, parentID)
         }</span>
         <span class="cov8" title="1">if response.ID == "" </span><span class="cov8" title="1">{
                 err = models.ErrNotFound
@@ -366,7 +412,7 @@ func (repo *neo4jRepository) Create(resource *Input) (Element, error) <span clas
         for result.Next() </span><span class="cov8" title="1">{
                 id = fmt.Sprint(result.Record().GetByIndex(0))
         }</span>
-        <span class="cov8" title="1">return constructResourceResponse(resource.Data.Attributes, id), nil</span>
+        <span class="cov8" title="1">return constructResourceResponse(resource.Data.Attributes, id, ""), nil</span>
 }
 
 // Delete function deletes a node from the graph
@@ -380,7 +426,10 @@ func (repo *neo4jRepository) Delete(id string) error <span class="cov8" title="1
         }</span>
         <span class="cov8" title="1">result.Next()
         summary, err := result.Summary()
-        if summary.Counters().NodesDeleted() == 0 </span><span class="cov8" title="1">{
+        if err != nil </span><span class="cov8" title="1">{
+                return models.ErrDatabase
+        }</span>
+        <span class="cov8" title="1">if summary.Counters().NodesDeleted() == 0 </span><span class="cov8" title="1">{
                 return models.ErrNotFound
         }</span>
         <span class="cov8" title="1">return nil</span>
@@ -401,15 +450,65 @@ func (repo *neo4jRepository) CreateEdge(source string, destination string) error
         }</span>
         <span class="cov8" title="1">return err</span>
 }
+
+// CreateEdge function creates an edge between two resources
+func (repo *neo4jRepository) DeleteEdge(source string, destination string) error <span class="cov8" title="1">{
+        result, err := repo.session.Run(`MATCH (n { id: $source }) -[r:OWNED_BY]-&gt;(m {id:$destination}) DELETE r`,
+                map[string]interface{}{
+                        "source":      source,
+                        "destination": destination,
+                })
+        if err != nil </span><span class="cov8" title="1">{
+                return models.ErrDatabase
+        }</span>
+        <span class="cov8" title="1">result.Next()
+        summary, err := result.Summary()
+        if err != nil </span><span class="cov8" title="1">{
+                return models.ErrDatabase
+        }</span>
+        <span class="cov8" title="1">if summary.Counters().RelationshipsDeleted() == 0 </span><span class="cov8" title="1">{
+                return models.ErrNotFound
+        }</span>
+        <span class="cov8" title="1">return nil</span>
+}
+
+// Update function Edits the contents of a node
+func (repo *neo4jRepository) Update(id string, resource *Input) (Element, error) <span class="cov8" title="1">{
+        result, err := repo.session.Run("MATCH (n:Resource { id: $id }) SET n.name = $name, n.source_id = $source_id RETURN n.name, n.source_id",
+                map[string]interface{}{
+                        "id":        id,
+                        "name":      resource.Data.Attributes.Name,
+                        "source_id": resource.Data.Attributes.SourceID,
+                })
+        if err != nil </span><span class="cov8" title="1">{
+                return Element{}, models.ErrDatabase
+        }</span>
+        <span class="cov8" title="1">for result.Next() </span><span class="cov8" title="1">{
+                id = fmt.Sprint(result.Record().GetByIndex(0))
+        }</span>
+        <span class="cov8" title="1">var parentID string = ""
+        if resource.Data.Relationships != nil </span><span class="cov8" title="1">{
+                parentID = resource.Data.Relationships.Parent.Data.ID
+        }</span>
+        <span class="cov8" title="1">return constructResourceResponse(resource.Data.Attributes, id, parentID), nil</span>
+}
+
+func decodeParentID(response interface{}) string <span class="cov8" title="1">{
+        if response == nil </span><span class="cov8" title="1">{
+                return ""
+        }</span>
+        <span class="cov8" title="1">return fmt.Sprint(response)</span>
+}
 </pre>
 		
-		<pre class="file" id="file6" style="display: none">package resource
+		<pre class="file" id="file7" style="display: none">package resource
 
 // Service recieves commands from handlers and forwards them to the repository
 type Service interface {
         Get() (Response, error)
-        Create(*Input) (Element, error)
         GetByID(string) (Element, error)
+        Create(*Input) (Element, error)
+        Update(string, *Input) (Element, error)
         Delete(string) error
 }
 
@@ -429,6 +528,35 @@ func (service *service) Get() (Response, error) <span class="cov8" title="1">{
 func (service *service) GetByID(id string) (Element, error) <span class="cov8" title="1">{
         return service.repository.GetByID(id)
 }</span>
+
+func (service *service) Update(id string, resource *Input) (Element, error) <span class="cov8" title="1">{
+        if resource.Data.Relationships != nil </span><span class="cov8" title="1">{
+                var err error
+                var node Element
+                if node, err = service.repository.GetByID(id); err != nil </span><span class="cov8" title="1">{
+                        return Element{}, err
+                }</span>
+
+                <span class="cov8" title="1">var parent Element
+                parent, err = service.repository.GetByID(resource.Data.Relationships.Parent.Data.ID)
+                if err != nil </span><span class="cov8" title="1">{
+                        return Element{}, err
+                }</span>
+
+                <span class="cov8" title="1">err = service.repository.CreateEdge(id, parent.ID)
+                if err != nil </span><span class="cov8" title="1">{
+                        return Element{}, err
+                }</span>
+
+                <span class="cov8" title="1">if node.Relationships != nil </span><span class="cov8" title="1">{
+                        err = service.repository.DeleteEdge(node.ID, node.Relationships.Parent.Data.ID)
+                        if err != nil </span><span class="cov8" title="1">{
+                                return Element{}, err
+                        }</span>
+                }
+        }
+        <span class="cov8" title="1">return service.repository.Update(id, resource)</span>
+}
 
 func (service *service) Create(resource *Input) (Element, error) <span class="cov8" title="1">{
         if resource.Data.Relationships != nil </span><span class="cov8" title="1">{

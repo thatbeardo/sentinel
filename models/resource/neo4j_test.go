@@ -38,7 +38,6 @@ func TestGetResourcesNoResourcesPresent(t *testing.T) {
 	assert.Nil(t, err, "Should be empty")
 	assert.Equal(t, response, resources, "Schemas do not match")
 }
-
 func TestGetResourcesSingleResource(t *testing.T) {
 	mockSession := &mocks.Session{}
 	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(validResourceFromDatabase())
@@ -53,9 +52,23 @@ func TestGetResourcesSingleResource(t *testing.T) {
 	assert.Equal(t, response, resources, "Response schemas don't match")
 }
 
+func TestGetResourcesResourceWithParent(t *testing.T) {
+	mockSession := &mocks.Session{}
+	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(validResourceFromDatabaseWithParent())
+
+	repository := resource.NewNeo4jRepository(mockSession)
+	resources, err := repository.Get()
+
+	var dtos []resource.Element = []resource.Element{data.Element}
+	response := resource.Response{Data: dtos}
+
+	assert.Nil(t, err, "Should be empty")
+	assert.Equal(t, response, resources, "Response schemas don't match")
+}
+
 func TestGetResourcesByIdSingleResource(t *testing.T) {
 	mockSession := &mocks.Session{}
-	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(validResourceFromDatabase())
+	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(validResourceFromDatabaseWithParentGetByID())
 
 	repository := resource.NewNeo4jRepository(mockSession)
 	resources, err := repository.GetByID("test-id")
@@ -201,7 +214,7 @@ func TestUpdateResourceNoErrors(t *testing.T) {
 	response, err := repository.Update("test-id", data.Input)
 
 	assert.Nil(t, err)
-	assert.Equal(t, response, data.ElementWithoutParent, "Error schemas do not match")
+	assert.Equal(t, response, data.Element, "Error schemas do not match")
 }
 
 func TestDeleteEdgeNoErrors(t *testing.T) {
@@ -257,6 +270,14 @@ func noResourcesFromDatabase() (neo4j.Result, error) {
 
 func validResourceFromDatabase() (neo4j.Result, error) {
 	return mocks.ResourceWithoutParent(), nil
+}
+
+func validResourceFromDatabaseWithParent() (neo4j.Result, error) {
+	return mocks.ResourceWithParent(), nil
+}
+
+func validResourceFromDatabaseWithParentGetByID() (neo4j.Result, error) {
+	return mocks.ResourceWithoutParentGetByID(), nil
 }
 
 func deleteResourceSuccessful() (neo4j.Result, error) {

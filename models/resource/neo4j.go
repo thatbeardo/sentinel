@@ -18,7 +18,7 @@ func NewNeo4jRepository(session neo4j.Session) Repository {
 
 // Get retrieves all the resources present in the graph
 func (repo *neo4jRepository) Get() (Response, error) {
-	result, err := repo.session.Run("MATCH(n:Resource) RETURN n.name, n.source_id, n.id", map[string]interface{}{})
+	result, err := repo.session.Run("MATCH(child:Resource) OPTIONAL MATCH (child: Resource)-[:OWNED_BY]->(parent: Resource) RETURN child.name, child.source_id, child.id, parent.id", map[string]interface{}{})
 	if err != nil {
 		return Response{}, models.ErrDatabase
 	}
@@ -27,14 +27,15 @@ func (repo *neo4jRepository) Get() (Response, error) {
 		resourceName := fmt.Sprint(result.Record().GetByIndex(0))
 		resourceSourceID := fmt.Sprint(result.Record().GetByIndex(1))
 		id := fmt.Sprint(result.Record().GetByIndex(2))
-		dtos = append(dtos, constructResourceResponse(&Resource{Name: resourceName, SourceID: resourceSourceID}, id))
+		parentID := decodeParentID(result.Record().GetByIndex(3))
+		dtos = append(dtos, constructResourceResponse(&Resource{Name: resourceName, SourceID: resourceSourceID}, id, parentID))
 	}
 	return Response{Data: dtos}, nil
 }
 
 // GetByID function adds a resource node
 func (repo *neo4jRepository) GetByID(id string) (Element, error) {
-	result, err := repo.session.Run("MATCH(n:Resource) WHERE n.id = $id RETURN n.name, n.source_id", map[string]interface{}{
+	result, err := repo.session.Run("MATCH(child:Resource) WHERE child.id = $id OPTIONAL MATCH (child: Resource)-[:OWNED_BY]->(parent: Resource) RETURN child.name, child.source_id, parent.id", map[string]interface{}{
 		"id": id,
 	})
 	if err != nil {
@@ -44,7 +45,8 @@ func (repo *neo4jRepository) GetByID(id string) (Element, error) {
 	for result.Next() {
 		resourceName := fmt.Sprint(result.Record().GetByIndex(0))
 		resourceSourceID := fmt.Sprint(result.Record().GetByIndex(1))
-		response = constructResourceResponse(&Resource{Name: resourceName, SourceID: resourceSourceID}, id)
+		parentID := decodeParentID(result.Record().GetByIndex(2))
+		response = constructResourceResponse(&Resource{Name: resourceName, SourceID: resourceSourceID}, id, parentID)
 	}
 	if response.ID == "" {
 		err = models.ErrNotFound
@@ -66,7 +68,7 @@ func (repo *neo4jRepository) Create(resource *Input) (Element, error) {
 	for result.Next() {
 		id = fmt.Sprint(result.Record().GetByIndex(0))
 	}
-	return constructResourceResponse(resource.Data.Attributes, id), nil
+	return constructResourceResponse(resource.Data.Attributes, id, ""), nil
 }
 
 // Delete function deletes a node from the graph
@@ -140,5 +142,16 @@ func (repo *neo4jRepository) Update(id string, resource *Input) (Element, error)
 	for result.Next() {
 		id = fmt.Sprint(result.Record().GetByIndex(0))
 	}
-	return constructResourceResponse(resource.Data.Attributes, id), nil
+	var parentID string = ""
+	if resource.Data.Relationships != nil {
+		parentID = resource.Data.Relationships.Parent.Data.ID
+	}
+	return constructResourceResponse(resource.Data.Attributes, id, parentID), nil
+}
+
+func decodeParentID(response interface{}) string {
+	if response == nil {
+		return ""
+	}
+	return fmt.Sprint(response)
 }

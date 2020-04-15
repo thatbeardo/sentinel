@@ -9,6 +9,20 @@ func ResourceWithoutParent() *Result {
 	mockRecord.On("GetByIndex", 0).Return("test-resource")
 	mockRecord.On("GetByIndex", 1).Return("test-source-id")
 	mockRecord.On("GetByIndex", 2).Return("test-id")
+	mockRecord.On("GetByIndex", 3).Return(nil)
+	mockResult.On("Next").Return(true).Once()
+	mockResult.On("Next").Return(false).Once()
+	mockResult.On("Record").Return(mockRecord)
+	return mockResult
+}
+
+// ResourceWithoutParentGetByID returns a resource fetched when GetById is called
+func ResourceWithoutParentGetByID() *Result {
+	mockResult := &Result{}
+	mockRecord := &Record{}
+	mockRecord.On("GetByIndex", 0).Return("test-resource")
+	mockRecord.On("GetByIndex", 1).Return("test-source-id")
+	mockRecord.On("GetByIndex", 2).Return(nil)
 	mockResult.On("Next").Return(true).Once()
 	mockResult.On("Next").Return(false).Once()
 	mockResult.On("Record").Return(mockRecord)
@@ -22,6 +36,7 @@ func ResourceWithParent() *Result {
 	mockRecord.On("GetByIndex", 0).Return("test-resource")
 	mockRecord.On("GetByIndex", 1).Return("test-source-id")
 	mockRecord.On("GetByIndex", 2).Return("test-id")
+	mockRecord.On("GetByIndex", 3).Return("parent-id")
 	mockResult.On("Next").Return(true).Once()
 	mockResult.On("Next").Return(false).Once()
 	mockResult.On("Record").Return(mockRecord)
