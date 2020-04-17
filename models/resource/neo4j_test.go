@@ -217,49 +217,6 @@ func TestUpdateResourceNoErrors(t *testing.T) {
 	assert.Equal(t, response, data.Element, "Error schemas do not match")
 }
 
-func TestDeleteEdgeNoErrors(t *testing.T) {
-	mockSession := &mocks.Session{}
-	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(deleteRelationshipSuccessful())
-
-	repository := resource.NewNeo4jRepository(mockSession)
-	err := repository.DeleteEdge("test-id", "parent-id")
-
-	assert.Nil(t, err)
-}
-
-func TestDeleteEdgeNoRelationShipsDeletedNoErrors(t *testing.T) {
-	mockSession := &mocks.Session{}
-	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(deleteEdgeFailure())
-
-	repository := resource.NewNeo4jRepository(mockSession)
-	err := repository.DeleteEdge("test-id", "parent-id")
-
-	assert.NotNil(t, err)
-	assert.Equal(t, err, models.ErrNotFound, "Schemas don't match")
-}
-
-func TestDeleteEdgeDatabaseErrors(t *testing.T) {
-	mockSession := &mocks.Session{}
-	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(errorFromDatabase())
-
-	repository := resource.NewNeo4jRepository(mockSession)
-	err := repository.DeleteEdge("test-id", "parent-id")
-
-	assert.NotNil(t, err)
-	assert.Equal(t, err, models.ErrDatabase, "Schemas don't match")
-}
-
-func TestDeleteEdgeSummaryErrors(t *testing.T) {
-	mockSession := &mocks.Session{}
-	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(summaryFailure())
-
-	repository := resource.NewNeo4jRepository(mockSession)
-	err := repository.DeleteEdge("test-id", "parent-id")
-
-	assert.NotNil(t, err)
-	assert.Equal(t, err, models.ErrDatabase, "Schemas don't match")
-}
-
 func TestUpdateOwnershipNoErrors(t *testing.T) {
 	mockSession := &mocks.Session{}
 	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(errorFromDatabase())
@@ -342,10 +299,6 @@ func createEdgeSuccessful() (neo4j.Result, error) {
 
 func createEdgeFailure() (neo4j.Result, error) {
 	return mocks.CreateEdgeFails(), nil
-}
-
-func deleteEdgeFailure() (neo4j.Result, error) {
-	return mocks.DeleteEdgeFails(), nil
 }
 
 func summaryFailure() (neo4j.Result, error) {

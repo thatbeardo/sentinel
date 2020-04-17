@@ -107,27 +107,6 @@ func (repo *neo4jRepository) CreateEdge(source string, destination string) error
 	return err
 }
 
-// CreateEdge function creates an edge between two resources
-func (repo *neo4jRepository) DeleteEdge(source string, destination string) error {
-	result, err := repo.session.Run(`MATCH (n { id: $source }) -[r:OWNED_BY]->(m {id:$destination}) DELETE r`,
-		map[string]interface{}{
-			"source":      source,
-			"destination": destination,
-		})
-	if err != nil {
-		return models.ErrDatabase
-	}
-	result.Next()
-	summary, err := result.Summary()
-	if err != nil {
-		return models.ErrDatabase
-	}
-	if summary.Counters().RelationshipsDeleted() == 0 {
-		return models.ErrNotFound
-	}
-	return nil
-}
-
 // Update function Edits the contents of a node
 func (repo *neo4jRepository) Update(id string, resource *Input) (Element, error) {
 	result, err := repo.session.Run("MATCH (n:Resource { id: $id }) SET n.name = $name, n.source_id = $source_id RETURN n.name, n.source_id",

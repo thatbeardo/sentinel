@@ -83,18 +83,6 @@ func CreateEdgeFails() *Result {
 	return mockResult
 }
 
-// DeleteEdgeFails mimics a case when the relationships updated is 0
-func DeleteEdgeFails() *Result {
-	mockCounter := &Counters{}
-	mockCounter.On("RelationshipsDeleted").Return(0)
-	mockSummary := &ResultSummary{}
-	mockSummary.On("Counters").Return(mockCounter)
-	mockResult := &Result{}
-	mockResult.On("Next").Return(true).Once()
-	mockResult.On("Summary").Return(mockSummary, nil)
-	return mockResult
-}
-
 // SummaryFailure mimics a case when the calling the summary results in failrue
 func SummaryFailure() *Result {
 	mockResult := &Result{}
