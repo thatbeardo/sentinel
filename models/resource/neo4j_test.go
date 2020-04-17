@@ -265,7 +265,7 @@ func TestUpdateOwnershipNoErrors(t *testing.T) {
 	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(errorFromDatabase())
 
 	repository := resource.NewNeo4jRepository(mockSession)
-	err := repository.UpdateOwnership("test-id", data.Input)
+	_, err := repository.UpdateOwnership("test-id", data.Input)
 
 	assert.NotNil(t, err)
 	assert.Equal(t, err, models.ErrDatabase, "Schemas don't match")
@@ -276,7 +276,7 @@ func TestUpdateOwnershipSummaryErrors(t *testing.T) {
 	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(summaryFailure())
 
 	repository := resource.NewNeo4jRepository(mockSession)
-	err := repository.UpdateOwnership("test-id", data.Input)
+	_, err := repository.UpdateOwnership("test-id", data.Input)
 
 	assert.NotNil(t, err)
 	assert.Equal(t, err, models.ErrDatabase, "Schemas don't match")
@@ -287,20 +287,21 @@ func TestUpdateOwnershipZeroRelationshipsCreated(t *testing.T) {
 	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(updateOwnershipZeroRelationsCreated())
 
 	repository := resource.NewNeo4jRepository(mockSession)
-	err := repository.UpdateOwnership("test-id", data.Input)
+	_, err := repository.UpdateOwnership("test-id", data.Input)
 
 	assert.NotNil(t, err)
 	assert.Equal(t, err, models.ErrDatabase, "Schemas don't match")
 }
 
-func TestUpdateOwnershipoErros(t *testing.T) {
+func TestUpdateOwnershipNoErros(t *testing.T) {
 	mockSession := &mocks.Session{}
 	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(UpdateOwnershipNoErrors())
 
 	repository := resource.NewNeo4jRepository(mockSession)
-	err := repository.UpdateOwnership("test-id", data.Input)
+	response, err := repository.UpdateOwnership("test-id", data.Input)
 
 	assert.Nil(t, err)
+	assert.Equal(t, response, data.Element, "Schemas don't match")
 }
 
 func createResourcesSuccessful() (neo4j.Result, error) {

@@ -150,7 +150,7 @@ func (repo *neo4jRepository) Update(id string, resource *Input) (Element, error)
 }
 
 // UpdateOwnerRelationships is used to delete the old parent and attach a node to a new parent
-func (repo *neo4jRepository) UpdateOwnership(id string, resource *Input) error {
+func (repo *neo4jRepository) UpdateOwnership(id string, resource *Input) (Element, error) {
 	result, err := repo.session.Run(`MATCH(child:Resource{id:$id})
 	SET child.name = $name
 	SET child.source_id = $source_id
@@ -167,15 +167,15 @@ func (repo *neo4jRepository) UpdateOwnership(id string, resource *Input) error {
 			"parent_id": resource.Data.Relationships.Parent.Data.ID,
 		})
 	if err != nil {
-		return models.ErrDatabase
+		return Element{}, models.ErrDatabase
 	}
 	result.Next()
 	summary, err := result.Summary()
 
 	if err != nil || summary.Counters().RelationshipsCreated() != 1 {
-		return models.ErrDatabase
+		return Element{}, models.ErrDatabase
 	}
-	return nil
+	return constructResourceResponse(resource.Data.Attributes, id, resource.Data.Relationships.Parent.Data.ID), nil
 }
 
 func decodeParentID(response interface{}) string {

@@ -29,28 +29,22 @@ func (service *service) GetByID(id string) (Element, error) {
 func (service *service) Update(id string, resource *Input) (Element, error) {
 	if resource.Data.Relationships != nil {
 		var err error
-		var node Element
-		if node, err = service.repository.GetByID(id); err != nil {
+		if _, err = service.repository.GetByID(id); err != nil {
 			return Element{}, err
 		}
 
-		var parent Element
-		parent, err = service.repository.GetByID(resource.Data.Relationships.Parent.Data.ID)
+		// var parent Element
+		_, err = service.repository.GetByID(resource.Data.Relationships.Parent.Data.ID)
 		if err != nil {
 			return Element{}, err
 		}
 
-		err = service.repository.CreateEdge(id, parent.ID)
+		response, err := service.repository.UpdateOwnership(id, resource)
 		if err != nil {
 			return Element{}, err
 		}
 
-		if node.Relationships != nil {
-			err = service.repository.DeleteEdge(node.ID, node.Relationships.Parent.Data.ID)
-			if err != nil {
-				return Element{}, err
-			}
-		}
+		return response, nil
 	}
 	return service.repository.Update(id, resource)
 }

@@ -184,11 +184,11 @@ func TestUpdateResourceInvalidParent(t *testing.T) {
 	assert.Equal(t, err, models.ErrNotFound, "Schemas don't match")
 }
 
-func TestUpdateResourceValidParentEdgeError(t *testing.T) {
+func TestUpdateOwnershipError(t *testing.T) {
 	repository := &mocks.Repository{}
 	repository.On("GetByID", "parent-id").Return(elementWithoutErrors())
 	repository.On("GetByID", "test-id").Return(elementWithoutErrors())
-	repository.On("CreateEdge", m.AnythingOfType("string"), m.AnythingOfType("string")).Return(models.ErrDatabase)
+	repository.On("UpdateOwnership", m.AnythingOfType("string"), m.AnythingOfType("*resource.Input")).Return(databaseErrorFromRepository())
 
 	service := resource.NewService(repository)
 	_, err := service.Update("test-id", data.Input)
@@ -201,14 +201,13 @@ func TestUpdateNoErrors(t *testing.T) {
 	repository := &mocks.Repository{}
 	repository.On("GetByID", "parent-id").Return(elementWithoutErrors())
 	repository.On("GetByID", "test-id").Return(elementWithoutErrors())
-	repository.On("CreateEdge", m.AnythingOfType("string"), m.AnythingOfType("string")).Return(nil)
-	repository.On("DeleteEdge", m.AnythingOfType("string"), m.AnythingOfType("string")).Return(nil)
-	repository.On("Update", m.AnythingOfType("string"), m.AnythingOfType("*resource.Input")).Return(elementWithoutErrors())
+	repository.On("UpdateOwnership", m.AnythingOfType("string"), m.Anything).Return(elementWithoutErrors())
 
 	service := resource.NewService(repository)
-	_, err := service.Update("test-id", data.Input)
+	response, err := service.Update("test-id", data.Input)
 
 	assert.Nil(t, err, "Should not have thrown an error")
+	assert.Equal(t, data.Element, response, "Response schemas don't match")
 }
 
 func TestUpdateResourceNodeNotFound(t *testing.T) {
@@ -222,32 +221,15 @@ func TestUpdateResourceNodeNotFound(t *testing.T) {
 	assert.Equal(t, err, models.ErrNotFound, "Schemas don't match")
 }
 
-func TestUpdateResourceDeleteEdgeError(t *testing.T) {
+func TestUpdateResourceNoParentProvided(t *testing.T) {
 	repository := &mocks.Repository{}
-	repository.On("GetByID", "parent-id").Return(elementWithoutErrors())
-	repository.On("GetByID", "test-id").Return(elementWithoutErrors())
-	repository.On("CreateEdge", m.AnythingOfType("string"), m.AnythingOfType("string")).Return(nil)
-	repository.On("DeleteEdge", m.AnythingOfType("string"), m.AnythingOfType("string")).Return(models.ErrDatabase)
+	repository.On("Update", m.AnythingOfType("string"), m.AnythingOfType("*resource.Input")).Return(elementWithoutParentNoErrors())
 
 	service := resource.NewService(repository)
-	_, err := service.Update("test-id", data.Input)
-
-	assert.NotNil(t, err, "Should not have thrown an error")
-	assert.Equal(t, err, models.ErrDatabase, "Schemas don't match")
-}
-
-func TestUpdateResourceValidParentDeleteEdgeError(t *testing.T) {
-	repository := &mocks.Repository{}
-	repository.On("GetByID", "parent-id").Return(elementWithoutErrors())
-	repository.On("GetByID", "test-id").Return(elementWithoutRelationshipsNoErrors())
-	repository.On("CreateEdge", m.AnythingOfType("string"), m.AnythingOfType("string")).Return(nil)
-	repository.On("Update", m.AnythingOfType("string"), m.AnythingOfType("*resource.Input")).Return(elementWithoutErrors())
-
-	service := resource.NewService(repository)
-	response, err := service.Update("test-id", data.Input)
+	response, err := service.Update("test-id", data.InputRelationshipsAbsent)
 
 	assert.Nil(t, err, "Should not have thrown an error")
-	assert.Equal(t, response, data.Element, "Schemas don't match")
+	assert.Equal(t, data.ElementWithoutParent, response, "Response schemas don't match")
 }
 
 func getAllResourcesNoErrors() (resource.Response, error) {
@@ -260,6 +242,10 @@ func elementWithoutErrors() (resource.Element, error) {
 
 func elementWithoutRelationshipsNoErrors() (resource.Element, error) {
 	return data.ElementRelationshipsAbsent, nil
+}
+
+func elementWithoutParentNoErrors() (resource.Element, error) {
+	return data.ElementWithoutParent, nil
 }
 
 func parentElementWithoutErrors() (resource.Element, error) {

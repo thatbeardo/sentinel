@@ -8,7 +8,7 @@ type Repository interface {
 	Update(string, *Input) (Element, error)
 	Delete(string) error
 
-	UpdateOwnership(string, *Input) error
+	UpdateOwnership(string, *Input) (Element, error)
 	CreateEdge(string, string) error
 	DeleteEdge(string, string) error
 }
