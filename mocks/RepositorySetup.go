@@ -138,3 +138,27 @@ func DeleteResourceNoNodesDeleted() *Result {
 	mockResult.On("Summary").Return(mockSummary, nil)
 	return mockResult
 }
+
+// UpdateOwnershipZeroRelationshipsCreated mimics a case when the summary shows zero relationships were created
+func UpdateOwnershipZeroRelationshipsCreated() *Result {
+	mockCounter := &Counters{}
+	mockCounter.On("RelationshipsCreated").Return(0)
+	mockSummary := &ResultSummary{}
+	mockSummary.On("Counters").Return(mockCounter)
+	mockResult := &Result{}
+	mockResult.On("Next").Return(true).Once()
+	mockResult.On("Summary").Return(mockSummary, nil)
+	return mockResult
+}
+
+// UpdateOwnershipNoErrors mimics a case when everything went fine - no errors returned
+func UpdateOwnershipNoErrors() *Result {
+	mockCounter := &Counters{}
+	mockCounter.On("RelationshipsCreated").Return(1)
+	mockSummary := &ResultSummary{}
+	mockSummary.On("Counters").Return(mockCounter)
+	mockResult := &Result{}
+	mockResult.On("Next").Return(true).Once()
+	mockResult.On("Summary").Return(mockSummary, nil)
+	return mockResult
+}

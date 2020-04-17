@@ -47,20 +47,6 @@ func (_m *Repository) CreateEdge(_a0 string, _a1 string) error {
 	return r0
 }
 
-// CreateEdge provides a mock function with given fields: _a0, _a1
-func (_m *Repository) DeleteEdge(_a0 string, _a1 string) error {
-	ret := _m.Called(_a0, _a1)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(string, string) error); ok {
-		r0 = rf(_a0, _a1)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
 // Delete provides a mock function with given fields: _a0
 func (_m *Repository) Delete(_a0 string) error {
 	ret := _m.Called(_a0)
@@ -68,6 +54,20 @@ func (_m *Repository) Delete(_a0 string) error {
 	var r0 error
 	if rf, ok := ret.Get(0).(func(string) error); ok {
 		r0 = rf(_a0)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// DeleteEdge provides a mock function with given fields: _a0, _a1
+func (_m *Repository) DeleteEdge(_a0 string, _a1 string) error {
+	ret := _m.Called(_a0, _a1)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string, string) error); ok {
+		r0 = rf(_a0, _a1)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -136,4 +136,18 @@ func (_m *Repository) Update(_a0 string, _a1 *resource.Input) (resource.Element,
 	}
 
 	return r0, r1
+}
+
+// UpdateOwnership provides a mock function with given fields: _a0, _a1
+func (_m *Repository) UpdateOwnership(_a0 string, _a1 *resource.Input) error {
+	ret := _m.Called(_a0, _a1)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string, *resource.Input) error); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }

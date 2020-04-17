@@ -260,6 +260,49 @@ func TestDeleteEdgeSummaryErrors(t *testing.T) {
 	assert.Equal(t, err, models.ErrDatabase, "Schemas don't match")
 }
 
+func TestUpdateOwnershipNoErrors(t *testing.T) {
+	mockSession := &mocks.Session{}
+	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(errorFromDatabase())
+
+	repository := resource.NewNeo4jRepository(mockSession)
+	err := repository.UpdateOwnership("test-id", data.Input)
+
+	assert.NotNil(t, err)
+	assert.Equal(t, err, models.ErrDatabase, "Schemas don't match")
+}
+
+func TestUpdateOwnershipSummaryErrors(t *testing.T) {
+	mockSession := &mocks.Session{}
+	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(summaryFailure())
+
+	repository := resource.NewNeo4jRepository(mockSession)
+	err := repository.UpdateOwnership("test-id", data.Input)
+
+	assert.NotNil(t, err)
+	assert.Equal(t, err, models.ErrDatabase, "Schemas don't match")
+}
+
+func TestUpdateOwnershipZeroRelationshipsCreated(t *testing.T) {
+	mockSession := &mocks.Session{}
+	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(updateOwnershipZeroRelationsCreated())
+
+	repository := resource.NewNeo4jRepository(mockSession)
+	err := repository.UpdateOwnership("test-id", data.Input)
+
+	assert.NotNil(t, err)
+	assert.Equal(t, err, models.ErrDatabase, "Schemas don't match")
+}
+
+func TestUpdateOwnershipoErros(t *testing.T) {
+	mockSession := &mocks.Session{}
+	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(UpdateOwnershipNoErrors())
+
+	repository := resource.NewNeo4jRepository(mockSession)
+	err := repository.UpdateOwnership("test-id", data.Input)
+
+	assert.Nil(t, err)
+}
+
 func createResourcesSuccessful() (neo4j.Result, error) {
 	return mocks.CreateResourceSuccessful(), nil
 }
@@ -310,4 +353,12 @@ func summaryFailure() (neo4j.Result, error) {
 
 func errorFromDatabase() (neo4j.Result, error) {
 	return nil, errors.New("Database error")
+}
+
+func updateOwnershipZeroRelationsCreated() (neo4j.Result, error) {
+	return mocks.UpdateOwnershipZeroRelationshipsCreated(), nil
+}
+
+func UpdateOwnershipNoErrors() (neo4j.Result, error) {
+	return mocks.UpdateOwnershipNoErrors(), nil
 }
