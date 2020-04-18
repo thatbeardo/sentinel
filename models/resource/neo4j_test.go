@@ -168,7 +168,7 @@ func TestUpdateResourceDatabaseError(t *testing.T) {
 	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(errorFromDatabase())
 
 	repository := resource.NewNeo4jRepository(mockSession)
-	_, err := repository.Update(data.Element, data.Element)
+	_, err := repository.Update(data.Element, data.Input)
 
 	assert.NotNil(t, err)
 	assert.Equal(t, err, models.ErrDatabase, "Error schemas do not match")
@@ -179,10 +179,10 @@ func TestUpdateResourceNoErrors(t *testing.T) {
 	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(createResourcesSuccessful())
 
 	repository := resource.NewNeo4jRepository(mockSession)
-	response, err := repository.Update(data.ElementRelationshipsAbsent, data.Element)
+	response, err := repository.Update(data.ElementWithoutParent, data.InputWithDifferentName)
 
 	assert.Nil(t, err)
-	assert.Equal(t, response, data.Element, "Error schemas do not match")
+	assert.Equal(t, response, data.ElementWithDifferentName, "Error schemas do not match")
 }
 
 func TestUpdateResourceNoParentBeforeAndAfter(t *testing.T) {
@@ -190,7 +190,7 @@ func TestUpdateResourceNoParentBeforeAndAfter(t *testing.T) {
 	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(createResourcesSuccessful())
 
 	repository := resource.NewNeo4jRepository(mockSession)
-	response, err := repository.Update(data.ElementRelationshipsAbsent, data.ElementRelationshipsAbsent)
+	response, err := repository.Update(data.ElementWithoutParent, data.InputRelationshipsAbsent)
 
 	assert.Nil(t, err)
 	assert.Equal(t, response, data.ElementWithoutParent, "Error schemas do not match")
@@ -201,7 +201,7 @@ func TestUpdateResourceNoParentsAfter(t *testing.T) {
 	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(createResourcesSuccessful())
 
 	repository := resource.NewNeo4jRepository(mockSession)
-	response, err := repository.Update(data.Element, data.ElementRelationshipsAbsent)
+	response, err := repository.Update(data.Element, data.InputRelationshipsAbsent)
 
 	assert.Nil(t, err)
 	assert.Equal(t, response, data.Element, "Error schemas do not match")
@@ -212,7 +212,18 @@ func TestUpdateResourceNewParents(t *testing.T) {
 	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(createResourcesSuccessful())
 
 	repository := resource.NewNeo4jRepository(mockSession)
-	response, err := repository.Update(data.Element, data.Element)
+	response, err := repository.Update(data.ElementWithoutParent, data.Input)
+
+	assert.Nil(t, err)
+	assert.Equal(t, response, data.Element, "Error schemas do not match")
+}
+
+func TestUpdateResourceParentsPresentBeforeAndAfter(t *testing.T) {
+	mockSession := &mocks.Session{}
+	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(createResourcesSuccessful())
+
+	repository := resource.NewNeo4jRepository(mockSession)
+	response, err := repository.Update(data.Element, data.Input)
 
 	assert.Nil(t, err)
 	assert.Equal(t, response, data.Element, "Error schemas do not match")

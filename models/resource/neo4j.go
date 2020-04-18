@@ -103,7 +103,7 @@ func (repo *neo4jRepository) Delete(id string) error {
 }
 
 // Update function Edits the contents of a node
-func (repo *neo4jRepository) Update(oldResource Element, newResource Element) (Element, error) {
+func (repo *neo4jRepository) Update(oldResource Element, newResource *Input) (Element, error) {
 	oldParentID, newParentID := extractOldAndNewParentIds(oldResource, newResource)
 	result, err := repo.session.Run(`
 		MATCH(child:Resource{id:$child_id})
@@ -112,7 +112,7 @@ func (repo *neo4jRepository) Update(oldResource Element, newResource Element) (E
 		WITH child
 		MATCH(nparent:Resource{id:$new_parent_id})
 		WITH child,nparent
-		MATCH (child)-[r:OWNED_BY]->(parent:Resource{id:old_parent_id})
+		OPTIONAL MATCH (child)-[r:OWNED_BY]->(parent:Resource{id:$old_parent_id})
 		WITH child,parent,r,nparent
 		DELETE r
 		WITH child,nparent
@@ -120,8 +120,8 @@ func (repo *neo4jRepository) Update(oldResource Element, newResource Element) (E
 		RETURN child.id`,
 		map[string]interface{}{
 			"child_id":      oldResource.ID,
-			"name":          newResource.Attributes.Name,
-			"source_id":     newResource.Attributes.SourceID,
+			"name":          newResource.Data.Attributes.Name,
+			"source_id":     newResource.Data.Attributes.SourceID,
 			"new_parent_id": newParentID,
 			"old_parent_id": oldParentID,
 		})
@@ -133,7 +133,7 @@ func (repo *neo4jRepository) Update(oldResource Element, newResource Element) (E
 		id = fmt.Sprint(result.Record().GetByIndex(0))
 	}
 	parentID := determineUpdatedParent(oldParentID, newParentID)
-	return constructResourceResponse(oldResource.Attributes, id, parentID), nil
+	return constructResourceResponse(newResource.Data.Attributes, id, parentID), nil
 }
 
 func decodeParentID(response interface{}) string {
@@ -156,13 +156,13 @@ func determineUpdatedParent(oldID string, newID string) string {
 	return newID
 }
 
-func extractOldAndNewParentIds(oldResource Element, newResource Element) (string, string) {
+func extractOldAndNewParentIds(oldResource Element, newResource *Input) (string, string) {
 	var oldParentID string
 	var newParentID string
-	if newResource.Relationships != nil {
-		newParentID = newResource.Relationships.Parent.Data.ID
+	if newResource.Data.Relationships != nil {
+		newParentID = newResource.Data.Relationships.Parent.Data.ID
 	}
-	if oldResource.Relationships != nil {
+	if oldResource.Relationships.Parent != nil {
 		oldParentID = oldResource.Relationships.Parent.Data.ID
 	}
 	return oldParentID, newParentID

@@ -32,15 +32,14 @@ func (service *service) Update(id string, resource *Input) (Element, error) {
 		return Element{}, err
 	}
 
-	var parent Element
 	if resource.Data.Relationships != nil {
-		parent, err = service.repository.GetByID(resource.Data.Relationships.Parent.Data.ID)
+		_, err = service.repository.GetByID(resource.Data.Relationships.Parent.Data.ID)
 		if err != nil {
 			return Element{}, err
 		}
 	}
 
-	return service.repository.Update(child, parent)
+	return service.repository.Update(child, resource)
 }
 
 func (service *service) Create(resource *Input) (Element, error) {

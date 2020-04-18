@@ -161,7 +161,7 @@ func TestUpdateNoErrors(t *testing.T) {
 	repository := &mocks.Repository{}
 	repository.On("GetByID", "parent-id").Return(elementWithoutErrors())
 	repository.On("GetByID", "test-id").Return(elementWithoutErrors())
-	repository.On("Update", m.AnythingOfType("resource.Element"), m.AnythingOfType("resource.Element")).Return(elementWithoutErrors())
+	repository.On("Update", m.AnythingOfType("resource.Element"), m.AnythingOfType("*resource.Input")).Return(elementWithoutErrors())
 
 	service := resource.NewService(repository)
 	response, err := service.Update("test-id", data.Input)
@@ -185,7 +185,7 @@ func TestUpdateResourceNoParentProvided(t *testing.T) {
 	repository := &mocks.Repository{}
 	repository.On("GetByID", m.AnythingOfType("string")).Return(elementWithoutParentNoErrors())
 	repository.On("GetByID", m.AnythingOfType("string")).Return(parentElementWithoutErrors())
-	repository.On("Update", m.AnythingOfType("resource.Element"), m.AnythingOfType("resource.Element")).Return(elementWithoutParentNoErrors())
+	repository.On("Update", m.AnythingOfType("resource.Element"), m.AnythingOfType("*resource.Input")).Return(elementWithoutParentNoErrors())
 
 	service := resource.NewService(repository)
 	response, err := service.Update("test-id", data.InputRelationshipsAbsent)

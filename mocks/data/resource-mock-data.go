@@ -38,6 +38,11 @@ var attributes = &resource.Resource{
 	SourceID: "test-source-id",
 }
 
+var attributesWithDifferentName = &resource.Resource{
+	Name:     "different-resource",
+	SourceID: "different-source-id",
+}
+
 var parentAttributes = &resource.Resource{
 	Name:     "parent-resource",
 	SourceID: "parent-source-id",
@@ -46,6 +51,12 @@ var parentAttributes = &resource.Resource{
 var inputElement = &resource.InputElement{
 	Type:          "resource",
 	Attributes:    attributes,
+	Relationships: inputRelationships,
+}
+
+var inputElementDifferentName = &resource.InputElement{
+	Type:          "resource",
+	Attributes:    attributesWithDifferentName,
 	Relationships: inputRelationships,
 }
 
@@ -58,6 +69,14 @@ var inputElementRelationshipsAbsent = &resource.InputElement{
 var Element = resource.Element{
 	Type:          "resource",
 	Attributes:    attributes,
+	Relationships: relationships,
+	ID:            "test-id",
+}
+
+// ElementWithDifferentName represents response to be displayed to the user
+var ElementWithDifferentName = resource.Element{
+	Type:          "resource",
+	Attributes:    attributesWithDifferentName,
 	Relationships: relationships,
 	ID:            "test-id",
 }
@@ -86,6 +105,9 @@ var ParentElement = resource.Element{
 
 // Input represente the payload sent by the user to the service
 var Input = &resource.Input{Data: inputElement}
+
+// InputWithDifferentName represents an input with a different name
+var InputWithDifferentName = &resource.Input{Data: inputElementDifferentName}
 
 // InputRelationshipsAbsent represente the payload sent by the user to the service
 var InputRelationshipsAbsent = &resource.Input{Data: inputElementRelationshipsAbsent}

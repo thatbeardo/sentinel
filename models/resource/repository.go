@@ -5,6 +5,6 @@ type Repository interface {
 	Get() (Response, error)
 	GetByID(string) (Element, error)
 	Create(*Input) (Element, error)
-	Update(Element, Element) (Element, error)
+	Update(Element, *Input) (Element, error)
 	Delete(string) error
 }
