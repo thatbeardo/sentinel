@@ -51,22 +51,10 @@ func (service *service) Update(id string, resource *Input) (Element, error) {
 
 func (service *service) Create(resource *Input) (Element, error) {
 	if resource.Data.Relationships != nil {
-		parent, err := service.repository.GetByID(resource.Data.Relationships.Parent.Data.ID)
+		_, err := service.repository.GetByID(resource.Data.Relationships.Parent.Data.ID)
 		if err != nil {
 			return Element{}, err
 		}
-
-		var child Element
-		child, err = service.repository.Create(resource)
-		if err != nil {
-			return Element{}, err
-		}
-
-		err = service.repository.CreateEdge(child.ID, parent.ID)
-		if err != nil {
-			return Element{}, err
-		}
-		return child, nil
 	}
 	return service.repository.Create(resource)
 }

@@ -56,10 +56,21 @@ func (repo *neo4jRepository) GetByID(id string) (Element, error) {
 
 // Create function adds a node to the graph
 func (repo *neo4jRepository) Create(resource *Input) (Element, error) {
-	result, err := repo.session.Run("CREATE (n:Resource { name: $name, source_id: $source_id, id: randomUUID() }) RETURN n.id",
+	var parentID string
+	if resource.Data.Relationships != nil {
+		parentID = resource.Data.Relationships.Parent.Data.ID
+	}
+	result, err := repo.session.Run(`
+	CREATE(child:Resource{name:$name, source_id: $source_id})
+	WITH child
+	MATCH(parent:Resource{id:$parent_id})
+	WITH child,parent
+	CREATE(child)-[r:OWNED_BY]->(parent)
+	return child`,
 		map[string]interface{}{
 			"name":      resource.Data.Attributes.Name,
 			"source_id": resource.Data.Attributes.SourceID,
+			"parent_id": parentID,
 		})
 	if err != nil {
 		return Element{}, models.ErrDatabase
@@ -89,22 +100,6 @@ func (repo *neo4jRepository) Delete(id string) error {
 		return models.ErrNotFound
 	}
 	return nil
-}
-
-// CreateEdge function creates an edge between two resources
-func (repo *neo4jRepository) CreateEdge(source string, destination string) error {
-	result, err := repo.session.Run(`MATCH (parent:Resource),(child:Resource) WHERE child.id = $source AND parent.id = $destination CREATE (child)-[r:OWNED_BY]->(parent) RETURN type(r)`,
-		map[string]interface{}{
-			"source":      source,
-			"destination": destination,
-		})
-	if err != nil {
-		return models.ErrDatabase
-	}
-	if result.Next(); result.Record().GetByIndex(0) != "OWNED_BY" {
-		return models.ErrNotFound
-	}
-	return err
 }
 
 // Update function Edits the contents of a node

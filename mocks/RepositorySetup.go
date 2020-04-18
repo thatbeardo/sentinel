@@ -63,26 +63,6 @@ func CreateResourceSuccessful() *Result {
 	return mockResult
 }
 
-// CreateEdgeSuccessful mimics a condition when an edge was created successfully
-func CreateEdgeSuccessful() *Result {
-	mockResult := &Result{}
-	mockRecord := &Record{}
-	mockRecord.On("GetByIndex", 0).Return("OWNED_BY")
-	mockResult.On("Next").Return(true).Once()
-	mockResult.On("Record").Return(mockRecord)
-	return mockResult
-}
-
-// CreateEdgeFails mimics a condition when an edge was created successfully
-func CreateEdgeFails() *Result {
-	mockResult := &Result{}
-	mockRecord := &Record{}
-	mockRecord.On("GetByIndex", 0).Return("")
-	mockResult.On("Next").Return(true).Once()
-	mockResult.On("Record").Return(mockRecord)
-	return mockResult
-}
-
 // SummaryFailure mimics a case when the calling the summary results in failrue
 func SummaryFailure() *Result {
 	mockResult := &Result{}

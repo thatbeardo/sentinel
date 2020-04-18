@@ -163,38 +163,6 @@ func TestDeleteResourcesNoNodesDeleted(t *testing.T) {
 	assert.Equal(t, err, models.ErrNotFound, "Error schemas do not match")
 }
 
-func TestCreateEdgeNoErrors(t *testing.T) {
-	mockSession := &mocks.Session{}
-	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(createEdgeSuccessful())
-
-	repository := resource.NewNeo4jRepository(mockSession)
-	err := repository.CreateEdge("child-id", "parent-id")
-
-	assert.Nil(t, err)
-}
-
-func TestCreateEdgeNoEdgeNotCreated(t *testing.T) {
-	mockSession := &mocks.Session{}
-	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(createEdgeFailure())
-
-	repository := resource.NewNeo4jRepository(mockSession)
-	err := repository.CreateEdge("child-id", "parent-id")
-
-	assert.NotNil(t, err)
-	assert.Equal(t, err, models.ErrNotFound, "Error schemas do not match")
-}
-
-func TestCreateEdgeDatabaseError(t *testing.T) {
-	mockSession := &mocks.Session{}
-	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(errorFromDatabase())
-
-	repository := resource.NewNeo4jRepository(mockSession)
-	err := repository.CreateEdge("child-id", "parent-id")
-
-	assert.NotNil(t, err)
-	assert.Equal(t, err, models.ErrDatabase, "Error schemas do not match")
-}
-
 func TestUpdateResourceDatabaseError(t *testing.T) {
 	mockSession := &mocks.Session{}
 	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(errorFromDatabase())
@@ -291,14 +259,6 @@ func deleteRelationshipSuccessful() (neo4j.Result, error) {
 
 func deleteResourceNoNodesDeleted() (neo4j.Result, error) {
 	return mocks.DeleteResourceNoNodesDeleted(), nil
-}
-
-func createEdgeSuccessful() (neo4j.Result, error) {
-	return mocks.CreateEdgeSuccessful(), nil
-}
-
-func createEdgeFailure() (neo4j.Result, error) {
-	return mocks.CreateEdgeFails(), nil
 }
 
 func summaryFailure() (neo4j.Result, error) {

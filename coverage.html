@@ -400,10 +400,21 @@ func (repo *neo4jRepository) GetByID(id string) (Element, error) <span class="co
 
 // Create function adds a node to the graph
 func (repo *neo4jRepository) Create(resource *Input) (Element, error) <span class="cov8" title="1">{
-        result, err := repo.session.Run("CREATE (n:Resource { name: $name, source_id: $source_id, id: randomUUID() }) RETURN n.id",
+        var parentID string
+        if resource.Data.Relationships != nil </span><span class="cov8" title="1">{
+                parentID = resource.Data.Relationships.Parent.Data.ID
+        }</span>
+        <span class="cov8" title="1">result, err := repo.session.Run(`
+        CREATE(child:Resource{name:$name, source_id: $source_id})
+        WITH child
+        MATCH(parent:Resource{id:$parent_id})
+        WITH child,parent
+        CREATE(child)-[r:OWNED_BY]-&gt;(parent)
+        return child`,
                 map[string]interface{}{
                         "name":      resource.Data.Attributes.Name,
                         "source_id": resource.Data.Attributes.SourceID,
+                        "parent_id": parentID,
                 })
         if err != nil </span><span class="cov8" title="1">{
                 return Element{}, models.ErrDatabase
@@ -451,27 +462,6 @@ func (repo *neo4jRepository) CreateEdge(source string, destination string) error
         <span class="cov8" title="1">return err</span>
 }
 
-// CreateEdge function creates an edge between two resources
-func (repo *neo4jRepository) DeleteEdge(source string, destination string) error <span class="cov8" title="1">{
-        result, err := repo.session.Run(`MATCH (n { id: $source }) -[r:OWNED_BY]-&gt;(m {id:$destination}) DELETE r`,
-                map[string]interface{}{
-                        "source":      source,
-                        "destination": destination,
-                })
-        if err != nil </span><span class="cov8" title="1">{
-                return models.ErrDatabase
-        }</span>
-        <span class="cov8" title="1">result.Next()
-        summary, err := result.Summary()
-        if err != nil </span><span class="cov8" title="1">{
-                return models.ErrDatabase
-        }</span>
-        <span class="cov8" title="1">if summary.Counters().RelationshipsDeleted() == 0 </span><span class="cov8" title="1">{
-                return models.ErrNotFound
-        }</span>
-        <span class="cov8" title="1">return nil</span>
-}
-
 // Update function Edits the contents of a node
 func (repo *neo4jRepository) Update(id string, resource *Input) (Element, error) <span class="cov8" title="1">{
         result, err := repo.session.Run("MATCH (n:Resource { id: $id }) SET n.name = $name, n.source_id = $source_id RETURN n.name, n.source_id",
@@ -491,6 +481,35 @@ func (repo *neo4jRepository) Update(id string, resource *Input) (Element, error)
                 parentID = resource.Data.Relationships.Parent.Data.ID
         }</span>
         <span class="cov8" title="1">return constructResourceResponse(resource.Data.Attributes, id, parentID), nil</span>
+}
+
+// UpdateOwnerRelationships is used to delete the old parent and attach a node to a new parent
+func (repo *neo4jRepository) UpdateOwnership(id string, resource *Input) (Element, error) <span class="cov8" title="1">{
+        result, err := repo.session.Run(`MATCH(child:Resource{id:$id})
+        SET child.name = $name
+        SET child.source_id = $source_id
+        WITH child
+        OPTIONAL MATCH(child)-[ownership:OWNED_BY]-&gt;(:Resource)
+        DELETE ownership
+        WITH child
+        MATCH (parent:Resource{id: $parent_id})
+        MERGE (child)-[r:OWNED_BY]-&gt;(parent)`,
+                map[string]interface{}{
+                        "id":        id,
+                        "name":      resource.Data.Attributes.Name,
+                        "source_id": resource.Data.Attributes.SourceID,
+                        "parent_id": resource.Data.Relationships.Parent.Data.ID,
+                })
+        if err != nil </span><span class="cov8" title="1">{
+                return Element{}, models.ErrDatabase
+        }</span>
+        <span class="cov8" title="1">result.Next()
+        summary, err := result.Summary()
+
+        if err != nil || summary.Counters().RelationshipsCreated() != 1 </span><span class="cov8" title="1">{
+                return Element{}, models.ErrDatabase
+        }</span>
+        <span class="cov8" title="1">return constructResourceResponse(resource.Data.Attributes, id, resource.Data.Relationships.Parent.Data.ID), nil</span>
 }
 
 func decodeParentID(response interface{}) string <span class="cov8" title="1">{
@@ -532,50 +551,32 @@ func (service *service) GetByID(id string) (Element, error) <span class="cov8" t
 func (service *service) Update(id string, resource *Input) (Element, error) <span class="cov8" title="1">{
         if resource.Data.Relationships != nil </span><span class="cov8" title="1">{
                 var err error
-                var node Element
-                if node, err = service.repository.GetByID(id); err != nil </span><span class="cov8" title="1">{
+                if _, err = service.repository.GetByID(id); err != nil </span><span class="cov8" title="1">{
                         return Element{}, err
                 }</span>
 
-                <span class="cov8" title="1">var parent Element
-                parent, err = service.repository.GetByID(resource.Data.Relationships.Parent.Data.ID)
+                // var parent Element
+                <span class="cov8" title="1">_, err = service.repository.GetByID(resource.Data.Relationships.Parent.Data.ID)
                 if err != nil </span><span class="cov8" title="1">{
                         return Element{}, err
                 }</span>
 
-                <span class="cov8" title="1">err = service.repository.CreateEdge(id, parent.ID)
+                <span class="cov8" title="1">response, err := service.repository.UpdateOwnership(id, resource)
                 if err != nil </span><span class="cov8" title="1">{
                         return Element{}, err
                 }</span>
 
-                <span class="cov8" title="1">if node.Relationships != nil </span><span class="cov8" title="1">{
-                        err = service.repository.DeleteEdge(node.ID, node.Relationships.Parent.Data.ID)
-                        if err != nil </span><span class="cov8" title="1">{
-                                return Element{}, err
-                        }</span>
-                }
+                <span class="cov8" title="1">return response, nil</span>
         }
         <span class="cov8" title="1">return service.repository.Update(id, resource)</span>
 }
 
 func (service *service) Create(resource *Input) (Element, error) <span class="cov8" title="1">{
         if resource.Data.Relationships != nil </span><span class="cov8" title="1">{
-                parent, err := service.repository.GetByID(resource.Data.Relationships.Parent.Data.ID)
+                _, err := service.repository.GetByID(resource.Data.Relationships.Parent.Data.ID)
                 if err != nil </span><span class="cov8" title="1">{
                         return Element{}, err
                 }</span>
-
-                <span class="cov8" title="1">var child Element
-                child, err = service.repository.Create(resource)
-                if err != nil </span><span class="cov8" title="1">{
-                        return Element{}, err
-                }</span>
-
-                <span class="cov8" title="1">err = service.repository.CreateEdge(child.ID, parent.ID)
-                if err != nil </span><span class="cov8" title="1">{
-                        return Element{}, err
-                }</span>
-                <span class="cov8" title="1">return child, nil</span>
         }
         <span class="cov8" title="1">return service.repository.Create(resource)</span>
 }
