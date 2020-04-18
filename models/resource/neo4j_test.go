@@ -168,7 +168,7 @@ func TestUpdateResourceDatabaseError(t *testing.T) {
 	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(errorFromDatabase())
 
 	repository := resource.NewNeo4jRepository(mockSession)
-	_, err := repository.Update("test-id", data.Input)
+	_, err := repository.Update(data.Element, data.Element)
 
 	assert.NotNil(t, err)
 	assert.Equal(t, err, models.ErrDatabase, "Error schemas do not match")
@@ -179,54 +179,43 @@ func TestUpdateResourceNoErrors(t *testing.T) {
 	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(createResourcesSuccessful())
 
 	repository := resource.NewNeo4jRepository(mockSession)
-	response, err := repository.Update("test-id", data.Input)
+	response, err := repository.Update(data.ElementRelationshipsAbsent, data.Element)
 
 	assert.Nil(t, err)
 	assert.Equal(t, response, data.Element, "Error schemas do not match")
 }
 
-func TestUpdateOwnershipNoErrors(t *testing.T) {
+func TestUpdateResourceNoParentBeforeAndAfter(t *testing.T) {
 	mockSession := &mocks.Session{}
-	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(errorFromDatabase())
+	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(createResourcesSuccessful())
 
 	repository := resource.NewNeo4jRepository(mockSession)
-	_, err := repository.UpdateOwnership("test-id", data.Input)
-
-	assert.NotNil(t, err)
-	assert.Equal(t, err, models.ErrDatabase, "Schemas don't match")
-}
-
-func TestUpdateOwnershipSummaryErrors(t *testing.T) {
-	mockSession := &mocks.Session{}
-	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(summaryFailure())
-
-	repository := resource.NewNeo4jRepository(mockSession)
-	_, err := repository.UpdateOwnership("test-id", data.Input)
-
-	assert.NotNil(t, err)
-	assert.Equal(t, err, models.ErrDatabase, "Schemas don't match")
-}
-
-func TestUpdateOwnershipZeroRelationshipsCreated(t *testing.T) {
-	mockSession := &mocks.Session{}
-	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(updateOwnershipZeroRelationsCreated())
-
-	repository := resource.NewNeo4jRepository(mockSession)
-	_, err := repository.UpdateOwnership("test-id", data.Input)
-
-	assert.NotNil(t, err)
-	assert.Equal(t, err, models.ErrDatabase, "Schemas don't match")
-}
-
-func TestUpdateOwnershipNoErros(t *testing.T) {
-	mockSession := &mocks.Session{}
-	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(UpdateOwnershipNoErrors())
-
-	repository := resource.NewNeo4jRepository(mockSession)
-	response, err := repository.UpdateOwnership("test-id", data.Input)
+	response, err := repository.Update(data.ElementRelationshipsAbsent, data.ElementRelationshipsAbsent)
 
 	assert.Nil(t, err)
-	assert.Equal(t, response, data.Element, "Schemas don't match")
+	assert.Equal(t, response, data.ElementWithoutParent, "Error schemas do not match")
+}
+
+func TestUpdateResourceNoParentsAfter(t *testing.T) {
+	mockSession := &mocks.Session{}
+	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(createResourcesSuccessful())
+
+	repository := resource.NewNeo4jRepository(mockSession)
+	response, err := repository.Update(data.Element, data.ElementRelationshipsAbsent)
+
+	assert.Nil(t, err)
+	assert.Equal(t, response, data.Element, "Error schemas do not match")
+}
+
+func TestUpdateResourceNewParents(t *testing.T) {
+	mockSession := &mocks.Session{}
+	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(createResourcesSuccessful())
+
+	repository := resource.NewNeo4jRepository(mockSession)
+	response, err := repository.Update(data.Element, data.Element)
+
+	assert.Nil(t, err)
+	assert.Equal(t, response, data.Element, "Error schemas do not match")
 }
 
 func createResourcesSuccessful() (neo4j.Result, error) {
@@ -267,12 +256,4 @@ func summaryFailure() (neo4j.Result, error) {
 
 func errorFromDatabase() (neo4j.Result, error) {
 	return nil, errors.New("Database error")
-}
-
-func updateOwnershipZeroRelationsCreated() (neo4j.Result, error) {
-	return mocks.UpdateOwnershipZeroRelationshipsCreated(), nil
-}
-
-func UpdateOwnershipNoErrors() (neo4j.Result, error) {
-	return mocks.UpdateOwnershipNoErrors(), nil
 }

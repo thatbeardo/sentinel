@@ -5,8 +5,6 @@ type Repository interface {
 	Get() (Response, error)
 	GetByID(string) (Element, error)
 	Create(*Input) (Element, error)
-	Update(string, *Input) (Element, error)
+	Update(Element, Element) (Element, error)
 	Delete(string) error
-
-	UpdateOwnership(string, *Input) (Element, error)
 }

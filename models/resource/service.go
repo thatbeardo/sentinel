@@ -27,26 +27,20 @@ func (service *service) GetByID(id string) (Element, error) {
 }
 
 func (service *service) Update(id string, resource *Input) (Element, error) {
-	if resource.Data.Relationships != nil {
-		var err error
-		if _, err = service.repository.GetByID(id); err != nil {
-			return Element{}, err
-		}
-
-		// var parent Element
-		_, err = service.repository.GetByID(resource.Data.Relationships.Parent.Data.ID)
-		if err != nil {
-			return Element{}, err
-		}
-
-		response, err := service.repository.UpdateOwnership(id, resource)
-		if err != nil {
-			return Element{}, err
-		}
-
-		return response, nil
+	child, err := service.repository.GetByID(id)
+	if err != nil {
+		return Element{}, err
 	}
-	return service.repository.Update(id, resource)
+
+	var parent Element
+	if resource.Data.Relationships != nil {
+		parent, err = service.repository.GetByID(resource.Data.Relationships.Parent.Data.ID)
+		if err != nil {
+			return Element{}, err
+		}
+	}
+
+	return service.repository.Update(child, parent)
 }
 
 func (service *service) Create(resource *Input) (Element, error) {

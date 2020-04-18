@@ -103,53 +103,37 @@ func (repo *neo4jRepository) Delete(id string) error {
 }
 
 // Update function Edits the contents of a node
-func (repo *neo4jRepository) Update(id string, resource *Input) (Element, error) {
-	result, err := repo.session.Run("MATCH (n:Resource { id: $id }) SET n.name = $name, n.source_id = $source_id RETURN n.name, n.source_id",
+func (repo *neo4jRepository) Update(oldResource Element, newResource Element) (Element, error) {
+	oldParentID, newParentID := extractOldAndNewParentIds(oldResource, newResource)
+	result, err := repo.session.Run(`
+		MATCH(child:Resource{id:$child_id})
+		SET child.name=$name
+		SET child.source_id=$source_id
+		WITH child
+		MATCH(nparent:Resource{id:$new_parent_id})
+		WITH child,nparent
+		MATCH (child)-[r:OWNED_BY]->(parent:Resource{id:old_parent_id})
+		WITH child,parent,r,nparent
+		DELETE r
+		WITH child,nparent
+		CREATE(child)-[:OWNED_BY]->(nparent)
+		RETURN child.id`,
 		map[string]interface{}{
-			"id":        id,
-			"name":      resource.Data.Attributes.Name,
-			"source_id": resource.Data.Attributes.SourceID,
+			"child_id":      oldResource.ID,
+			"name":          newResource.Attributes.Name,
+			"source_id":     newResource.Attributes.SourceID,
+			"new_parent_id": newParentID,
+			"old_parent_id": oldParentID,
 		})
 	if err != nil {
 		return Element{}, models.ErrDatabase
 	}
+	var id string
 	for result.Next() {
 		id = fmt.Sprint(result.Record().GetByIndex(0))
 	}
-	var parentID string = ""
-	if resource.Data.Relationships != nil {
-		parentID = resource.Data.Relationships.Parent.Data.ID
-	}
-	return constructResourceResponse(resource.Data.Attributes, id, parentID), nil
-}
-
-// UpdateOwnerRelationships is used to delete the old parent and attach a node to a new parent
-func (repo *neo4jRepository) UpdateOwnership(id string, resource *Input) (Element, error) {
-	result, err := repo.session.Run(`MATCH(child:Resource{id:$id})
-	SET child.name = $name
-	SET child.source_id = $source_id
-	WITH child
-	OPTIONAL MATCH(child)-[ownership:OWNED_BY]->(:Resource)
-	DELETE ownership
-	WITH child
-	MATCH (parent:Resource{id: $parent_id})
-	MERGE (child)-[r:OWNED_BY]->(parent)`,
-		map[string]interface{}{
-			"id":        id,
-			"name":      resource.Data.Attributes.Name,
-			"source_id": resource.Data.Attributes.SourceID,
-			"parent_id": resource.Data.Relationships.Parent.Data.ID,
-		})
-	if err != nil {
-		return Element{}, models.ErrDatabase
-	}
-	result.Next()
-	summary, err := result.Summary()
-
-	if err != nil || summary.Counters().RelationshipsCreated() != 1 {
-		return Element{}, models.ErrDatabase
-	}
-	return constructResourceResponse(resource.Data.Attributes, id, resource.Data.Relationships.Parent.Data.ID), nil
+	parentID := determineUpdatedParent(oldParentID, newParentID)
+	return constructResourceResponse(oldResource.Attributes, id, parentID), nil
 }
 
 func decodeParentID(response interface{}) string {
@@ -157,4 +141,29 @@ func decodeParentID(response interface{}) string {
 		return ""
 	}
 	return fmt.Sprint(response)
+}
+
+func determineUpdatedParent(oldID string, newID string) string {
+	if oldID == "" && newID == "" {
+		return ""
+	}
+	if oldID == "" && newID != "" {
+		return newID
+	}
+	if oldID != "" && newID == "" {
+		return oldID
+	}
+	return newID
+}
+
+func extractOldAndNewParentIds(oldResource Element, newResource Element) (string, string) {
+	var oldParentID string
+	var newParentID string
+	if newResource.Relationships != nil {
+		newParentID = newResource.Relationships.Parent.Data.ID
+	}
+	if oldResource.Relationships != nil {
+		oldParentID = oldResource.Relationships.Parent.Data.ID
+	}
+	return oldParentID, newParentID
 }

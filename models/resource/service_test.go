@@ -157,24 +157,11 @@ func TestUpdateResourceInvalidParent(t *testing.T) {
 	assert.Equal(t, err, models.ErrNotFound, "Schemas don't match")
 }
 
-func TestUpdateOwnershipError(t *testing.T) {
-	repository := &mocks.Repository{}
-	repository.On("GetByID", "parent-id").Return(elementWithoutErrors())
-	repository.On("GetByID", "test-id").Return(elementWithoutErrors())
-	repository.On("UpdateOwnership", m.AnythingOfType("string"), m.AnythingOfType("*resource.Input")).Return(databaseErrorFromRepository())
-
-	service := resource.NewService(repository)
-	_, err := service.Update("test-id", data.Input)
-
-	assert.NotNil(t, err, "Should not have thrown an error")
-	assert.Equal(t, err, models.ErrDatabase, "Schemas don't match")
-}
-
 func TestUpdateNoErrors(t *testing.T) {
 	repository := &mocks.Repository{}
 	repository.On("GetByID", "parent-id").Return(elementWithoutErrors())
 	repository.On("GetByID", "test-id").Return(elementWithoutErrors())
-	repository.On("UpdateOwnership", m.AnythingOfType("string"), m.Anything).Return(elementWithoutErrors())
+	repository.On("Update", m.AnythingOfType("resource.Element"), m.AnythingOfType("resource.Element")).Return(elementWithoutErrors())
 
 	service := resource.NewService(repository)
 	response, err := service.Update("test-id", data.Input)
@@ -196,7 +183,9 @@ func TestUpdateResourceNodeNotFound(t *testing.T) {
 
 func TestUpdateResourceNoParentProvided(t *testing.T) {
 	repository := &mocks.Repository{}
-	repository.On("Update", m.AnythingOfType("string"), m.AnythingOfType("*resource.Input")).Return(elementWithoutParentNoErrors())
+	repository.On("GetByID", m.AnythingOfType("string")).Return(elementWithoutParentNoErrors())
+	repository.On("GetByID", m.AnythingOfType("string")).Return(parentElementWithoutErrors())
+	repository.On("Update", m.AnythingOfType("resource.Element"), m.AnythingOfType("resource.Element")).Return(elementWithoutParentNoErrors())
 
 	service := resource.NewService(repository)
 	response, err := service.Update("test-id", data.InputRelationshipsAbsent)
