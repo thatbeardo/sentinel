@@ -61,7 +61,7 @@ func (repo *neo4jRepository) Create(resource *Input) (Element, error) {
 		parentID = resource.Data.Relationships.Parent.Data.ID
 	}
 	result, err := repo.session.Run(`
-	CREATE(child:Resource{name:$name, source_id: $source_id})
+	CREATE(child:Resource{name:$name, source_id: $source_id, id: randomUUID()})
 	WITH child
 	MATCH(parent:Resource{id:$parent_id})
 	WITH child,parent
