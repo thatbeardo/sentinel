@@ -63,10 +63,13 @@ func (repo *neo4jRepository) Create(resource *Input) (Element, error) {
 	result, err := repo.session.Run(`
 	CREATE(child:Resource{name:$name, source_id: $source_id, id: randomUUID()})
 	WITH child
-	MATCH(parent:Resource{id:$parent_id})
+	OPTIONAL MATCH(parent:Resource{id:$parent_id})
 	WITH child,parent
-	CREATE(child)-[r:OWNED_BY]->(parent)
-	return child`,
+	FOREACH (o IN CASE WHEN parent IS NOT NULL THEN [parent] ELSE [] END |
+		CREATE (child)-[:OWNED_BY]->(parent)
+	)
+	RETURN child.id
+	`,
 		map[string]interface{}{
 			"name":      resource.Data.Attributes.Name,
 			"source_id": resource.Data.Attributes.SourceID,
@@ -79,7 +82,7 @@ func (repo *neo4jRepository) Create(resource *Input) (Element, error) {
 	for result.Next() {
 		id = fmt.Sprint(result.Record().GetByIndex(0))
 	}
-	return constructResourceResponse(resource.Data.Attributes, id, ""), nil
+	return constructResourceResponse(resource.Data.Attributes, id, parentID), nil
 }
 
 // Delete function deletes a node from the graph
