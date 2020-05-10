@@ -117,6 +117,11 @@ var Response = resource.Response{
 	Data: []resource.Element{Element},
 }
 
+// EmptyResponse denotes a case when no resources were found
+var EmptyResponse = resource.Response{
+	Data: []resource.Element{},
+}
+
 func generateResourceRelationship() resource.Relationships {
 	policy := &resource.Identifier{Type: "policy", ID: "some-id"}
 	policies := &resource.Policies{Data: []*resource.Identifier{policy}}
