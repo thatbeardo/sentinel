@@ -43,6 +43,7 @@ func SetupRouter(service resource.Service) *gin.Engine {
 // Initialize connects to the database and returns a shut down function
 func Initialize() (func(), neo4j.Session) {
 	session, driver, err := ConnectToDB()
+
 	fmt.Println(err)
 	return func() {
 		session.Close()
@@ -59,7 +60,7 @@ func ConnectToDB() (neo4j.Session, neo4j.Driver, error) {
 		err     error
 	)
 	// initialize driver to connect to localhost with ID and password
-	if driver, err = neo4j.NewDriver("bolt://neo4j_development:7687", neo4j.BasicAuth("", "", ""), func(c *neo4j.Config) {
+	if driver, err = neo4j.NewDriver("bolt://localhost:11004", neo4j.BasicAuth("neo4j", "password", ""), func(c *neo4j.Config) {
 		c.Encrypted = false
 	}); err != nil {
 		fmt.Println("Error while establishing graph connection")

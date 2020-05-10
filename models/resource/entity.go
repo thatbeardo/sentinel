@@ -54,8 +54,8 @@ type Policies struct {
 
 // Resource represents an entity created by the user.
 type Resource struct {
-	Name     string `json:"name"`
-	SourceID string `json:"source_id" binding:"required"`
+	Name     string `json:"name" mapstructure:"name"`
+	SourceID string `json:"source_id" binding:"required" mapstructure:"source_id"`
 }
 
 func constructResourceResponse(resource *Resource, id ...string) Element {

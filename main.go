@@ -142,8 +142,9 @@ import (
 func main() {
 	shutdown, session := server.Initialize()
 
-	resourceRepository := resource.NewNeo4jRepository(session)
-	resourceService := resource.NewService(resourceRepository)
+	rr := resource.New(resource.NewNeo4jSession(session))
+	// resourceRepository := resource.NewNeo4jRepository(session)
+	resourceService := resource.NewService(rr)
 
 	engine := server.SetupRouter(resourceService)
 	server.Orchestrate(engine, shutdown)
