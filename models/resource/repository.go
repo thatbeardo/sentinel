@@ -53,11 +53,8 @@ func (repo *repository) Create(resource *Input) (Element, error) {
 		WITH child
 		OPTIONAL MATCH(parent:Resource{id:$parent_id})
 		WITH child,parent
-		FOREACH (o IN CASE WHEN parent IS NOT NULL THEN [parent] ELSE [] END |
-			CREATE (child)-[:OWNED_BY]->(parent)
-		)
-		RETURN {child: child, parent: parent}
-		`,
+		FOREACH (o IN CASE WHEN parent IS NOT NULL THEN [parent] ELSE [] END | CREATE (child)-[:OWNED_BY]->(parent))
+		RETURN {child: child, parent: parent}`,
 		map[string]interface{}{
 			"name":      resource.Data.Attributes.Name,
 			"source_id": resource.Data.Attributes.SourceID,
@@ -67,15 +64,6 @@ func (repo *repository) Create(resource *Input) (Element, error) {
 		return Element{}, models.ErrNotFound
 	}
 	return elements.Data[0], err
-}
-
-// Delete function deletes a node from the graph
-func (repo *repository) Delete(id string) error {
-	_, err := repo.session.Execute(`MATCH (n:Resource { id: $id }) DETACH DELETE n`,
-		map[string]interface{}{
-			"id": id,
-		})
-	return err
 }
 
 // Update function Edits the contents of a node
@@ -93,6 +81,16 @@ func (repo *repository) Update(oldResource Element, newResource *Input) (Element
 		return Element{}, models.ErrNotFound
 	}
 	return elements.Data[0], err
+}
+
+// Delete function deletes a node from the graph
+func (repo *repository) Delete(id string) error {
+	_, err := repo.session.Execute(`
+		MATCH (n:Resource { id: $id }) DETACH DELETE n`,
+		map[string]interface{}{
+			"id": id,
+		})
+	return err
 }
 
 // New is a factory method to generate repository instances
@@ -127,8 +125,7 @@ func generateUpdateStatement(newParentID string) (statement string) {
 
 		OPTIONAL MATCH (new_parent:Resource{id:$new_parent_id})
 		CREATE(child)-[:OWNED_BY]->(new_parent)
-		RETURN {child: child, parent: new_parent}
-	`
+		RETURN {child: child, parent: new_parent}`
 	}
 	return
 }
