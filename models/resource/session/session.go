@@ -1,10 +1,10 @@
 package session
 
 import (
-	"github.com/neo4j/neo4j-go-driver/neo4j"
 	models "github.com/thatbeardo/go-sentinel/models"
 	entity "github.com/thatbeardo/go-sentinel/models/resource"
 	"github.com/thatbeardo/go-sentinel/models/resource/injection"
+	"github.com/thatbeardo/go-sentinel/models/resource/neo4j"
 )
 
 // Session interface defines methods needed to communicate/execute queries and a cleanup function when everything is done
@@ -12,8 +12,15 @@ type Session interface {
 	Execute(statement string, parameters map[string]interface{}) (response entity.Response, err error)
 }
 
-type neo4jSession struct {
-	session neo4j.Session
+type session struct {
+	session neo4j.Runner
+}
+
+// NewNeo4jSession is a factory method to create Neo4J session instances
+func NewNeo4jSession(neo4jsession neo4j.Runner) Session {
+	return session{
+		session: neo4jsession,
+	}
 }
 
 type resourceNode struct {
@@ -22,38 +29,29 @@ type resourceNode struct {
 	ID       string `mapstructure:"id"`
 }
 
-// NewNeo4jSession is a factory method to create Neo4J session instances
-func NewNeo4jSession(session neo4j.Session) Session {
-	return neo4jSession{
-		session: session,
-	}
-}
-
 // Execute runs the statement passed as a query and opulates the data parameter with result
-func (n neo4jSession) Execute(statement string, parameters map[string]interface{}) (response entity.Response, err error) {
-	result, err := n.session.Run(statement, parameters)
+func (n session) Execute(statement string, parameters map[string]interface{}) (response entity.Response, err error) {
+	resultMap, err := n.session.Run(statement, parameters)
 	if err != nil {
 		return entity.Response{}, models.ErrDatabase
 	}
 
 	resources := []entity.Element{}
-	for result.Next() {
-		resultMap := result.Record().GetByIndex(0).(map[string]interface{})
-		var childResource, parentResource resourceNode
+	var childResource, parentResource resourceNode
 
-		err = decodeResource(resultMap, "child", &childResource)
-		if err != nil {
-			return
-		}
-
-		err = decodeResource(resultMap, "parent", &parentResource)
-		if err != nil {
-			return
-		}
-
-		parent := generateParentResource(parentResource.ID)
-		resources = append(resources, generateElement(childResource, parent))
+	err = decodeResource(resultMap, "child", &childResource)
+	if err != nil {
+		return
 	}
+
+	err = decodeResource(resultMap, "parent", &parentResource)
+	if err != nil {
+		return
+	}
+
+	parent := generateParentResource(parentResource.ID)
+	resources = append(resources, generateElement(childResource, parent))
+
 	response = entity.Response{Data: resources}
 	return
 }

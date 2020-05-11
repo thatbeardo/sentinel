@@ -5,8 +5,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
-	"github.com/thatbeardo/go-sentinel/mocks"
 	"github.com/thatbeardo/go-sentinel/mocks/data"
 	models "github.com/thatbeardo/go-sentinel/models"
 	"github.com/thatbeardo/go-sentinel/models/resource/injection"
@@ -31,13 +29,21 @@ func (m mockNode) Props() map[string]interface{} {
 	return m.props
 }
 
+type mockNeo4jSession struct {
+	RunResponse map[string]interface{}
+	RunErr      error
+}
+
+func (m mockNeo4jSession) Run(statement string, parameters map[string]interface{}) (map[string]interface{}, error) {
+	return m.RunResponse, m.RunErr
+}
+
 func TestExecute_RunReturnsError_ReturnDatabaseError(t *testing.T) {
-	mockSession := &mocks.Session{}
-	session := session.NewNeo4jSession(mockSession)
+	session := session.NewNeo4jSession(mockNeo4jSession{
+		RunErr: errors.New("Database error"),
+	})
 
-	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(nil, errors.New("Database error"))
 	_, err := session.Execute(`cypher-query`, map[string]interface{}{})
-
 	assert.Equal(t, models.ErrDatabase, err)
 }
 
@@ -46,21 +52,19 @@ func TestExecute_DecodeFails_ReturnDatabaseError(t *testing.T) {
 	var errDecoding = errors.New("some-decoder-error")
 
 	injection.MapDecoder = func(interface{}, interface{}) error { return errDecoding }
-	mockSession := &mocks.Session{}
-	session := session.NewNeo4jSession(mockSession)
+	session := session.NewNeo4jSession(mockNeo4jSession{
+		RunResponse: generateValidResultMap(),
+	})
 
-	resultMap := generateValidResultMap()
-	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(returnResultWithData(resultMap), nil)
 	_, err := session.Execute(`cypher-query`, map[string]interface{}{})
-
 	assert.Equal(t, errDecoding, err)
 }
 
 func TestExecute_NoErrorsFromDB_ReturnResponse(t *testing.T) {
-	mockSession := &mocks.Session{}
-	session := session.NewNeo4jSession(mockSession)
+	session := session.NewNeo4jSession(mockNeo4jSession{
+		RunResponse: generateValidResultMap(),
+	})
 
-	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(returnResultWithData(generateValidResultMap()), nil)
 	response, err := session.Execute(`cypher-query`, map[string]interface{}{})
 
 	assert.Equal(t, data.ResponseWithoutPolicies, response)
@@ -68,16 +72,15 @@ func TestExecute_NoErrorsFromDB_ReturnResponse(t *testing.T) {
 }
 
 func TestExecute_ParentDecodeFails_ReturnError(t *testing.T) {
-	mockSession := &mocks.Session{}
-	session := session.NewNeo4jSession(mockSession)
-
 	resultMap := generateValidResultMap()
 	resultMap["parent"] = "invalid entry"
-	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(returnResultWithData(resultMap), nil)
+
+	session := session.NewNeo4jSession(mockNeo4jSession{
+		RunResponse: resultMap,
+	})
+
 	_, err := session.Execute(`cypher-query`, map[string]interface{}{})
-
 	assert.Equal(t, models.ErrDatabase, err)
-
 }
 
 func generateValidResultMap() map[string]interface{} {
@@ -101,14 +104,4 @@ func generateValidResultMap() map[string]interface{} {
 			},
 		},
 	}
-}
-
-func returnResultWithData(data interface{}) *mocks.Result {
-	mockResult := &mocks.Result{}
-	mockResult.On("Next").Return(true).Once()
-	mockResult.On("Next").Return(false).Once()
-	mockRecord := &mocks.Record{}
-	mockRecord.On("GetByIndex", 0).Return(data)
-	mockResult.On("Record").Return(mockRecord)
-	return mockResult
 }

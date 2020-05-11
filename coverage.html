@@ -463,10 +463,10 @@ func (service *service) Delete(id string) error <span class="cov8" title="1">{
 		<pre class="file" id="file7" style="display: none">package session
 
 import (
-        "github.com/neo4j/neo4j-go-driver/neo4j"
         models "github.com/thatbeardo/go-sentinel/models"
         entity "github.com/thatbeardo/go-sentinel/models/resource"
         "github.com/thatbeardo/go-sentinel/models/resource/injection"
+        "github.com/thatbeardo/go-sentinel/models/resource/neo4j"
 )
 
 // Session interface defines methods needed to communicate/execute queries and a cleanup function when everything is done
@@ -474,9 +474,16 @@ type Session interface {
         Execute(statement string, parameters map[string]interface{}) (response entity.Response, err error)
 }
 
-type neo4jSession struct {
-        session neo4j.Session
+type session struct {
+        session neo4j.Runner
 }
+
+// NewNeo4jSession is a factory method to create Neo4J session instances
+func NewNeo4jSession(neo4jsession neo4j.Runner) Session <span class="cov8" title="1">{
+        return session{
+                session: neo4jsession,
+        }
+}</span>
 
 type resourceNode struct {
         Name     string `mapstructure:"name"`
@@ -484,39 +491,30 @@ type resourceNode struct {
         ID       string `mapstructure:"id"`
 }
 
-// NewNeo4jSession is a factory method to create Neo4J session instances
-func NewNeo4jSession(session neo4j.Session) Session <span class="cov8" title="1">{
-        return neo4jSession{
-                session: session,
-        }
-}</span>
-
 // Execute runs the statement passed as a query and opulates the data parameter with result
-func (n neo4jSession) Execute(statement string, parameters map[string]interface{}) (response entity.Response, err error) <span class="cov8" title="1">{
-        result, err := n.session.Run(statement, parameters)
+func (n session) Execute(statement string, parameters map[string]interface{}) (response entity.Response, err error) <span class="cov8" title="1">{
+        resultMap, err := n.session.Run(statement, parameters)
         if err != nil </span><span class="cov8" title="1">{
                 return entity.Response{}, models.ErrDatabase
         }</span>
 
         <span class="cov8" title="1">resources := []entity.Element{}
-        for result.Next() </span><span class="cov8" title="1">{
-                resultMap := result.Record().GetByIndex(0).(map[string]interface{})
-                var childResource, parentResource resourceNode
+        var childResource, parentResource resourceNode
 
-                err = decodeResource(resultMap, "child", &amp;childResource)
-                if err != nil </span><span class="cov8" title="1">{
-                        return
-                }</span>
+        err = decodeResource(resultMap, "child", &amp;childResource)
+        if err != nil </span><span class="cov8" title="1">{
+                return
+        }</span>
 
-                <span class="cov8" title="1">err = decodeResource(resultMap, "parent", &amp;parentResource)
-                if err != nil </span><span class="cov8" title="1">{
-                        return
-                }</span>
+        <span class="cov8" title="1">err = decodeResource(resultMap, "parent", &amp;parentResource)
+        if err != nil </span><span class="cov8" title="1">{
+                return
+        }</span>
 
-                <span class="cov8" title="1">parent := generateParentResource(parentResource.ID)
-                resources = append(resources, generateElement(childResource, parent))</span>
-        }
-        <span class="cov8" title="1">response = entity.Response{Data: resources}
+        <span class="cov8" title="1">parent := generateParentResource(parentResource.ID)
+        resources = append(resources, generateElement(childResource, parent))
+
+        response = entity.Response{Data: resources}
         return</span>
 }
 
