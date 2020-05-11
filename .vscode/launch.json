@@ -11,7 +11,11 @@
             "request": "launch",
             "mode": "auto",
             "program": "${fileDirname}",
-            "env": {},
+            "env": {
+                "DB_URI": "bolt://neo4jdevelopment:7687",
+                "USERNAME": "",
+                "PASSWORD":"",
+            },
             "args": []
         }
     ]

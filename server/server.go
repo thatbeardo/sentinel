@@ -60,7 +60,7 @@ func ConnectToDB() (neo4j.Session, neo4j.Driver, error) {
 		err     error
 	)
 	// initialize driver to connect to localhost with ID and password
-	if driver, err = neo4j.NewDriver("bolt://localhost:11004", neo4j.BasicAuth("neo4j", "password", ""), func(c *neo4j.Config) {
+	if driver, err = neo4j.NewDriver(os.Getenv("DB_URI"), neo4j.BasicAuth(os.Getenv("USERNAME"), os.Getenv("PASSWORD"), ""), func(c *neo4j.Config) {
 		c.Encrypted = false
 	}); err != nil {
 		fmt.Println("Error while establishing graph connection")
