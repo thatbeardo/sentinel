@@ -1,4 +1,4 @@
-package resource
+package entity
 
 // Input is the payload that a POST endpoint expects.
 type Input struct {

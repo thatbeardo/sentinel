@@ -1,4 +1,4 @@
-package resource_test
+package service_test
 
 import (
 	"testing"
@@ -8,14 +8,15 @@ import (
 	"github.com/thatbeardo/go-sentinel/mocks"
 	"github.com/thatbeardo/go-sentinel/mocks/data"
 	models "github.com/thatbeardo/go-sentinel/models"
-	"github.com/thatbeardo/go-sentinel/models/resource"
+	entity "github.com/thatbeardo/go-sentinel/models/resource"
+	"github.com/thatbeardo/go-sentinel/models/resource/service"
 )
 
 func TestGetServiceDatabaseError(t *testing.T) {
 	repository := &mocks.Repository{}
 	repository.On("Get").Return(errorFromRepository())
 
-	service := resource.NewService(repository)
+	service := service.NewService(repository)
 	_, err := service.Get()
 
 	assert.NotNil(t, err, "Should have thrown an error")
@@ -26,7 +27,7 @@ func TestGetServiceNoErrors(t *testing.T) {
 	repository := &mocks.Repository{}
 	repository.On("Get").Return(getAllResourcesNoErrors())
 
-	service := resource.NewService(repository)
+	service := service.NewService(repository)
 	response, err := service.Get()
 
 	assert.Nil(t, err, "Should not have thrown an error")
@@ -37,7 +38,7 @@ func TestGetByIdServiceNoErrors(t *testing.T) {
 	repository := &mocks.Repository{}
 	repository.On("GetByID", "test-id").Return(elementWithoutErrors())
 
-	service := resource.NewService(repository)
+	service := service.NewService(repository)
 	response, err := service.GetByID("test-id")
 
 	assert.Nil(t, err, "Should not have thrown an error")
@@ -48,7 +49,7 @@ func TestGetByIdServiceNoErrorsNoResources(t *testing.T) {
 	repository := &mocks.Repository{}
 	repository.On("GetByID", "test-id").Return(errorFromRepositoryNotFound())
 
-	service := resource.NewService(repository)
+	service := service.NewService(repository)
 	_, err := service.GetByID("test-id")
 
 	assert.NotNil(t, err, "Should not have thrown an error")
@@ -59,7 +60,7 @@ func TestGetByIdServiceRepositoryError(t *testing.T) {
 	repository := &mocks.Repository{}
 	repository.On("GetByID", "test-id").Return(databaseErrorFromRepository())
 
-	service := resource.NewService(repository)
+	service := service.NewService(repository)
 	_, err := service.GetByID("test-id")
 
 	assert.NotNil(t, err, "Should not have thrown an error")
@@ -69,9 +70,9 @@ func TestGetByIdServiceRepositoryError(t *testing.T) {
 func TestCreateResourceRepositoryError(t *testing.T) {
 	repository := &mocks.Repository{}
 	repository.On("GetByID", "parent-id").Return(elementWithoutErrors())
-	repository.On("Create", m.AnythingOfType("*resource.Input")).Return(databaseErrorFromRepository())
+	repository.On("Create", m.AnythingOfType("*entity.Input")).Return(databaseErrorFromRepository())
 
-	service := resource.NewService(repository)
+	service := service.NewService(repository)
 	_, err := service.Create(data.InputRelationshipsAbsent)
 
 	assert.NotNil(t, err, "Should have thrown an error")
@@ -82,7 +83,7 @@ func TestCreateResourceParentAbsentInDatabase(t *testing.T) {
 	repository := &mocks.Repository{}
 	repository.On("GetByID", "parent-id").Return(errorFromRepositoryNotFound())
 
-	service := resource.NewService(repository)
+	service := service.NewService(repository)
 	_, err := service.Create(data.Input)
 
 	assert.NotNil(t, err, "Should have thrown an error")
@@ -91,9 +92,9 @@ func TestCreateResourceParentAbsentInDatabase(t *testing.T) {
 
 func TestCreateResourceNoRelationships(t *testing.T) {
 	repository := &mocks.Repository{}
-	repository.On("Create", m.AnythingOfType("*resource.Input")).Return(elementWithoutErrors())
+	repository.On("Create", m.AnythingOfType("*entity.Input")).Return(elementWithoutErrors())
 
-	service := resource.NewService(repository)
+	service := service.NewService(repository)
 	response, err := service.Create(data.InputRelationshipsAbsent)
 
 	assert.Nil(t, err, "Should not have thrown an error")
@@ -102,10 +103,10 @@ func TestCreateResourceNoRelationships(t *testing.T) {
 
 func TestCreateResourceValidParent(t *testing.T) {
 	repository := &mocks.Repository{}
-	repository.On("Create", m.AnythingOfType("*resource.Input")).Return(elementWithoutErrors())
+	repository.On("Create", m.AnythingOfType("*entity.Input")).Return(elementWithoutErrors())
 	repository.On("GetByID", "parent-id").Return(parentElementWithoutErrors())
 
-	service := resource.NewService(repository)
+	service := service.NewService(repository)
 	response, err := service.Create(data.Input)
 
 	assert.Nil(t, err, "Should not have thrown an error")
@@ -114,10 +115,10 @@ func TestCreateResourceValidParent(t *testing.T) {
 
 func TestCreateResourceCreateFails(t *testing.T) {
 	repository := &mocks.Repository{}
-	repository.On("Create", m.AnythingOfType("*resource.Input")).Return(databaseErrorFromRepository())
+	repository.On("Create", m.AnythingOfType("*entity.Input")).Return(databaseErrorFromRepository())
 	repository.On("GetByID", "parent-id").Return(parentElementWithoutErrors())
 
-	service := resource.NewService(repository)
+	service := service.NewService(repository)
 	_, err := service.Create(data.Input)
 
 	assert.NotNil(t, err, "Should have thrown an error")
@@ -128,7 +129,7 @@ func TestDeleteResourceRepositoryError(t *testing.T) {
 	repository := &mocks.Repository{}
 	repository.On("Delete", "test-id").Return(models.ErrDatabase)
 
-	service := resource.NewService(repository)
+	service := service.NewService(repository)
 	err := service.Delete("test-id")
 
 	assert.NotNil(t, err, "Should have thrown an error")
@@ -139,7 +140,7 @@ func TestDeleteResourceRepositoryNoError(t *testing.T) {
 	repository := &mocks.Repository{}
 	repository.On("Delete", "test-id").Return(nil)
 
-	service := resource.NewService(repository)
+	service := service.NewService(repository)
 	err := service.Delete("test-id")
 
 	assert.Nil(t, err, "Should not have thrown an error")
@@ -150,7 +151,7 @@ func TestUpdateResourceInvalidParent(t *testing.T) {
 	repository.On("GetByID", "test-id").Return(elementWithoutErrors())
 	repository.On("GetByID", "parent-id").Return(errorFromRepositoryNotFound())
 
-	service := resource.NewService(repository)
+	service := service.NewService(repository)
 	_, err := service.Update("test-id", data.Input)
 
 	assert.NotNil(t, err, "Should not have thrown an error")
@@ -161,9 +162,9 @@ func TestUpdateNoErrors(t *testing.T) {
 	repository := &mocks.Repository{}
 	repository.On("GetByID", "parent-id").Return(elementWithoutErrors())
 	repository.On("GetByID", "test-id").Return(elementWithoutErrors())
-	repository.On("Update", m.AnythingOfType("resource.Element"), m.AnythingOfType("*resource.Input")).Return(elementWithoutErrors())
+	repository.On("Update", m.AnythingOfType("entity.Element"), m.AnythingOfType("*entity.Input")).Return(elementWithoutErrors())
 
-	service := resource.NewService(repository)
+	service := service.NewService(repository)
 	response, err := service.Update("test-id", data.Input)
 
 	assert.Nil(t, err, "Should not have thrown an error")
@@ -174,7 +175,7 @@ func TestUpdateResourceNodeNotFound(t *testing.T) {
 	repository := &mocks.Repository{}
 	repository.On("GetByID", "test-id").Return(errorFromRepositoryNotFound())
 
-	service := resource.NewService(repository)
+	service := service.NewService(repository)
 	_, err := service.Update("test-id", data.Input)
 
 	assert.NotNil(t, err, "Should not have thrown an error")
@@ -185,43 +186,43 @@ func TestUpdateResourceNoParentProvided(t *testing.T) {
 	repository := &mocks.Repository{}
 	repository.On("GetByID", m.AnythingOfType("string")).Return(elementWithoutParentNoErrors())
 	repository.On("GetByID", m.AnythingOfType("string")).Return(parentElementWithoutErrors())
-	repository.On("Update", m.AnythingOfType("resource.Element"), m.AnythingOfType("*resource.Input")).Return(elementWithoutParentNoErrors())
+	repository.On("Update", m.AnythingOfType("entity.Element"), m.AnythingOfType("*entity.Input")).Return(elementWithoutParentNoErrors())
 
-	service := resource.NewService(repository)
+	service := service.NewService(repository)
 	response, err := service.Update("test-id", data.InputRelationshipsAbsent)
 
 	assert.Nil(t, err, "Should not have thrown an error")
 	assert.Equal(t, data.ElementWithoutParent, response, "Response schemas don't match")
 }
 
-func getAllResourcesNoErrors() (resource.Response, error) {
+func getAllResourcesNoErrors() (entity.Response, error) {
 	return data.Response, nil
 }
 
-func elementWithoutErrors() (resource.Element, error) {
+func elementWithoutErrors() (entity.Element, error) {
 	return data.Element, nil
 }
 
-func elementWithoutRelationshipsNoErrors() (resource.Element, error) {
+func elementWithoutRelationshipsNoErrors() (entity.Element, error) {
 	return data.ElementRelationshipsAbsent, nil
 }
 
-func elementWithoutParentNoErrors() (resource.Element, error) {
+func elementWithoutParentNoErrors() (entity.Element, error) {
 	return data.ElementWithoutParent, nil
 }
 
-func parentElementWithoutErrors() (resource.Element, error) {
+func parentElementWithoutErrors() (entity.Element, error) {
 	return data.ParentElement, nil
 }
 
-func errorFromRepository() (resource.Response, error) {
-	return resource.Response{}, models.ErrDatabase
+func errorFromRepository() (entity.Response, error) {
+	return entity.Response{}, models.ErrDatabase
 }
 
-func errorFromRepositoryNotFound() (resource.Element, error) {
-	return resource.Element{}, models.ErrNotFound
+func errorFromRepositoryNotFound() (entity.Element, error) {
+	return entity.Element{}, models.ErrNotFound
 }
 
-func databaseErrorFromRepository() (resource.Element, error) {
-	return resource.Element{}, models.ErrDatabase
+func databaseErrorFromRepository() (entity.Element, error) {
+	return entity.Element{}, models.ErrDatabase
 }

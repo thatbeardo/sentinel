@@ -1,24 +1,26 @@
-package resource
+package repository
 
 import (
 	models "github.com/thatbeardo/go-sentinel/models"
+	entity "github.com/thatbeardo/go-sentinel/models/resource"
+	"github.com/thatbeardo/go-sentinel/models/resource/session"
 )
 
 // Repository is used by the service to communicate with the underlying database
 type Repository interface {
-	Get() (Response, error)
-	GetByID(string) (Element, error)
-	Create(*Input) (Element, error)
-	Update(Element, *Input) (Element, error)
+	Get() (entity.Response, error)
+	GetByID(string) (entity.Element, error)
+	Create(*entity.Input) (entity.Element, error)
+	Update(entity.Element, *entity.Input) (entity.Element, error)
 	Delete(string) error
 }
 
 type repository struct {
-	session Session
+	session session.Session
 }
 
 // Get retrieves all the resources present in the graph
-func (repo *repository) Get() (Response, error) {
+func (repo *repository) Get() (entity.Response, error) {
 	return repo.session.Execute(`
 		MATCH(child:Resource) 
 		OPTIONAL MATCH (child: Resource)-[:OWNED_BY]->(parent: Resource) 
@@ -27,7 +29,7 @@ func (repo *repository) Get() (Response, error) {
 }
 
 // GetByID function adds a resource node
-func (repo *repository) GetByID(id string) (Element, error) {
+func (repo *repository) GetByID(id string) (entity.Element, error) {
 	elements, err := repo.session.Execute(`
 		MATCH(child:Resource) 
 		WHERE child.id = $id 
@@ -37,13 +39,13 @@ func (repo *repository) GetByID(id string) (Element, error) {
 			"id": id,
 		})
 	if len(elements.Data) == 0 {
-		return Element{}, models.ErrNotFound
+		return entity.Element{}, models.ErrNotFound
 	}
 	return elements.Data[0], err
 }
 
 // Create function adds a node to the graph
-func (repo *repository) Create(resource *Input) (Element, error) {
+func (repo *repository) Create(resource *entity.Input) (entity.Element, error) {
 	var parentID string
 	if resource.Data.Relationships != nil {
 		parentID = resource.Data.Relationships.Parent.Data.ID
@@ -61,13 +63,13 @@ func (repo *repository) Create(resource *Input) (Element, error) {
 			"parent_id": parentID,
 		})
 	if len(elements.Data) == 0 {
-		return Element{}, models.ErrNotFound
+		return entity.Element{}, models.ErrNotFound
 	}
 	return elements.Data[0], err
 }
 
 // Update function Edits the contents of a node
-func (repo *repository) Update(oldResource Element, newResource *Input) (Element, error) {
+func (repo *repository) Update(oldResource entity.Element, newResource *entity.Input) (entity.Element, error) {
 	newParentID := extractParentID(newResource)
 	statement := generateUpdateStatement(newParentID)
 	elements, err := repo.session.Execute(statement,
@@ -78,7 +80,7 @@ func (repo *repository) Update(oldResource Element, newResource *Input) (Element
 			"new_parent_id": newParentID,
 		})
 	if len(elements.Data) == 0 {
-		return Element{}, models.ErrNotFound
+		return entity.Element{}, models.ErrNotFound
 	}
 	return elements.Data[0], err
 }
@@ -94,13 +96,13 @@ func (repo *repository) Delete(id string) error {
 }
 
 // New is a factory method to generate repository instances
-func New(session Session) Repository {
+func New(session session.Session) Repository {
 	return &repository{
 		session: session,
 	}
 }
 
-func extractParentID(newResource *Input) string {
+func extractParentID(newResource *entity.Input) string {
 	var parentID string
 	if newResource.Data.Relationships != nil {
 		parentID = newResource.Data.Relationships.Parent.Data.ID

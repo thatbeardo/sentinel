@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/thatbeardo/go-sentinel/api/views"
-	"github.com/thatbeardo/go-sentinel/models/resource"
+	"github.com/thatbeardo/go-sentinel/models/resource/service"
 )
 
 // @Summary Delete a resource by its ID
@@ -17,7 +17,7 @@ import (
 // @Success 204 {object} resource.Response	"ok"
 // @Success 404 {object} views.ErrView
 // @Router /v1/resources/{id} [delete]
-func delete(service resource.Service) gin.HandlerFunc {
+func delete(service service.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id := c.Param("id")
 		err := service.Delete(id)

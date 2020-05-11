@@ -135,16 +135,18 @@
 package main
 
 import (
-	"github.com/thatbeardo/go-sentinel/models/resource"
+	"github.com/thatbeardo/go-sentinel/models/resource/repository"
+	"github.com/thatbeardo/go-sentinel/models/resource/service"
+	"github.com/thatbeardo/go-sentinel/models/resource/session"
 	"github.com/thatbeardo/go-sentinel/server"
 )
 
 func main() {
-	shutdown, session := server.Initialize()
+	shutdown, neo4jsession := server.Initialize()
 
-	rr := resource.New(resource.NewNeo4jSession(session))
+	rr := repository.New(session.NewNeo4jSession(neo4jsession))
 	// resourceRepository := resource.NewNeo4jRepository(session)
-	resourceService := resource.NewService(rr)
+	resourceService := service.NewService(rr)
 
 	engine := server.SetupRouter(resourceService)
 	server.Orchestrate(engine, shutdown)

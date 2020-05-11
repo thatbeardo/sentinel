@@ -1,4 +1,4 @@
-package resource_test
+package repository_test
 
 import (
 	"errors"
@@ -6,7 +6,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/thatbeardo/go-sentinel/mocks/data"
-	"github.com/thatbeardo/go-sentinel/models/resource"
+	entity "github.com/thatbeardo/go-sentinel/models/resource"
+	"github.com/thatbeardo/go-sentinel/models/resource/repository"
 )
 
 var errTest = errors.New("test-error")
@@ -55,14 +56,14 @@ var deleteStatement = `
 		MATCH (n:Resource { id: $id }) DETACH DELETE n`
 
 type mockSession struct {
-	ExecuteResponse   resource.Response
+	ExecuteResponse   entity.Response
 	ExecuteErr        error
 	ExpectedStatement string
 	ExpectedParameter map[string]interface{}
 	t                 *testing.T
 }
 
-func (m mockSession) Execute(statement string, parameters map[string]interface{}) (resource.Response, error) {
+func (m mockSession) Execute(statement string, parameters map[string]interface{}) (entity.Response, error) {
 	assert.Equal(m.t, m.ExpectedStatement, statement)
 	assert.Equal(m.t, m.ExpectedParameter, parameters)
 	return m.ExecuteResponse, m.ExecuteErr
@@ -75,7 +76,7 @@ func TestGet_SessionReturnsResponse_NoErrors(t *testing.T) {
 		ExpectedParameter: map[string]interface{}{},
 		t:                 t,
 	}
-	repository := resource.New(session)
+	repository := repository.New(session)
 	response, err := repository.Get()
 	assert.Equal(t, data.Response, response)
 	assert.Nil(t, err)
@@ -88,7 +89,7 @@ func TestGet_SessionReturnsError_ReturnsError(t *testing.T) {
 		ExpectedParameter: map[string]interface{}{},
 		t:                 t,
 	}
-	repository := resource.New(session)
+	repository := repository.New(session)
 	_, err := repository.Get()
 	assert.Equal(t, errTest, err)
 }
@@ -102,7 +103,7 @@ func TestGetByID_SessionReturnsResponse_NoErrors(t *testing.T) {
 		},
 		t: t,
 	}
-	repository := resource.New(session)
+	repository := repository.New(session)
 	response, err := repository.GetByID("test-id")
 	assert.Equal(t, data.Response.Data[0], response)
 	assert.Nil(t, err)
@@ -117,7 +118,7 @@ func TestGetByID_SessionReturnsError_ReturnsError(t *testing.T) {
 		},
 		t: t,
 	}
-	repository := resource.New(session)
+	repository := repository.New(session)
 	_, err := repository.GetByID("test-id")
 	assert.Equal(t, errNotFound, err)
 }
@@ -133,7 +134,7 @@ func TestCreate_SessionReturnsResponse_NoErrors(t *testing.T) {
 		},
 		t: t,
 	}
-	repository := resource.New(session)
+	repository := repository.New(session)
 	response, err := repository.Create(data.Input)
 	assert.Equal(t, data.Response.Data[0], response)
 	assert.Nil(t, err)
@@ -150,7 +151,7 @@ func TestCreate_SessionReturnsError_ReturnsError(t *testing.T) {
 		},
 		t: t,
 	}
-	repository := resource.New(session)
+	repository := repository.New(session)
 	_, err := repository.Create(data.Input)
 	assert.Equal(t, errNotFound, err)
 }
@@ -167,7 +168,7 @@ func TestUpdate_NewParentProvidedSessionReturnsResponse_NoErrors(t *testing.T) {
 		},
 		t: t,
 	}
-	repository := resource.New(session)
+	repository := repository.New(session)
 	response, err := repository.Update(data.Element, data.Input)
 	assert.Equal(t, data.Response.Data[0], response)
 	assert.Nil(t, err)
@@ -185,7 +186,7 @@ func TestUpdate_ParentAbsentSessionReturnsError_ReturnsError(t *testing.T) {
 		},
 		t: t,
 	}
-	repository := resource.New(session)
+	repository := repository.New(session)
 	response, err := repository.Update(data.ElementWithoutParent, data.InputRelationshipsAbsent)
 	assert.Equal(t, data.Response.Data[0], response)
 	assert.Nil(t, err)
@@ -203,7 +204,7 @@ func TestUpdate_SessionReturnsError_ReturnsError(t *testing.T) {
 		},
 		t: t,
 	}
-	repository := resource.New(session)
+	repository := repository.New(session)
 	_, err := repository.Update(data.ElementWithoutParent, data.InputRelationshipsAbsent)
 	assert.Equal(t, errNotFound, err)
 }
@@ -217,7 +218,7 @@ func TestDelete_SessionReturnsResponse_ReturnsNoErrors(t *testing.T) {
 		},
 		t: t,
 	}
-	repository := resource.New(session)
+	repository := repository.New(session)
 	err := repository.Delete("test-id")
 	assert.Nil(t, err)
 }
@@ -231,7 +232,7 @@ func TestDelete_SessionReturnsError_ReturnsNoErrors(t *testing.T) {
 		},
 		t: t,
 	}
-	repository := resource.New(session)
+	repository := repository.New(session)
 	err := repository.Delete("test-id")
 	assert.Equal(t, errNotFound, err)
 }

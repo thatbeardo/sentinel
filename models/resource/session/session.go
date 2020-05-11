@@ -1,14 +1,15 @@
-package resource
+package session
 
 import (
-	"github.com/mitchellh/mapstructure"
 	"github.com/neo4j/neo4j-go-driver/neo4j"
 	models "github.com/thatbeardo/go-sentinel/models"
+	entity "github.com/thatbeardo/go-sentinel/models/resource"
+	"github.com/thatbeardo/go-sentinel/models/resource/injection"
 )
 
 // Session interface defines methods needed to communicate/execute queries and a cleanup function when everything is done
 type Session interface {
-	Execute(statement string, parameters map[string]interface{}) (response Response, err error)
+	Execute(statement string, parameters map[string]interface{}) (response entity.Response, err error)
 }
 
 type neo4jSession struct {
@@ -29,16 +30,15 @@ func NewNeo4jSession(session neo4j.Session) Session {
 }
 
 // Execute runs the statement passed as a query and opulates the data parameter with result
-func (n neo4jSession) Execute(statement string, parameters map[string]interface{}) (response Response, err error) {
+func (n neo4jSession) Execute(statement string, parameters map[string]interface{}) (response entity.Response, err error) {
 	result, err := n.session.Run(statement, parameters)
 	if err != nil {
-		return Response{}, models.ErrDatabase
+		return entity.Response{}, models.ErrDatabase
 	}
 
-	resources := []Element{}
+	resources := []entity.Element{}
 	for result.Next() {
-		test := result.Record().GetByIndex(0)
-		resultMap := test.(map[string]interface{})
+		resultMap := result.Record().GetByIndex(0).(map[string]interface{})
 		var childResource, parentResource resourceNode
 
 		err = decodeResource(resultMap, "child", &childResource)
@@ -46,7 +46,7 @@ func (n neo4jSession) Execute(statement string, parameters map[string]interface{
 			return
 		}
 
-		decodeResource(resultMap, "parent", &parentResource)
+		err = decodeResource(resultMap, "parent", &parentResource)
 		if err != nil {
 			return
 		}
@@ -54,22 +54,27 @@ func (n neo4jSession) Execute(statement string, parameters map[string]interface{
 		parent := generateParentResource(parentResource.ID)
 		resources = append(resources, generateElement(childResource, parent))
 	}
-	response = Response{Data: resources}
+	response = entity.Response{Data: resources}
 	return
 }
 
 func decodeResource(results map[string]interface{}, resourceKey string, target interface{}) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = models.ErrDatabase
+		}
+	}()
 	if results[resourceKey] != nil {
 		node := results[resourceKey].(neo4j.Node)
-		err = mapstructure.Decode(node.Props(), &target)
+		err = injection.MapDecoder(node.Props(), &target)
 	}
 	return
 }
 
-func generateParentResource(parentResourceID string) (parent *Parent) {
+func generateParentResource(parentResourceID string) (parent *entity.Parent) {
 	if parentResourceID != "" {
-		parent = &Parent{
-			Data: &Identifier{
+		parent = &entity.Parent{
+			Data: &entity.Identifier{
 				Type: "resource",
 				ID:   parentResourceID,
 			},
@@ -78,15 +83,15 @@ func generateParentResource(parentResourceID string) (parent *Parent) {
 	return
 }
 
-func generateElement(childResource resourceNode, parent *Parent) (element Element) {
-	return Element{
+func generateElement(childResource resourceNode, parent *entity.Parent) (element entity.Element) {
+	return entity.Element{
 		Type: "resource",
 		ID:   childResource.ID,
-		Attributes: &Resource{
+		Attributes: &entity.Resource{
 			Name:     childResource.Name,
 			SourceID: childResource.SourceID,
 		},
-		Relationships: &Relationships{
+		Relationships: &entity.Relationships{
 			Parent: parent,
 		},
 	}

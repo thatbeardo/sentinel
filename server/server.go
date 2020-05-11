@@ -17,14 +17,14 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 	handler "github.com/thatbeardo/go-sentinel/api/handlers"
 	"github.com/thatbeardo/go-sentinel/api/handlers/resources"
-	"github.com/thatbeardo/go-sentinel/models/resource"
+	"github.com/thatbeardo/go-sentinel/models/resource/service"
 
 	// Swaggo import
 	_ "github.com/thatbeardo/go-sentinel/docs"
 )
 
 // SetupRouter instantiates and initializes a new Router.
-func SetupRouter(service resource.Service) *gin.Engine {
+func SetupRouter(service service.Service) *gin.Engine {
 	r := gin.Default()
 	r.Use(cors.Default())
 
