@@ -64,11 +64,11 @@
 				
 				<option value="file4">github.com/thatbeardo/go-sentinel/api/handlers/resources/routes.go (100.0%)</option>
 				
-				<option value="file5">github.com/thatbeardo/go-sentinel/models/resource/entity.go (100.0%)</option>
+				<option value="file5">github.com/thatbeardo/go-sentinel/models/resource/repository/repository.go (100.0%)</option>
 				
-				<option value="file6">github.com/thatbeardo/go-sentinel/models/resource/neo4j.go (100.0%)</option>
+				<option value="file6">github.com/thatbeardo/go-sentinel/models/resource/service/service.go (100.0%)</option>
 				
-				<option value="file7">github.com/thatbeardo/go-sentinel/models/resource/service.go (100.0%)</option>
+				<option value="file7">github.com/thatbeardo/go-sentinel/models/resource/session/session.go (100.0%)</option>
 				
 				</select>
 			</div>
@@ -89,7 +89,7 @@ import (
 
         "github.com/gin-gonic/gin"
         "github.com/thatbeardo/go-sentinel/api/views"
-        "github.com/thatbeardo/go-sentinel/models/resource"
+        "github.com/thatbeardo/go-sentinel/models/resource/service"
 )
 
 // @Summary Delete a resource by its ID
@@ -101,7 +101,7 @@ import (
 // @Success 204 {object} resource.Response        "ok"
 // @Success 404 {object} views.ErrView
 // @Router /v1/resources/{id} [delete]
-func delete(service resource.Service) gin.HandlerFunc <span class="cov8" title="1">{
+func delete(service service.Service) gin.HandlerFunc <span class="cov8" title="1">{
         return func(c *gin.Context) </span><span class="cov8" title="1">{
                 id := c.Param("id")
                 err := service.Delete(id)
@@ -121,7 +121,7 @@ import (
 
         "github.com/gin-gonic/gin"
         "github.com/thatbeardo/go-sentinel/api/views"
-        "github.com/thatbeardo/go-sentinel/models/resource"
+        "github.com/thatbeardo/go-sentinel/models/resource/service"
 )
 
 // @Summary Get all the resources
@@ -132,7 +132,7 @@ import (
 // @Success 200 {object} resource.Response        "ok"
 // @Success 500 {object} views.ErrView
 // @Router /v1/resources [get]
-func get(service resource.Service) gin.HandlerFunc <span class="cov8" title="1">{
+func get(service service.Service) gin.HandlerFunc <span class="cov8" title="1">{
         return func(c *gin.Context) </span><span class="cov8" title="1">{
                 resources, err := service.Get()
                 if err != nil </span><span class="cov8" title="1">{
@@ -153,7 +153,7 @@ func get(service resource.Service) gin.HandlerFunc <span class="cov8" title="1">
 // @Success 404 {object} views.ErrView
 // @Success 500 {object} views.ErrView
 // @Router /v1/resources/{id} [get]
-func getByID(service resource.Service) gin.HandlerFunc <span class="cov8" title="1">{
+func getByID(service service.Service) gin.HandlerFunc <span class="cov8" title="1">{
         return func(c *gin.Context) </span><span class="cov8" title="1">{
                 id := c.Param("id")
                 resources, err := service.GetByID(id)
@@ -173,7 +173,8 @@ import (
 
         "github.com/gin-gonic/gin"
         "github.com/thatbeardo/go-sentinel/api/views"
-        "github.com/thatbeardo/go-sentinel/models/resource"
+        entity "github.com/thatbeardo/go-sentinel/models/resource"
+        "github.com/thatbeardo/go-sentinel/models/resource/service"
 )
 
 // @Summary Update a resource by it's ID
@@ -182,14 +183,14 @@ import (
 // @Accept  json
 // @Produce  json
 // @Param id path string true "Resource ID"
-// @Param input body resource.Input true "Resource to be created"
+// @Param input body entity.Input true "Resource to be created"
 // @Success 204 {object} resource.Response        "ok"
 // @Success 404 {object} views.ErrView
 // @Router /v1/resources/{id} [patch]
-func patch(service resource.Service) gin.HandlerFunc <span class="cov8" title="1">{
+func patch(service service.Service) gin.HandlerFunc <span class="cov8" title="1">{
         return func(c *gin.Context) </span><span class="cov8" title="1">{
                 id := c.Param("id")
-                var resourceInput resource.Input
+                var resourceInput entity.Input
                 if err := c.ShouldBind(&amp;resourceInput); err != nil </span><span class="cov8" title="1">{
                         views.Wrap(err, c)
                         return
@@ -211,7 +212,8 @@ import (
 
         "github.com/gin-gonic/gin"
         "github.com/thatbeardo/go-sentinel/api/views"
-        "github.com/thatbeardo/go-sentinel/models/resource"
+        entity "github.com/thatbeardo/go-sentinel/models/resource"
+        "github.com/thatbeardo/go-sentinel/models/resource/service"
 )
 
 // @Summary Create a new Resource
@@ -219,13 +221,13 @@ import (
 // @Tags Resources
 // @Accept  json
 // @Produce  json
-// @Param input body resource.Input true "Resource to be created"
+// @Param input body entity.Input true "Resource to be created"
 // @Success 202 {object} resource.Element        "ok"
 // @Failure 500 {object} views.ErrView        "ok"
 // @Router /v1/resources [post]
-func post(service resource.Service) gin.HandlerFunc <span class="cov8" title="1">{
+func post(service service.Service) gin.HandlerFunc <span class="cov8" title="1">{
         return func(c *gin.Context) </span><span class="cov8" title="1">{
-                var resourceInput resource.Input
+                var resourceInput entity.Input
                 if err := c.ShouldBind(&amp;resourceInput); err != nil </span><span class="cov8" title="1">{
                         views.Wrap(err, c)
                         return
@@ -244,11 +246,11 @@ func post(service resource.Service) gin.HandlerFunc <span class="cov8" title="1"
 
 import (
         "github.com/gin-gonic/gin"
-        "github.com/thatbeardo/go-sentinel/models/resource"
+        "github.com/thatbeardo/go-sentinel/models/resource/service"
 )
 
 // ResourceRoutes sets up resource specific routes on the engine instance
-func ResourceRoutes(r *gin.RouterGroup, service resource.Service) <span class="cov8" title="1">{
+func ResourceRoutes(r *gin.RouterGroup, service service.Service) <span class="cov8" title="1">{
         router := r.Group("/resources")
 
         router.GET("/", get(service))
@@ -259,323 +261,195 @@ func ResourceRoutes(r *gin.RouterGroup, service resource.Service) <span class="c
 }</span>
 </pre>
 		
-		<pre class="file" id="file5" style="display: none">package resource
-
-// Input is the payload that a POST endpoint expects.
-type Input struct {
-        Data *InputElement `json:"data" binding:"required,dive"`
-}
-
-// InputElement is the paylaod sent when creating a new resource
-type InputElement struct {
-        Type          string              `json:"type" binding:"required"`
-        Attributes    *Resource           `json:"attributes" binding:"required,dive"`
-        Relationships *RelationshipsInput `json:"relationships,omitempty"`
-}
-
-// RelationshipsInput represent the relationships of an input payload
-type RelationshipsInput struct {
-        Parent *Parent `json:"parent,omitempty" binding:"required,dive"`
-}
-
-// Response represents the final payload sent back to the user
-type Response struct {
-        Data []Element `json:"data"`
-}
-
-// Element consists of all details of a resource
-type Element struct {
-        Type          string         `json:"type" binding:"required"`
-        ID            string         `json:"id"`
-        Attributes    *Resource      `json:"attributes" binding:"required,dive"`
-        Relationships *Relationships `json:"relationships"`
-}
-
-// Relationships provides details about a given resource like policies and parent
-type Relationships struct {
-        Parent   *Parent   `json:"parent,omitempty"`
-        Policies *Policies `json:"policies"`
-}
-
-// Identifier helps acts as a reference to any given entity
-type Identifier struct {
-        Type string `json:"type,omitempty" enums:"policy, resource, grant, permission" binding:"required"`
-        ID   string `json:"id,omitempty" binding:"required"`
-}
-
-// Parent is the parent resource of this resource
-type Parent struct {
-        Data *Identifier `json:"data,omitempty" binding:"required,dive"`
-}
-
-// Policies defined list of policies applicable to this resource
-type Policies struct {
-        Data []*Identifier `json:"data"`
-}
-
-// Resource represents an entity created by the user.
-type Resource struct {
-        Name     string `json:"name"`
-        SourceID string `json:"source_id" binding:"required"`
-}
-
-func constructResourceResponse(resource *Resource, id ...string) Element <span class="cov8" title="1">{
-        relationships := generateResourceRelationship(id[1])
-        return Element{
-                Type:          "resource",
-                ID:            id[0],
-                Attributes:    resource,
-                Relationships: relationships,
-        }
-}</span>
-
-func generateResourceRelationship(id string) *Relationships <span class="cov8" title="1">{
-        policy := &amp;Identifier{Type: "policy", ID: "policy-id"}
-        policies := &amp;Policies{Data: []*Identifier{policy}}
-        var parent *Parent
-
-        if id != "" </span><span class="cov8" title="1">{
-                parent = &amp;Parent{Data: &amp;Identifier{Type: "resource", ID: id}}
-        }</span>
-        <span class="cov8" title="1">relationships := &amp;Relationships{Parent: parent, Policies: policies}
-        return relationships</span>
-}
-</pre>
-		
-		<pre class="file" id="file6" style="display: none">package resource
+		<pre class="file" id="file5" style="display: none">package repository
 
 import (
-        "fmt"
-
-        "github.com/neo4j/neo4j-go-driver/neo4j"
         models "github.com/thatbeardo/go-sentinel/models"
+        entity "github.com/thatbeardo/go-sentinel/models/resource"
+        "github.com/thatbeardo/go-sentinel/models/resource/session"
 )
 
-type neo4jRepository struct {
-        session neo4j.Session
+// Repository is used by the service to communicate with the underlying database
+type Repository interface {
+        Get() (entity.Response, error)
+        GetByID(string) (entity.Element, error)
+        Create(*entity.Input) (entity.Element, error)
+        Update(entity.Element, *entity.Input) (entity.Element, error)
+        Delete(string) error
 }
 
-// NewNeo4jRepository is a factory method to create a neo4j repository
-func NewNeo4jRepository(session neo4j.Session) Repository <span class="cov8" title="1">{
-        return &amp;neo4jRepository{session}
-}</span>
+type repository struct {
+        session session.Session
+}
 
 // Get retrieves all the resources present in the graph
-func (repo *neo4jRepository) Get() (Response, error) <span class="cov8" title="1">{
-        result, err := repo.session.Run("MATCH(child:Resource) OPTIONAL MATCH (child: Resource)-[:OWNED_BY]-&gt;(parent: Resource) RETURN child.name, child.source_id, child.id, parent.id", map[string]interface{}{})
-        if err != nil </span><span class="cov8" title="1">{
-                return Response{}, models.ErrDatabase
-        }</span>
-        <span class="cov8" title="1">var dtos []Element = []Element{}
-        for result.Next() </span><span class="cov8" title="1">{
-                resourceName := fmt.Sprint(result.Record().GetByIndex(0))
-                resourceSourceID := fmt.Sprint(result.Record().GetByIndex(1))
-                id := fmt.Sprint(result.Record().GetByIndex(2))
-                parentID := decodeParentID(result.Record().GetByIndex(3))
-                dtos = append(dtos, constructResourceResponse(&amp;Resource{Name: resourceName, SourceID: resourceSourceID}, id, parentID))
-        }</span>
-        <span class="cov8" title="1">return Response{Data: dtos}, nil</span>
-}
+func (repo *repository) Get() (entity.Response, error) <span class="cov8" title="1">{
+        return repo.session.Execute(`
+                MATCH(child:Resource) 
+                OPTIONAL MATCH (child: Resource)-[:OWNED_BY]-&gt;(parent: Resource) 
+                RETURN {child: child, parent: parent}`,
+                map[string]interface{}{})
+}</span>
 
 // GetByID function adds a resource node
-func (repo *neo4jRepository) GetByID(id string) (Element, error) <span class="cov8" title="1">{
-        result, err := repo.session.Run("MATCH(child:Resource) WHERE child.id = $id OPTIONAL MATCH (child: Resource)-[:OWNED_BY]-&gt;(parent: Resource) RETURN child.name, child.source_id, parent.id", map[string]interface{}{
-                "id": id,
-        })
-        if err != nil </span><span class="cov8" title="1">{
-                return Element{}, models.ErrDatabase
+func (repo *repository) GetByID(id string) (entity.Element, error) <span class="cov8" title="1">{
+        elements, err := repo.session.Execute(`
+                MATCH(child:Resource) 
+                WHERE child.id = $id 
+                OPTIONAL MATCH (child: Resource)-[:OWNED_BY]-&gt;(parent: Resource) 
+                RETURN {child: child, parent: parent}`,
+                map[string]interface{}{
+                        "id": id,
+                })
+        if len(elements.Data) == 0 </span><span class="cov8" title="1">{
+                return entity.Element{}, models.ErrNotFound
         }</span>
-        <span class="cov8" title="1">var response Element
-        for result.Next() </span><span class="cov8" title="1">{
-                resourceName := fmt.Sprint(result.Record().GetByIndex(0))
-                resourceSourceID := fmt.Sprint(result.Record().GetByIndex(1))
-                parentID := decodeParentID(result.Record().GetByIndex(2))
-                response = constructResourceResponse(&amp;Resource{Name: resourceName, SourceID: resourceSourceID}, id, parentID)
-        }</span>
-        <span class="cov8" title="1">if response.ID == "" </span><span class="cov8" title="1">{
-                err = models.ErrNotFound
-        }</span>
-        <span class="cov8" title="1">return response, err</span>
+        <span class="cov8" title="1">return elements.Data[0], err</span>
 }
 
 // Create function adds a node to the graph
-func (repo *neo4jRepository) Create(resource *Input) (Element, error) <span class="cov8" title="1">{
+func (repo *repository) Create(resource *entity.Input) (entity.Element, error) <span class="cov8" title="1">{
         var parentID string
         if resource.Data.Relationships != nil </span><span class="cov8" title="1">{
                 parentID = resource.Data.Relationships.Parent.Data.ID
         }</span>
-        <span class="cov8" title="1">result, err := repo.session.Run(`
-        CREATE(child:Resource{name:$name, source_id: $source_id})
-        WITH child
-        MATCH(parent:Resource{id:$parent_id})
-        WITH child,parent
-        CREATE(child)-[r:OWNED_BY]-&gt;(parent)
-        return child`,
+        <span class="cov8" title="1">elements, err := repo.session.Execute(`
+                CREATE(child:Resource{name:$name, source_id: $source_id, id: randomUUID()})
+                WITH child
+                OPTIONAL MATCH(parent:Resource{id:$parent_id})
+                WITH child,parent
+                FOREACH (o IN CASE WHEN parent IS NOT NULL THEN [parent] ELSE [] END | CREATE (child)-[:OWNED_BY]-&gt;(parent))
+                RETURN {child: child, parent: parent}`,
                 map[string]interface{}{
                         "name":      resource.Data.Attributes.Name,
                         "source_id": resource.Data.Attributes.SourceID,
                         "parent_id": parentID,
                 })
-        if err != nil </span><span class="cov8" title="1">{
-                return Element{}, models.ErrDatabase
+        if len(elements.Data) == 0 </span><span class="cov8" title="1">{
+                return entity.Element{}, models.ErrNotFound
         }</span>
-        <span class="cov8" title="1">var id string
-        for result.Next() </span><span class="cov8" title="1">{
-                id = fmt.Sprint(result.Record().GetByIndex(0))
-        }</span>
-        <span class="cov8" title="1">return constructResourceResponse(resource.Data.Attributes, id, ""), nil</span>
-}
-
-// Delete function deletes a node from the graph
-func (repo *neo4jRepository) Delete(id string) error <span class="cov8" title="1">{
-        result, err := repo.session.Run(`MATCH (n:Resource { id: $id }) DETACH DELETE n`,
-                map[string]interface{}{
-                        "id": id,
-                })
-        if err != nil </span><span class="cov8" title="1">{
-                return models.ErrDatabase
-        }</span>
-        <span class="cov8" title="1">result.Next()
-        summary, err := result.Summary()
-        if err != nil </span><span class="cov8" title="1">{
-                return models.ErrDatabase
-        }</span>
-        <span class="cov8" title="1">if summary.Counters().NodesDeleted() == 0 </span><span class="cov8" title="1">{
-                return models.ErrNotFound
-        }</span>
-        <span class="cov8" title="1">return nil</span>
-}
-
-// CreateEdge function creates an edge between two resources
-func (repo *neo4jRepository) CreateEdge(source string, destination string) error <span class="cov8" title="1">{
-        result, err := repo.session.Run(`MATCH (parent:Resource),(child:Resource) WHERE child.id = $source AND parent.id = $destination CREATE (child)-[r:OWNED_BY]-&gt;(parent) RETURN type(r)`,
-                map[string]interface{}{
-                        "source":      source,
-                        "destination": destination,
-                })
-        if err != nil </span><span class="cov8" title="1">{
-                return models.ErrDatabase
-        }</span>
-        <span class="cov8" title="1">if result.Next(); result.Record().GetByIndex(0) != "OWNED_BY" </span><span class="cov8" title="1">{
-                return models.ErrNotFound
-        }</span>
-        <span class="cov8" title="1">return err</span>
+        <span class="cov8" title="1">return elements.Data[0], err</span>
 }
 
 // Update function Edits the contents of a node
-func (repo *neo4jRepository) Update(id string, resource *Input) (Element, error) <span class="cov8" title="1">{
-        result, err := repo.session.Run("MATCH (n:Resource { id: $id }) SET n.name = $name, n.source_id = $source_id RETURN n.name, n.source_id",
+func (repo *repository) Update(oldResource entity.Element, newResource *entity.Input) (entity.Element, error) <span class="cov8" title="1">{
+        newParentID := extractParentID(newResource)
+        statement := generateUpdateStatement(newParentID)
+        elements, err := repo.session.Execute(statement,
                 map[string]interface{}{
-                        "id":        id,
-                        "name":      resource.Data.Attributes.Name,
-                        "source_id": resource.Data.Attributes.SourceID,
+                        "child_id":      oldResource.ID,
+                        "name":          newResource.Data.Attributes.Name,
+                        "source_id":     newResource.Data.Attributes.SourceID,
+                        "new_parent_id": newParentID,
                 })
-        if err != nil </span><span class="cov8" title="1">{
-                return Element{}, models.ErrDatabase
+        if len(elements.Data) == 0 </span><span class="cov8" title="1">{
+                return entity.Element{}, models.ErrNotFound
         }</span>
-        <span class="cov8" title="1">for result.Next() </span><span class="cov8" title="1">{
-                id = fmt.Sprint(result.Record().GetByIndex(0))
-        }</span>
-        <span class="cov8" title="1">var parentID string = ""
-        if resource.Data.Relationships != nil </span><span class="cov8" title="1">{
-                parentID = resource.Data.Relationships.Parent.Data.ID
-        }</span>
-        <span class="cov8" title="1">return constructResourceResponse(resource.Data.Attributes, id, parentID), nil</span>
+        <span class="cov8" title="1">return elements.Data[0], err</span>
 }
 
-// UpdateOwnerRelationships is used to delete the old parent and attach a node to a new parent
-func (repo *neo4jRepository) UpdateOwnership(id string, resource *Input) (Element, error) <span class="cov8" title="1">{
-        result, err := repo.session.Run(`MATCH(child:Resource{id:$id})
-        SET child.name = $name
-        SET child.source_id = $source_id
-        WITH child
-        OPTIONAL MATCH(child)-[ownership:OWNED_BY]-&gt;(:Resource)
-        DELETE ownership
-        WITH child
-        MATCH (parent:Resource{id: $parent_id})
-        MERGE (child)-[r:OWNED_BY]-&gt;(parent)`,
+// Delete function deletes a node from the graph
+func (repo *repository) Delete(id string) error <span class="cov8" title="1">{
+        _, err := repo.session.Execute(`
+                MATCH (n:Resource { id: $id }) DETACH DELETE n`,
                 map[string]interface{}{
-                        "id":        id,
-                        "name":      resource.Data.Attributes.Name,
-                        "source_id": resource.Data.Attributes.SourceID,
-                        "parent_id": resource.Data.Relationships.Parent.Data.ID,
+                        "id": id,
                 })
-        if err != nil </span><span class="cov8" title="1">{
-                return Element{}, models.ErrDatabase
-        }</span>
-        <span class="cov8" title="1">result.Next()
-        summary, err := result.Summary()
+        return err
+}</span>
 
-        if err != nil || summary.Counters().RelationshipsCreated() != 1 </span><span class="cov8" title="1">{
-                return Element{}, models.ErrDatabase
+// New is a factory method to generate repository instances
+func New(session session.Session) Repository <span class="cov8" title="1">{
+        return &amp;repository{
+                session: session,
+        }
+}</span>
+
+func extractParentID(newResource *entity.Input) string <span class="cov8" title="1">{
+        var parentID string
+        if newResource.Data.Relationships != nil </span><span class="cov8" title="1">{
+                parentID = newResource.Data.Relationships.Parent.Data.ID
         }</span>
-        <span class="cov8" title="1">return constructResourceResponse(resource.Data.Attributes, id, resource.Data.Relationships.Parent.Data.ID), nil</span>
+        <span class="cov8" title="1">return parentID</span>
 }
 
-func decodeParentID(response interface{}) string <span class="cov8" title="1">{
-        if response == nil </span><span class="cov8" title="1">{
-                return ""
+func generateUpdateStatement(newParentID string) (statement string) <span class="cov8" title="1">{
+        statement = `
+                MATCH(child:Resource{id:$child_id})
+                SET child.name=$name
+                SET child.source_id=$source_id
+                WITH child
+                OPTIONAL MATCH (child)-[old_relationship:OWNED_BY]-&gt;(old_parent:Resource)`
+
+        if newParentID == "" </span><span class="cov8" title="1">{
+                statement += `RETURN {child: child, parent: old_parent}`
+        }</span> else<span class="cov8" title="1"> {
+                statement += `
+                DETACH DELETE old_relationship
+                WITH child
+
+                OPTIONAL MATCH (new_parent:Resource{id:$new_parent_id})
+                CREATE(child)-[:OWNED_BY]-&gt;(new_parent)
+                RETURN {child: child, parent: new_parent}`
         }</span>
-        <span class="cov8" title="1">return fmt.Sprint(response)</span>
+        <span class="cov8" title="1">return</span>
 }
 </pre>
 		
-		<pre class="file" id="file7" style="display: none">package resource
+		<pre class="file" id="file6" style="display: none">package service
+
+import (
+        entity "github.com/thatbeardo/go-sentinel/models/resource"
+        "github.com/thatbeardo/go-sentinel/models/resource/repository"
+)
 
 // Service recieves commands from handlers and forwards them to the repository
 type Service interface {
-        Get() (Response, error)
-        GetByID(string) (Element, error)
-        Create(*Input) (Element, error)
-        Update(string, *Input) (Element, error)
+        Get() (entity.Response, error)
+        GetByID(string) (entity.Element, error)
+        Create(*entity.Input) (entity.Element, error)
+        Update(string, *entity.Input) (entity.Element, error)
         Delete(string) error
 }
 
 type service struct {
-        repository Repository
+        repository repository.Repository
 }
 
 // NewService creates a service instance with the repository passed
-func NewService(repository Repository) Service <span class="cov8" title="1">{
+func NewService(repository repository.Repository) Service <span class="cov8" title="1">{
         return &amp;service{repository: repository}
 }</span>
 
-func (service *service) Get() (Response, error) <span class="cov8" title="1">{
+func (service *service) Get() (entity.Response, error) <span class="cov8" title="1">{
         return service.repository.Get()
 }</span>
 
-func (service *service) GetByID(id string) (Element, error) <span class="cov8" title="1">{
+func (service *service) GetByID(id string) (entity.Element, error) <span class="cov8" title="1">{
         return service.repository.GetByID(id)
 }</span>
 
-func (service *service) Update(id string, resource *Input) (Element, error) <span class="cov8" title="1">{
-        if resource.Data.Relationships != nil </span><span class="cov8" title="1">{
-                var err error
-                if _, err = service.repository.GetByID(id); err != nil </span><span class="cov8" title="1">{
-                        return Element{}, err
-                }</span>
+func (service *service) Update(id string, resource *entity.Input) (entity.Element, error) <span class="cov8" title="1">{
+        child, err := service.repository.GetByID(id)
+        if err != nil </span><span class="cov8" title="1">{
+                return entity.Element{}, err
+        }</span>
 
-                // var parent Element
-                <span class="cov8" title="1">_, err = service.repository.GetByID(resource.Data.Relationships.Parent.Data.ID)
+        <span class="cov8" title="1">if resource.Data.Relationships != nil </span><span class="cov8" title="1">{
+                _, err = service.repository.GetByID(resource.Data.Relationships.Parent.Data.ID)
                 if err != nil </span><span class="cov8" title="1">{
-                        return Element{}, err
+                        return entity.Element{}, err
                 }</span>
-
-                <span class="cov8" title="1">response, err := service.repository.UpdateOwnership(id, resource)
-                if err != nil </span><span class="cov8" title="1">{
-                        return Element{}, err
-                }</span>
-
-                <span class="cov8" title="1">return response, nil</span>
         }
-        <span class="cov8" title="1">return service.repository.Update(id, resource)</span>
+
+        <span class="cov8" title="1">return service.repository.Update(child, resource)</span>
 }
 
-func (service *service) Create(resource *Input) (Element, error) <span class="cov8" title="1">{
+func (service *service) Create(resource *entity.Input) (entity.Element, error) <span class="cov8" title="1">{
         if resource.Data.Relationships != nil </span><span class="cov8" title="1">{
                 _, err := service.repository.GetByID(resource.Data.Relationships.Parent.Data.ID)
                 if err != nil </span><span class="cov8" title="1">{
-                        return Element{}, err
+                        return entity.Element{}, err
                 }</span>
         }
         <span class="cov8" title="1">return service.repository.Create(resource)</span>
@@ -583,6 +457,104 @@ func (service *service) Create(resource *Input) (Element, error) <span class="co
 
 func (service *service) Delete(id string) error <span class="cov8" title="1">{
         return service.repository.Delete(id)
+}</span>
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">package session
+
+import (
+        models "github.com/thatbeardo/go-sentinel/models"
+        entity "github.com/thatbeardo/go-sentinel/models/resource"
+        "github.com/thatbeardo/go-sentinel/models/resource/injection"
+        "github.com/thatbeardo/go-sentinel/models/resource/neo4j"
+)
+
+// Session interface defines methods needed to communicate/execute queries and a cleanup function when everything is done
+type Session interface {
+        Execute(statement string, parameters map[string]interface{}) (response entity.Response, err error)
+}
+
+type session struct {
+        session neo4j.Runner
+}
+
+// NewNeo4jSession is a factory method to create Neo4J session instances
+func NewNeo4jSession(neo4jsession neo4j.Runner) Session <span class="cov8" title="1">{
+        return session{
+                session: neo4jsession,
+        }
+}</span>
+
+type resourceNode struct {
+        Name     string `mapstructure:"name"`
+        SourceID string `mapstructure:"source_id"`
+        ID       string `mapstructure:"id"`
+}
+
+// Execute runs the statement passed as a query and opulates the data parameter with result
+func (n session) Execute(statement string, parameters map[string]interface{}) (response entity.Response, err error) <span class="cov8" title="1">{
+        resultMap, err := n.session.Run(statement, parameters)
+        if err != nil </span><span class="cov8" title="1">{
+                return entity.Response{}, models.ErrDatabase
+        }</span>
+
+        <span class="cov8" title="1">resources := []entity.Element{}
+        var childResource, parentResource resourceNode
+
+        err = decodeResource(resultMap, "child", &amp;childResource)
+        if err != nil </span><span class="cov8" title="1">{
+                return
+        }</span>
+
+        <span class="cov8" title="1">err = decodeResource(resultMap, "parent", &amp;parentResource)
+        if err != nil </span><span class="cov8" title="1">{
+                return
+        }</span>
+
+        <span class="cov8" title="1">parent := generateParentResource(parentResource.ID)
+        resources = append(resources, generateElement(childResource, parent))
+
+        response = entity.Response{Data: resources}
+        return</span>
+}
+
+func decodeResource(results map[string]interface{}, resourceKey string, target interface{}) (err error) <span class="cov8" title="1">{
+        defer func() </span><span class="cov8" title="1">{
+                if r := recover(); r != nil </span><span class="cov8" title="1">{
+                        err = models.ErrDatabase
+                }</span>
+        }()
+        <span class="cov8" title="1">if results[resourceKey] != nil </span><span class="cov8" title="1">{
+                node := results[resourceKey].(neo4j.Node)
+                err = injection.MapDecoder(node.Props(), &amp;target)
+        }</span>
+        <span class="cov8" title="1">return</span>
+}
+
+func generateParentResource(parentResourceID string) (parent *entity.Parent) <span class="cov8" title="1">{
+        if parentResourceID != "" </span><span class="cov8" title="1">{
+                parent = &amp;entity.Parent{
+                        Data: &amp;entity.Identifier{
+                                Type: "resource",
+                                ID:   parentResourceID,
+                        },
+                }
+        }</span>
+        <span class="cov8" title="1">return</span>
+}
+
+func generateElement(childResource resourceNode, parent *entity.Parent) (element entity.Element) <span class="cov8" title="1">{
+        return entity.Element{
+                Type: "resource",
+                ID:   childResource.ID,
+                Attributes: &amp;entity.Resource{
+                        Name:     childResource.Name,
+                        SourceID: childResource.SourceID,
+                },
+                Relationships: &amp;entity.Relationships{
+                        Parent: parent,
+                },
+        }
 }</span>
 </pre>
 		

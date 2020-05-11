@@ -7,9 +7,9 @@ import (
 	"github.com/thatbeardo/go-sentinel/api/views"
 	"github.com/thatbeardo/go-sentinel/mocks"
 	models "github.com/thatbeardo/go-sentinel/models"
+	entity "github.com/thatbeardo/go-sentinel/models/resource"
 
 	m "github.com/stretchr/testify/mock"
-	"github.com/thatbeardo/go-sentinel/models/resource"
 	"github.com/thatbeardo/go-sentinel/server"
 	"github.com/thatbeardo/go-sentinel/testutil"
 )
@@ -27,7 +27,7 @@ const parentDataTypeAbsentPayload = `{"data":{"type":"resource","attributes":{"s
 
 func TestPostResourcesOk(t *testing.T) {
 	mockService := &mocks.Service{}
-	mockService.On("Create", m.AnythingOfType("*resource.Input")).Return(createResourceNoErrors())
+	mockService.On("Create", m.AnythingOfType("*entity.Input")).Return(createResourceNoErrors())
 
 	router := server.SetupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "POST", "/v1/resources/", noErrors)
@@ -121,7 +121,7 @@ func TestPostResourceParentTypeAbsent(t *testing.T) {
 
 func TestPostResourceParentAbsentInDatabase(t *testing.T) {
 	mockService := &mocks.Service{}
-	mockService.On("Create", m.AnythingOfType("*resource.Input")).Return(createResourceParentNotFound())
+	mockService.On("Create", m.AnythingOfType("*entity.Input")).Return(createResourceParentNotFound())
 
 	router := server.SetupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "POST", "/v1/resources/", noErrors)
@@ -130,14 +130,14 @@ func TestPostResourceParentAbsentInDatabase(t *testing.T) {
 	testutil.ValidateResponse(t, response, views.GenerateErrorResponse(http.StatusNotFound, "Data not found", "/v1/resources/"), http.StatusNotFound)
 }
 
-func createResourceNoErrors() (resource.Element, error) {
+func createResourceNoErrors() (entity.Element, error) {
 	return generateElement(), nil
 }
 
-func createResourceParentNotFound() (resource.Element, error) {
-	return resource.Element{}, models.ErrNotFound
+func createResourceParentNotFound() (entity.Element, error) {
+	return entity.Element{}, models.ErrNotFound
 }
 
-func databaseError() (resource.Element, error) {
-	return resource.Element{}, models.ErrDatabase
+func databaseError() (entity.Element, error) {
+	return entity.Element{}, models.ErrDatabase
 }

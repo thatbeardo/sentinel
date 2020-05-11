@@ -7,7 +7,7 @@ import (
 	"github.com/thatbeardo/go-sentinel/api/views"
 	"github.com/thatbeardo/go-sentinel/mocks"
 	models "github.com/thatbeardo/go-sentinel/models"
-	"github.com/thatbeardo/go-sentinel/models/resource"
+	entity "github.com/thatbeardo/go-sentinel/models/resource"
 	"github.com/thatbeardo/go-sentinel/server"
 	"github.com/thatbeardo/go-sentinel/testutil"
 )
@@ -72,33 +72,33 @@ func TestGetResourceByIDNoResourceFound(t *testing.T) {
 	testutil.ValidateResponse(t, response, generateError("/v1/resources/:id", "query-parameter-todo", "Data not found", http.StatusNotFound), http.StatusNotFound)
 }
 
-func getResourceMockResponseNoErrors() (resource.Response, error) {
+func getResourceMockResponseNoErrors() (entity.Response, error) {
 	return generateResponse(), nil
 }
 
-func getResourceByIdMockResponseNoErrors() (resource.Element, error) {
+func getResourceByIdMockResponseNoErrors() (entity.Element, error) {
 	return generateElement(), nil
 }
 
-func getResourceByIdNoResource() (resource.Element, error) {
+func getResourceByIdNoResource() (entity.Element, error) {
 	return generateElement(), models.ErrNotFound
 }
 
-func getReourceReturns500() (resource.Response, error) {
-	return resource.Response{}, models.ErrDatabase
+func getReourceReturns500() (entity.Response, error) {
+	return entity.Response{}, models.ErrDatabase
 }
 
-func generateResponse() resource.Response {
+func generateResponse() entity.Response {
 	element := generateElement()
-	return resource.Response{Data: []resource.Element{element}}
+	return entity.Response{Data: []entity.Element{element}}
 }
 
-func generateElement() resource.Element {
-	policies := &resource.Policies{Data: []*resource.Identifier{}}
-	parent := &resource.Parent{Data: &resource.Identifier{Type: "parent-resource", ID: "parent-resource-id"}}
-	relationships := &resource.Relationships{Parent: parent, Policies: policies}
-	userResource := &resource.Resource{Name: "my-resource", SourceID: "my-source-id"}
-	return resource.Element{Relationships: relationships, Attributes: userResource, Type: "resource", ID: "uuid"}
+func generateElement() entity.Element {
+	policies := &entity.Policies{Data: []*entity.Identifier{}}
+	parent := &entity.Parent{Data: &entity.Identifier{Type: "parent-resource", ID: "parent-resource-id"}}
+	relationships := &entity.Relationships{Parent: parent, Policies: policies}
+	userResource := &entity.Resource{Name: "my-resource", SourceID: "my-source-id"}
+	return entity.Element{Relationships: relationships, Attributes: userResource, Type: "resource", ID: "uuid"}
 }
 
 func generateError(pointer string, parameter string, detail string, code int) views.ErrView {

@@ -13,7 +13,7 @@ import (
 
 func TestPatchResourceOk(t *testing.T) {
 	mockService := &mocks.Service{}
-	mockService.On("Update", "test-id", m.AnythingOfType("*resource.Input")).Return(createResourceNoErrors())
+	mockService.On("Update", "test-id", m.AnythingOfType("*entity.Input")).Return(createResourceNoErrors())
 
 	router := server.SetupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "PATCH", "/v1/resources/test-id", noErrors)
@@ -24,7 +24,7 @@ func TestPatchResourceOk(t *testing.T) {
 
 func TestPatchResourceDatabaseError(t *testing.T) {
 	mockService := &mocks.Service{}
-	mockService.On("Update", "test-id", m.AnythingOfType("*resource.Input")).Return(databaseError())
+	mockService.On("Update", "test-id", m.AnythingOfType("*entity.Input")).Return(databaseError())
 
 	router := server.SetupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "PATCH", "/v1/resources/test-id", noErrors)

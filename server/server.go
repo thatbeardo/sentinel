@@ -17,14 +17,14 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 	handler "github.com/thatbeardo/go-sentinel/api/handlers"
 	"github.com/thatbeardo/go-sentinel/api/handlers/resources"
-	"github.com/thatbeardo/go-sentinel/models/resource"
+	"github.com/thatbeardo/go-sentinel/models/resource/service"
 
 	// Swaggo import
 	_ "github.com/thatbeardo/go-sentinel/docs"
 )
 
 // SetupRouter instantiates and initializes a new Router.
-func SetupRouter(service resource.Service) *gin.Engine {
+func SetupRouter(service service.Service) *gin.Engine {
 	r := gin.Default()
 	r.Use(cors.Default())
 
@@ -43,6 +43,7 @@ func SetupRouter(service resource.Service) *gin.Engine {
 // Initialize connects to the database and returns a shut down function
 func Initialize() (func(), neo4j.Session) {
 	session, driver, err := ConnectToDB()
+
 	fmt.Println(err)
 	return func() {
 		session.Close()
@@ -59,7 +60,7 @@ func ConnectToDB() (neo4j.Session, neo4j.Driver, error) {
 		err     error
 	)
 	// initialize driver to connect to localhost with ID and password
-	if driver, err = neo4j.NewDriver("bolt://neo4j_development:7687", neo4j.BasicAuth("", "", ""), func(c *neo4j.Config) {
+	if driver, err = neo4j.NewDriver(os.Getenv("DB_URI"), neo4j.BasicAuth(os.Getenv("USERNAME"), os.Getenv("PASSWORD"), ""), func(c *neo4j.Config) {
 		c.Encrypted = false
 	}); err != nil {
 		fmt.Println("Error while establishing graph connection")
