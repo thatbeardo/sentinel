@@ -50,7 +50,7 @@ func TestExecute_DecodeFails_ReturnDatabaseError(t *testing.T) {
 	session := session.NewNeo4jSession(mockSession)
 
 	resultMap := generateValidResultMap()
-	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(mocks.ReturnResultWithData(resultMap), nil)
+	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(returnResultWithData(resultMap), nil)
 	_, err := session.Execute(`cypher-query`, map[string]interface{}{})
 
 	assert.Equal(t, errDecoding, err)
@@ -60,7 +60,7 @@ func TestExecute_NoErrorsFromDB_ReturnResponse(t *testing.T) {
 	mockSession := &mocks.Session{}
 	session := session.NewNeo4jSession(mockSession)
 
-	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(mocks.ReturnResultWithData(generateValidResultMap()), nil)
+	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(returnResultWithData(generateValidResultMap()), nil)
 	response, err := session.Execute(`cypher-query`, map[string]interface{}{})
 
 	assert.Equal(t, data.ResponseWithoutPolicies, response)
@@ -73,7 +73,7 @@ func TestExecute_ParentDecodeFails_ReturnError(t *testing.T) {
 
 	resultMap := generateValidResultMap()
 	resultMap["parent"] = "invalid entry"
-	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(mocks.ReturnResultWithData(resultMap), nil)
+	mockSession.On("Run", mock.AnythingOfType("string"), mock.AnythingOfType("map[string]interface {}")).Return(returnResultWithData(resultMap), nil)
 	_, err := session.Execute(`cypher-query`, map[string]interface{}{})
 
 	assert.Equal(t, models.ErrDatabase, err)
@@ -101,4 +101,14 @@ func generateValidResultMap() map[string]interface{} {
 			},
 		},
 	}
+}
+
+func returnResultWithData(data interface{}) *mocks.Result {
+	mockResult := &mocks.Result{}
+	mockResult.On("Next").Return(true).Once()
+	mockResult.On("Next").Return(false).Once()
+	mockRecord := &mocks.Record{}
+	mockRecord.On("GetByIndex", 0).Return(data)
+	mockResult.On("Record").Return(mockRecord)
+	return mockResult
 }
