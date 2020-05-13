@@ -27,4 +27,4 @@ jobs:
           run: sudo git clone -b 1.7 https://github.com/neo4j-drivers/seabolt.git /seabolt
 
         - name: Generate coverage
-          run: ./cover.sh
+          run: sudo ./cover.sh
