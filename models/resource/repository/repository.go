@@ -22,8 +22,8 @@ type repository struct {
 // Get retrieves all the resources present in the graph
 func (repo *repository) Get() (entity.Response, error) {
 	return repo.session.Execute(`
-		MATCH(child:Resource) 
-		OPTIONAL MATCH (child: Resource)-[:OWNED_BY]->(parent: Resource) 
+		MATCH(child:Resource)
+		OPTIONAL MATCH (child: Resource)-[:OWNED_BY]->(parent: Resource)
 		RETURN {child: child, parent: parent}`,
 		map[string]interface{}{})
 }
