@@ -31,9 +31,9 @@ func (repo *repository) Get() (entity.Response, error) {
 // GetByID function adds a resource node
 func (repo *repository) GetByID(id string) (entity.Element, error) {
 	elements, err := repo.session.Execute(`
-		MATCH(child:Resource) 
-		WHERE child.id = $id 
-		OPTIONAL MATCH (child: Resource)-[:OWNED_BY]->(parent: Resource) 
+		MATCH(child:Resource)
+		WHERE child.id = $id
+		OPTIONAL MATCH (child: Resource)-[:OWNED_BY]->(parent: Resource)
 		RETURN {child: child, parent: parent}`,
 		map[string]interface{}{
 			"id": id,
