@@ -4,7 +4,7 @@ jobs:
   test:
     strategy:
         matrix:
-            go-version: [1.13.x, 1.14.x]
+            go-version: [1.14.x]
     runs-on: ubuntu-latest
     steps:
         - name: Install Go
@@ -13,11 +13,18 @@ jobs:
               go-version: ${{ matrix.go-version }}
         - name: Checkout code
           uses: actions/checkout@v2
-        - name: Install ca-certificates
-          run: sudo add-apt-repository ca-certificates
-        - name: Bolt dependencies - Install
-          run: sudo apt-get install ca-certificates
+
+        - name: Install seabolt Dependencies
+          run: sudo apt-get install -y libssl1.0.0 
+
+        - name: Unzip seabolt dependencies
+          run: dpkg -i seabolt-1.7.4-Linux-ubuntu-$(lsb_release -rs).deb
+
         - name: Clone seabolt repository
           run: sudo git clone -b 1.7 https://github.com/neo4j-drivers/seabolt.git /seabolt
+
+        - name: Make Seabolt 
+          run: cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_LIBDIR=/seabolt/lib .. && cmake --build /seabolt --target install
+
         - name: Test
           run: go test ./...
