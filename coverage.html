@@ -64,9 +64,9 @@
 				
 				<option value="file4">github.com/thatbeardo/go-sentinel/api/handlers/resources/routes.go (100.0%)</option>
 				
-				<option value="file5">github.com/thatbeardo/go-sentinel/models/resource/repository/repository.go (100.0%)</option>
+				<option value="file5">github.com/thatbeardo/go-sentinel/models/resource/repository/repository.go (0.0%)</option>
 				
-				<option value="file6">github.com/thatbeardo/go-sentinel/models/resource/service/service.go (100.0%)</option>
+				<option value="file6">github.com/thatbeardo/go-sentinel/models/resource/service/service.go (0.0%)</option>
 				
 				<option value="file7">github.com/thatbeardo/go-sentinel/models/resource/session/session.go (100.0%)</option>
 				
@@ -283,7 +283,7 @@ type repository struct {
 }
 
 // Get retrieves all the resources present in the graph
-func (repo *repository) Get() (entity.Response, error) <span class="cov8" title="1">{
+func (repo *repository) Get() (entity.Response, error) <span class="cov0" title="0">{
         return repo.session.Execute(`
                 MATCH(child:Resource) 
                 OPTIONAL MATCH (child: Resource)-[:OWNED_BY]-&gt;(parent: Resource) 
@@ -292,7 +292,7 @@ func (repo *repository) Get() (entity.Response, error) <span class="cov8" title=
 }</span>
 
 // GetByID function adds a resource node
-func (repo *repository) GetByID(id string) (entity.Element, error) <span class="cov8" title="1">{
+func (repo *repository) GetByID(id string) (entity.Element, error) <span class="cov0" title="0">{
         elements, err := repo.session.Execute(`
                 MATCH(child:Resource) 
                 WHERE child.id = $id 
@@ -301,19 +301,19 @@ func (repo *repository) GetByID(id string) (entity.Element, error) <span class="
                 map[string]interface{}{
                         "id": id,
                 })
-        if len(elements.Data) == 0 </span><span class="cov8" title="1">{
+        if len(elements.Data) == 0 </span><span class="cov0" title="0">{
                 return entity.Element{}, models.ErrNotFound
         }</span>
-        <span class="cov8" title="1">return elements.Data[0], err</span>
+        <span class="cov0" title="0">return elements.Data[0], err</span>
 }
 
 // Create function adds a node to the graph
-func (repo *repository) Create(resource *entity.Input) (entity.Element, error) <span class="cov8" title="1">{
+func (repo *repository) Create(resource *entity.Input) (entity.Element, error) <span class="cov0" title="0">{
         var parentID string
-        if resource.Data.Relationships != nil </span><span class="cov8" title="1">{
+        if resource.Data.Relationships != nil </span><span class="cov0" title="0">{
                 parentID = resource.Data.Relationships.Parent.Data.ID
         }</span>
-        <span class="cov8" title="1">elements, err := repo.session.Execute(`
+        <span class="cov0" title="0">elements, err := repo.session.Execute(`
                 CREATE(child:Resource{name:$name, source_id: $source_id, id: randomUUID()})
                 WITH child
                 OPTIONAL MATCH(parent:Resource{id:$parent_id})
@@ -325,14 +325,14 @@ func (repo *repository) Create(resource *entity.Input) (entity.Element, error) <
                         "source_id": resource.Data.Attributes.SourceID,
                         "parent_id": parentID,
                 })
-        if len(elements.Data) == 0 </span><span class="cov8" title="1">{
+        if len(elements.Data) == 0 </span><span class="cov0" title="0">{
                 return entity.Element{}, models.ErrNotFound
         }</span>
-        <span class="cov8" title="1">return elements.Data[0], err</span>
+        <span class="cov0" title="0">return elements.Data[0], err</span>
 }
 
 // Update function Edits the contents of a node
-func (repo *repository) Update(oldResource entity.Element, newResource *entity.Input) (entity.Element, error) <span class="cov8" title="1">{
+func (repo *repository) Update(oldResource entity.Element, newResource *entity.Input) (entity.Element, error) <span class="cov0" title="0">{
         newParentID := extractParentID(newResource)
         statement := generateUpdateStatement(newParentID)
         elements, err := repo.session.Execute(statement,
@@ -342,14 +342,14 @@ func (repo *repository) Update(oldResource entity.Element, newResource *entity.I
                         "source_id":     newResource.Data.Attributes.SourceID,
                         "new_parent_id": newParentID,
                 })
-        if len(elements.Data) == 0 </span><span class="cov8" title="1">{
+        if len(elements.Data) == 0 </span><span class="cov0" title="0">{
                 return entity.Element{}, models.ErrNotFound
         }</span>
-        <span class="cov8" title="1">return elements.Data[0], err</span>
+        <span class="cov0" title="0">return elements.Data[0], err</span>
 }
 
 // Delete function deletes a node from the graph
-func (repo *repository) Delete(id string) error <span class="cov8" title="1">{
+func (repo *repository) Delete(id string) error <span class="cov0" title="0">{
         _, err := repo.session.Execute(`
                 MATCH (n:Resource { id: $id }) DETACH DELETE n`,
                 map[string]interface{}{
@@ -359,21 +359,21 @@ func (repo *repository) Delete(id string) error <span class="cov8" title="1">{
 }</span>
 
 // New is a factory method to generate repository instances
-func New(session session.Session) Repository <span class="cov8" title="1">{
+func New(session session.Session) Repository <span class="cov0" title="0">{
         return &amp;repository{
                 session: session,
         }
 }</span>
 
-func extractParentID(newResource *entity.Input) string <span class="cov8" title="1">{
+func extractParentID(newResource *entity.Input) string <span class="cov0" title="0">{
         var parentID string
-        if newResource.Data.Relationships != nil </span><span class="cov8" title="1">{
+        if newResource.Data.Relationships != nil </span><span class="cov0" title="0">{
                 parentID = newResource.Data.Relationships.Parent.Data.ID
         }</span>
-        <span class="cov8" title="1">return parentID</span>
+        <span class="cov0" title="0">return parentID</span>
 }
 
-func generateUpdateStatement(newParentID string) (statement string) <span class="cov8" title="1">{
+func generateUpdateStatement(newParentID string) (statement string) <span class="cov0" title="0">{
         statement = `
                 MATCH(child:Resource{id:$child_id})
                 SET child.name=$name
@@ -381,9 +381,9 @@ func generateUpdateStatement(newParentID string) (statement string) <span class=
                 WITH child
                 OPTIONAL MATCH (child)-[old_relationship:OWNED_BY]-&gt;(old_parent:Resource)`
 
-        if newParentID == "" </span><span class="cov8" title="1">{
+        if newParentID == "" </span><span class="cov0" title="0">{
                 statement += `RETURN {child: child, parent: old_parent}`
-        }</span> else<span class="cov8" title="1"> {
+        }</span> else<span class="cov0" title="0"> {
                 statement += `
                 DETACH DELETE old_relationship
                 WITH child
@@ -392,7 +392,7 @@ func generateUpdateStatement(newParentID string) (statement string) <span class=
                 CREATE(child)-[:OWNED_BY]-&gt;(new_parent)
                 RETURN {child: child, parent: new_parent}`
         }</span>
-        <span class="cov8" title="1">return</span>
+        <span class="cov0" title="0">return</span>
 }
 </pre>
 		
@@ -417,45 +417,45 @@ type service struct {
 }
 
 // NewService creates a service instance with the repository passed
-func NewService(repository repository.Repository) Service <span class="cov8" title="1">{
+func NewService(repository repository.Repository) Service <span class="cov0" title="0">{
         return &amp;service{repository: repository}
 }</span>
 
-func (service *service) Get() (entity.Response, error) <span class="cov8" title="1">{
+func (service *service) Get() (entity.Response, error) <span class="cov0" title="0">{
         return service.repository.Get()
 }</span>
 
-func (service *service) GetByID(id string) (entity.Element, error) <span class="cov8" title="1">{
+func (service *service) GetByID(id string) (entity.Element, error) <span class="cov0" title="0">{
         return service.repository.GetByID(id)
 }</span>
 
-func (service *service) Update(id string, resource *entity.Input) (entity.Element, error) <span class="cov8" title="1">{
+func (service *service) Update(id string, resource *entity.Input) (entity.Element, error) <span class="cov0" title="0">{
         child, err := service.repository.GetByID(id)
-        if err != nil </span><span class="cov8" title="1">{
+        if err != nil </span><span class="cov0" title="0">{
                 return entity.Element{}, err
         }</span>
 
-        <span class="cov8" title="1">if resource.Data.Relationships != nil </span><span class="cov8" title="1">{
+        <span class="cov0" title="0">if resource.Data.Relationships != nil </span><span class="cov0" title="0">{
                 _, err = service.repository.GetByID(resource.Data.Relationships.Parent.Data.ID)
-                if err != nil </span><span class="cov8" title="1">{
+                if err != nil </span><span class="cov0" title="0">{
                         return entity.Element{}, err
                 }</span>
         }
 
-        <span class="cov8" title="1">return service.repository.Update(child, resource)</span>
+        <span class="cov0" title="0">return service.repository.Update(child, resource)</span>
 }
 
-func (service *service) Create(resource *entity.Input) (entity.Element, error) <span class="cov8" title="1">{
-        if resource.Data.Relationships != nil </span><span class="cov8" title="1">{
+func (service *service) Create(resource *entity.Input) (entity.Element, error) <span class="cov0" title="0">{
+        if resource.Data.Relationships != nil </span><span class="cov0" title="0">{
                 _, err := service.repository.GetByID(resource.Data.Relationships.Parent.Data.ID)
-                if err != nil </span><span class="cov8" title="1">{
+                if err != nil </span><span class="cov0" title="0">{
                         return entity.Element{}, err
                 }</span>
         }
-        <span class="cov8" title="1">return service.repository.Create(resource)</span>
+        <span class="cov0" title="0">return service.repository.Create(resource)</span>
 }
 
-func (service *service) Delete(id string) error <span class="cov8" title="1">{
+func (service *service) Delete(id string) error <span class="cov0" title="0">{
         return service.repository.Delete(id)
 }</span>
 </pre>
