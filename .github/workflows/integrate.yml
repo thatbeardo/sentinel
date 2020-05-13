@@ -26,8 +26,5 @@ jobs:
         - name: Clone seabolt repository
           run: sudo git clone -b 1.7 https://github.com/neo4j-drivers/seabolt.git /seabolt
 
-        - name: Make Seabolt 
-          run: cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_LIBDIR=/seabolt/lib .. && cmake --build /seabolt --target install
-
         - name: Test
           run: go test ./...
