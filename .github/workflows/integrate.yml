@@ -14,6 +14,8 @@ jobs:
         - name: Checkout code
           uses: actions/checkout@v2
         - name: Bolt dependencies
+          run: sudo add-apt-repository ca-certificates cmake make g++ openssl-dev openssl-libs-static git curl pkgconfig
+        - name: Bolt dependencies - Install
           run: sudo apt-get install ca-certificates cmake make g++ openssl-dev openssl-libs-static git curl pkgconfig
         - name: Clone seabolt repository
           run: sudo git clone -b 1.7 https://github.com/neo4j-drivers/seabolt.git /seabolt
