@@ -40,7 +40,7 @@ func (m mockNeo4jSession) Run(statement string, parameters map[string]interface{
 
 func TestExecute_RunReturnsError_ReturnDatabaseError(t *testing.T) {
 	session := session.NewNeo4jSession(mockNeo4jSession{
-		RunErr: errors.New("Databas error"),
+		RunErr: errors.New("Database error"),
 	})
 
 	_, err := session.Execute(`cypher-query`, map[string]interface{}{})
