@@ -1,12 +1,11 @@
 on: [push, pull_request]
-name: Integrate
-
-jobs: 
-    test: 
+name: Test
+jobs:
+    test:
         strategy:
-            matrix:
-                go-version: [1.13.x, 1.14.x]
-                platform: [ubuntu-latest, macos-latest, windows-latest]
+        matrix:
+            go-version: [1.13.x, 1.14.x]
+            platform: [ubuntu-latest, macos-latest, windows-latest]
         runs-on: ${{ matrix.platform }}
         steps:
         - name: Install Go
@@ -15,7 +14,5 @@ jobs:
                 go-version: ${{ matrix.go-version }}
         - name: Checkout code
             uses: actions/checkout@v2
-        - name: Install dependencies
-            run: go get ./...
         - name: Test
             run: go test ./...
