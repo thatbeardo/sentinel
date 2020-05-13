@@ -26,5 +26,15 @@ jobs:
         - name: Clone seabolt repository
           run: sudo git clone -b 1.7 https://github.com/neo4j-drivers/seabolt.git /seabolt
 
-        - name: Generate coverage
-          run: sudo bash cover.sh
+        - name: Generate coverage report
+          run: sudo go test ./... -v -coverprofile=coverage.out
+
+        - name: Upload coverage to Codecov
+          uses: codecov/codecov-action@v1
+          with:
+            token: ${{ secrets.CODECOV_TOKEN }}
+            file: ./coverage.out
+            flags: unittests
+            env_vars: OS,GO
+            name: codecov-umbrella
+            fail_ci_if_error: true
