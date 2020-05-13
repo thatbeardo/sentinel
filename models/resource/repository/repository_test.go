@@ -5,7 +5,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/thatbeardo/go-sentinel/mocks/data"
 	entity "github.com/thatbeardo/go-sentinel/models/resource"
+	"github.com/thatbeardo/go-sentinel/models/resource/repository"
 )
 
 var errTest = errors.New("test-error")
@@ -67,18 +69,18 @@ func (m mockSession) Execute(statement string, parameters map[string]interface{}
 	return m.ExecuteResponse, m.ExecuteErr
 }
 
-// func TestGet_SessionReturnsResponse_NoErrors(t *testing.T) {
-// 	session := mockSession{
-// 		ExecuteResponse:   data.Response,
-// 		ExpectedStatement: getStatement,
-// 		ExpectedParameter: map[string]interface{}{},
-// 		t:                 t,
-// 	}
-// 	repository := repository.New(session)
-// 	response, err := repository.Get()
-// 	assert.Equal(t, data.Response, response)
-// 	assert.Nil(t, err)
-// }
+func TestGet_SessionReturnsResponse_NoErrors(t *testing.T) {
+	session := mockSession{
+		ExecuteResponse:   data.Response,
+		ExpectedStatement: getStatement,
+		ExpectedParameter: map[string]interface{}{},
+		t:                 t,
+	}
+	repository := repository.New(session)
+	response, err := repository.Get()
+	assert.Equal(t, data.Response, response)
+	assert.Nil(t, err)
+}
 
 // func TestGet_SessionReturnsError_ReturnsError(t *testing.T) {
 // 	session := mockSession{
