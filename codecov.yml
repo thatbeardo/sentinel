@@ -5,11 +5,12 @@ coverage:
   status:
     project:
       default:
-        # basic
         target: auto
         threshold: 100%
+        paths:
+          - api/*
+          - models/*
         base: auto 
-        # advanced
         branches: 
           - master
         if_not_found: success
