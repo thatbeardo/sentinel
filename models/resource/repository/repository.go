@@ -22,8 +22,8 @@ type repository struct {
 // Get retrieves all the resources present in the graph
 func (repo *repository) Get() (entity.Response, error) {
 	return repo.session.Execute(`
-		MATCH(child:Resource) 
-		OPTIONAL MATCH (child: Resource)-[:OWNED_BY]->(parent: Resource) 
+		MATCH(child:Resource)
+		OPTIONAL MATCH (child: Resource)-[:OWNED_BY]->(parent: Resource)
 		RETURN {child: child, parent: parent}`,
 		map[string]interface{}{})
 }
@@ -31,9 +31,9 @@ func (repo *repository) Get() (entity.Response, error) {
 // GetByID function adds a resource node
 func (repo *repository) GetByID(id string) (entity.Element, error) {
 	elements, err := repo.session.Execute(`
-		MATCH(child:Resource) 
-		WHERE child.id = $id 
-		OPTIONAL MATCH (child: Resource)-[:OWNED_BY]->(parent: Resource) 
+		MATCH(child:Resource)
+		WHERE child.id = $id
+		OPTIONAL MATCH (child: Resource)-[:OWNED_BY]->(parent: Resource)
 		RETURN {child: child, parent: parent}`,
 		map[string]interface{}{
 			"id": id,
