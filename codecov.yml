@@ -7,9 +7,6 @@ coverage:
       default:
         target: auto
         threshold: 100%
-        paths:
-          - api/*
-          - models/*
         base: auto 
         branches: 
           - master
