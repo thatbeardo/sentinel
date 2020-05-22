@@ -16,3 +16,4 @@ vendor/
 
 *.html
 coverage
+.terraform/

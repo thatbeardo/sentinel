@@ -11,23 +11,19 @@ jobs:
           uses: actions/setup-go@v2
           with:
               go-version: ${{ matrix.go-version }}
+        
         - name: Checkout code
           uses: actions/checkout@v2
+          with:
+            token: ${{ secrets.PAT }} 
 
         - name: Install seabolt Dependencies
-          run: sudo apt-get install -y libssl1.0.0 
-
-        - name: Fetch latest package
-          run: wget https://github.com/neo4j-drivers/seabolt/releases/download/v1.7.4/seabolt-1.7.4-Linux-ubuntu-$(lsb_release -rs).deb
-
-        - name: Unzip seabolt dependencies
-          run: sudo dpkg -i seabolt-1.7.4-Linux-ubuntu-$(lsb_release -rs).deb
-
-        - name: Clone seabolt repository
-          run: sudo git clone -b 1.7 https://github.com/neo4j-drivers/seabolt.git /seabolt
-
-        - name: Generate coverage report
-          run: sudo go test ./... -v -coverprofile=coverage.out
+          run: |
+            sudo apt-get install -y libssl1.0.0 
+            wget https://github.com/neo4j-drivers/seabolt/releases/download/v1.7.4/seabolt-1.7.4-Linux-ubuntu-$(lsb_release -rs).deb
+            sudo dpkg -i seabolt-1.7.4-Linux-ubuntu-$(lsb_release -rs).deb
+            sudo git clone -b 1.7 https://github.com/neo4j-drivers/seabolt.git /seabolt
+            sudo go test ./... -v -coverprofile=coverage.out
 
         - name: Upload coverage to Codecov
           uses: codecov/codecov-action@v1
@@ -38,3 +34,14 @@ jobs:
             env_vars: OS,GO
             name: codecov-umbrella
             fail_ci_if_error: true
+
+        - name: Setup Terraform
+          uses: hashicorp/setup-terraform@v1
+        - run: |
+                cd infrastructure/dev
+                terraform init
+                terraform plan
+          env:
+            AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        

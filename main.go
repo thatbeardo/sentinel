@@ -4,7 +4,7 @@
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @description ### A domain agnostic permission management and querying API.
+// @description ### A domain agnostic permission management and querying API. to manage
 // @description
 // @description At the most basic level the Sentinel API offers a way for consumers to manage access of application resources to other application resources through the use of policies.
 // @description
