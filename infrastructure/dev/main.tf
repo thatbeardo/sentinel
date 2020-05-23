@@ -75,7 +75,7 @@ module nat_gateway {
 }
 
 resource aws_route private_internet_access {
-  route_table_id         = module.public_route_table.route_table_id
+  route_table_id         = module.private_route_table.route_table_id
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id = module.nat_gateway.nat_id
 }
