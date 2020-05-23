@@ -24,7 +24,7 @@ module sentinel-subnet-private-east-1b {
 
 module sentinel-subnet-public-east-1a {
   source = "../modules/vpc/subnet"
-  subnet_cidr_block = "10.0.0.32/12"
+  subnet_cidr_block = "10.0.0.32/28"
   subnet_name = "public-east-1a"
   availability_zone = "us-east-1a"
   map_public_ip_on_launch = true
@@ -33,7 +33,7 @@ module sentinel-subnet-public-east-1a {
 
 module sentinel-subnet-public-east-1b {
   source = "../modules/vpc/subnet"
-  subnet_cidr_block = "10.0.0.48/12"
+  subnet_cidr_block = "10.0.0.48/28"
   subnet_name = "public-east-1b"
   availability_zone = "us-east-1b"
   map_public_ip_on_launch = true
