@@ -63,9 +63,14 @@ module private_route_table_association_subnet_1b {
   route_table_id = module.private_route_table.route_table_id
 }
 
+module eip {
+  source = "../modules/elastic-ip"
+}
+
 module nat_gateway {
   source = "../modules/nat"
   nat_name = "nat_gateway_east-1"
+  eip_id = module.eip.eip_id
   subnet_id = module.sentinel-subnet-public-east-1a.subnet_id
 }
 
