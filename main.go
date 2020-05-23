@@ -126,7 +126,7 @@
 // @description |Policy|A named collection of permissions. Policies are granted to resources (principals) and grant or deny access to affect resources (target resources) through permissions.|
 // @description |Permission|An explicit allowance or refusal of a resource (principal) to perform an action on a resource (target resource).|
 // @description |Principal|In the context of a Policy the principal refers to the resource which has been granted access to make use of the policy.|
-// @description |Target Resource| In the context of a Policy a target resource is any and all resources which the policy allows or denies access through Permissions.|
+// @description |Target Resource|In the context of a Policy a target resource is any and all resources which the policy allows or denies access through Permissions.|
 // @description
 // @description ### Getting Started
 // @description Review the [Getting Started Guide](http://localhost:3000/documentation/GettingStarted.md) for minimal setup instructions
