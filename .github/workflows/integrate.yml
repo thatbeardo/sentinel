@@ -1,5 +1,5 @@
 on: [push, pull_request]
-name: Test
+name: Sentinel Community Integration 
 jobs:
   test:
     strategy:
@@ -37,10 +37,13 @@ jobs:
 
         - name: Setup Terraform
           uses: hashicorp/setup-terraform@v1
-        - run: |
+        
+        - name: Begin Terraform
+          run: |
                 cd infrastructure/dev
                 terraform init
                 terraform plan
+
           env:
             AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
             AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
