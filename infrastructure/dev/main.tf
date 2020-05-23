@@ -1,6 +1,6 @@
 module sentinel-vpc {
   source = "../modules/vpc"
-  vpc_cidr = "10.0.0.0/28"
+  vpc_cidr = "10.0.0.0/26"
   vpc_tenancy = "default"
 }
 
