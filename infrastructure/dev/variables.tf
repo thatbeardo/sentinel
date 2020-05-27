@@ -31,7 +31,7 @@ variable app_count {
 }
 
 variable health_check_path {
-  default = "/docs/swagger.html"
+  default = "/docs"
 }
 
 variable fargate_cpu {
