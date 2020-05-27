@@ -40,4 +40,4 @@ jobs:
             cd infrastructure/dev
             terraform init
             terraform plan
-            terraform apply -var 'app_image=${{ steps.build-image.outputs.image }}' -auto-approve  
+            terraform destroy -auto-approve
