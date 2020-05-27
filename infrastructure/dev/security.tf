@@ -61,7 +61,7 @@ resource aws_security_group db {
   }
 
   ingress {
-    protocol        = "ssh"
+    protocol        = "tcp"
     from_port       = var.db_ssh_port
     to_port         = var.db_ssh_port
     cidr_blocks     = ["0.0.0.0/0"]
