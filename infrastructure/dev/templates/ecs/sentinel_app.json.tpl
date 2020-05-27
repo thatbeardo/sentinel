@@ -7,7 +7,7 @@
     "networkMode": "awsvpc",
     "environment": [
       {"name": "DB_URI", "value": "bolt://${db_uri}:7687"}
-    ]
+    ],
     "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
