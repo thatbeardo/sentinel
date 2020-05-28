@@ -12,6 +12,8 @@ services:
             - neo4j_development:neo4j_development
         environment: 
             - DB_URI="bolt://neo4j_development:7687"
+            - HOST="localhost"
+            - PORT="8080"
             - USERNAME=""
             - PASSWORD=""
             
