@@ -6,7 +6,9 @@
     "memory": ${fargate_memory},
     "networkMode": "awsvpc",
     "environment": [
-      {"name": "DB_URI", "value": "bolt://${db_uri}:7687"}
+      {"name": "DB_URI", "value": "bolt://${db_uri}:7687"},
+      {"name": "HOST", "value": "${host}"},
+      {"name": "PORT", "value": "${app_port}"},
     ],
     "logConfiguration": {
         "logDriver": "awslogs",

@@ -17,6 +17,7 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 	handler "github.com/thatbeardo/go-sentinel/api/handlers"
 	"github.com/thatbeardo/go-sentinel/api/handlers/resources"
+	"github.com/thatbeardo/go-sentinel/docs"
 	"github.com/thatbeardo/go-sentinel/models/resource/service"
 
 	// Swaggo import
@@ -28,16 +29,26 @@ func SetupRouter(service service.Service) *gin.Engine {
 	r := gin.Default()
 	r.Use(cors.Default())
 
-	r.StaticFile("/docs/", "./docs/swagger.json")
-	url := ginSwagger.URL("http://localhost:8080/docs/")
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
-
+	setupSwagger(r)
 	r.NoRoute(handler.NoRoute)
 
 	router := r.Group("/v1")
 	resources.ResourceRoutes(router, service)
 
 	return r
+}
+
+func setupSwagger(r *gin.Engine) {
+	hostURL := getHostURL()
+	docs.SwaggerInfo.Host = hostURL
+	r.StaticFile("/docs/", "./docs/swagger.json")
+
+	url := ginSwagger.URL(fmt.Sprintf("%s/docs", hostURL))
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
+}
+
+func getHostURL() string {
+	return fmt.Sprintf("http://%s:%s", os.Getenv("HOST"), os.Getenv("PORT"))
 }
 
 // Initialize connects to the database and returns a shut down function
@@ -59,7 +70,7 @@ func ConnectToDB() (neo4j.Session, neo4j.Driver, error) {
 		session neo4j.Session
 		err     error
 	)
-	// initialize driver to connect to localhost with ID and password
+	// initialize driver to connect to DB with ID and password
 	dbURI := os.Getenv("DB_URI")
 	fmt.Println("Now connecting " + dbURI)
 	if driver, err = neo4j.NewDriver(dbURI, neo4j.BasicAuth(os.Getenv("USERNAME"), os.Getenv("PASSWORD"), ""), func(c *neo4j.Config) {

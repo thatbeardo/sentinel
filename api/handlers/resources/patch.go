@@ -16,7 +16,7 @@ import (
 // @Produce  json
 // @Param id path string true "Resource ID"
 // @Param input body entity.Input true "Resource to be created"
-// @Success 204 {object} resource.Response	"ok"
+// @Success 204 {object} entity.Response	"ok"
 // @Success 404 {object} views.ErrView
 // @Router /v1/resources/{id} [patch]
 func patch(service service.Service) gin.HandlerFunc {

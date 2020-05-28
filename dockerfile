@@ -20,5 +20,6 @@ ADD . /go/src/app
 # Install Dependencies
 RUN go get -d -v ./...
 RUN go install -v ./...
+RUN make swagger
 
 CMD ["go", "run", "main.go"]

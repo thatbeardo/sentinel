@@ -13,7 +13,7 @@ import (
 // @Description Get all the resources stored
 // @Accept  json
 // @Produce  json
-// @Success 200 {object} resource.Response	"ok"
+// @Success 200 {object} entity.Response	"ok"
 // @Success 500 {object} views.ErrView
 // @Router /v1/resources [get]
 func get(service service.Service) gin.HandlerFunc {
@@ -33,7 +33,7 @@ func get(service service.Service) gin.HandlerFunc {
 // @Accept  json
 // @Produce  json
 // @Param id path string true "Resource ID"
-// @Success 200 {object} resource.Element	"ok"
+// @Success 200 {object} entity.Element	"ok"
 // @Success 404 {object} views.ErrView
 // @Success 500 {object} views.ErrView
 // @Router /v1/resources/{id} [get]

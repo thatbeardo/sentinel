@@ -17,3 +17,6 @@ vendor/
 *.html
 coverage
 .terraform/
+
+swagger.json
+swagger.yaml

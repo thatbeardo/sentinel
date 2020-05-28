@@ -130,7 +130,6 @@
 // @description
 // @description ### Getting Started
 // @description Review the [Getting Started Guide](http://localhost:3000/documentation/GettingStarted.md) for minimal setup instructions
-// @host http://sentinel-community-load-balancer-123751677.us-east-1.elb.amazonaws.com:8080/
 // @BasePath /
 package main
 

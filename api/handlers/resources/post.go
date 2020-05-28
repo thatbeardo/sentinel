@@ -15,7 +15,7 @@ import (
 // @Accept  json
 // @Produce  json
 // @Param input body entity.Input true "Resource to be created"
-// @Success 202 {object} resource.Element	"ok"
+// @Success 202 {object} entity.Element	"ok"
 // @Failure 500 {object} views.ErrView	"ok"
 // @Router /v1/resources [post]
 func post(service service.Service) gin.HandlerFunc {

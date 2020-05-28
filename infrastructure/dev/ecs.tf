@@ -12,9 +12,10 @@ data template_file sentinel_app {
     fargate_memory = var.fargate_memory
     aws_region     = var.aws_region
     db_uri         = aws_instance.neo4j.public_dns
+    host           = aws_alb.main.dns_name
   }
 
-  depends_on = [aws_instance.neo4j]
+  depends_on = [aws_instance.neo4j, aws_alb.main]
 }
 
 resource aws_ecs_task_definition app {
