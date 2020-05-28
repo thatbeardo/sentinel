@@ -15,26 +15,26 @@ jobs:
         - name: Checkout code
           uses: actions/checkout@v2
 
-        # - name: Install seabolt Dependencies
-        #   run: |
-        #     sudo apt-get install -y libssl1.0.0 
-        #     wget https://github.com/neo4j-drivers/seabolt/releases/download/v1.7.4/seabolt-1.7.4-Linux-ubuntu-$(lsb_release -rs).deb
-        #     sudo dpkg -i seabolt-1.7.4-Linux-ubuntu-$(lsb_release -rs).deb
-        #     sudo git clone -b 1.7 https://github.com/neo4j-drivers/seabolt.git /seabolt
-        #     
+        - name: Install seabolt Dependencies
+          run: |
+            sudo apt-get install -y libssl1.0.0 
+            wget https://github.com/neo4j-drivers/seabolt/releases/download/v1.7.4/seabolt-1.7.4-Linux-ubuntu-$(lsb_release -rs).deb
+            sudo dpkg -i seabolt-1.7.4-Linux-ubuntu-$(lsb_release -rs).deb
+            sudo git clone -b 1.7 https://github.com/neo4j-drivers/seabolt.git /seabolt
+            
 
-        # - name: Run tests
-        #   run: sudo go test ./... -v -coverprofile=coverage.out 
+        - name: Run tests
+          run: sudo go test ./... -v -coverprofile=coverage.out 
 
-        # - name: Upload coverage to Codecov
-        #   uses: codecov/codecov-action@v1
-        #   with:
-        #     token: ${{ secrets.CODECOV_TOKEN }}
-        #     file: ./coverage.out
-        #     flags: unittests
-        #     env_vars: OS,GO
-        #     name: codecov-umbrella
-        #     fail_ci_if_error: true
+        - name: Upload coverage to Codecov
+          uses: codecov/codecov-action@v1
+          with:
+            token: ${{ secrets.CODECOV_TOKEN }}
+            file: ./coverage.out
+            flags: unittests
+            env_vars: OS,GO
+            name: codecov-umbrella
+            fail_ci_if_error: true
         
         - name: Setup Terraform
           uses: hashicorp/setup-terraform@v1
@@ -43,8 +43,8 @@ jobs:
           run: |
                 cd infrastructure/dev
                 terraform init
-                terraform validate
                 terraform plan
+                terraform validate
           env:
             AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
             AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
