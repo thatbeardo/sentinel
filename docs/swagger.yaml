@@ -1,22 +1,6 @@
 basePath: /
 definitions:
-  resource.Element:
-    properties:
-      attributes:
-        $ref: '#/definitions/resource.Resource'
-        type: object
-      id:
-        type: string
-      relationships:
-        $ref: '#/definitions/resource.Relationships'
-        type: object
-      type:
-        type: string
-    required:
-    - attributes
-    - type
-    type: object
-  resource.Identifier:
+  entity.Identifier:
     properties:
       id:
         type: string
@@ -31,21 +15,21 @@ definitions:
     - id
     - type
     type: object
-  resource.Input:
+  entity.Input:
     properties:
       data:
-        $ref: '#/definitions/resource.InputElement'
+        $ref: '#/definitions/entity.InputElement'
         type: object
     required:
     - data
     type: object
-  resource.InputElement:
+  entity.InputElement:
     properties:
       attributes:
-        $ref: '#/definitions/resource.Resource'
+        $ref: '#/definitions/entity.Resource'
         type: object
       relationships:
-        $ref: '#/definitions/resource.RelationshipsInput'
+        $ref: '#/definitions/entity.RelationshipsInput'
         type: object
       type:
         type: string
@@ -53,39 +37,23 @@ definitions:
     - attributes
     - type
     type: object
-  resource.Parent:
+  entity.Parent:
     properties:
       data:
-        $ref: '#/definitions/resource.Identifier'
+        $ref: '#/definitions/entity.Identifier'
         type: object
     required:
     - data
     type: object
-  resource.Policies:
-    properties:
-      data:
-        items:
-          $ref: '#/definitions/resource.Identifier'
-        type: array
-    type: object
-  resource.Relationships:
+  entity.RelationshipsInput:
     properties:
       parent:
-        $ref: '#/definitions/resource.Parent'
-        type: object
-      policies:
-        $ref: '#/definitions/resource.Policies'
-        type: object
-    type: object
-  resource.RelationshipsInput:
-    properties:
-      parent:
-        $ref: '#/definitions/resource.Parent'
+        $ref: '#/definitions/entity.Parent'
         type: object
     required:
     - parent
     type: object
-  resource.Resource:
+  entity.Resource:
     properties:
       name:
         type: string
@@ -93,6 +61,20 @@ definitions:
         type: string
     required:
     - source_id
+    type: object
+  resource.Element:
+    properties:
+      attributes:
+        type: Resource
+      id:
+        type: string
+      relationships:
+        type: Relationships
+      type:
+        type: string
+    required:
+    - attributes
+    - type
     type: object
   resource.Response:
     properties:
@@ -120,11 +102,10 @@ definitions:
       pointer:
         type: string
     type: object
-host: localhost:8080
 info:
   contact: {}
   description: |-
-    ### A domain agnostic permission management and querying API.
+    ### A domain agnostic permission management and querying API. to manage
 
     At the most basic level the Sentinel API offers a way for consumers to manage access of application resources to other application resources through the use of policies.
 
@@ -285,7 +266,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/resource.Input'
+          $ref: '#/definitions/entity.Input'
       produces:
       - application/json
       responses:
@@ -368,7 +349,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/resource.Input'
+          $ref: '#/definitions/entity.Input'
       produces:
       - application/json
       responses:
