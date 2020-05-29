@@ -30,6 +30,7 @@ jobs:
         ECR_REPOSITORY: sentinel-community
         IMAGE_TAG: ${{ github.sha }}
       run: |
+        cd sentinel
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
@@ -37,7 +38,7 @@ jobs:
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v1
     - run: |
-            cd infrastructure/dev
+            cd ../infrastructure/dev
             terraform init
             
             terraform plan

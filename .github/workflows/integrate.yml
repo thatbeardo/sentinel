@@ -24,7 +24,9 @@ jobs:
             
 
         - name: Run tests
-          run: sudo go test ./... -v -coverprofile=coverage.out 
+          run: |
+            cd sentinel
+            sudo go test ./... -v -coverprofile=coverage.out 
 
         - name: Upload coverage to Codecov
           uses: codecov/codecov-action@v1
@@ -41,7 +43,7 @@ jobs:
 
         - name: Begin Terraform
           run: |
-                cd infrastructure/dev
+                cd ../infrastructure/dev
                 terraform init
                 terraform plan
                 terraform validate
