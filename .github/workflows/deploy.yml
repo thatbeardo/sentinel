@@ -45,12 +45,18 @@ jobs:
             terraform plan
             terraform apply -var 'app_image=${{ steps.build-image.outputs.image }}' -auto-approve
             echo "::set-output name=website_bucket::terraform output website_bucket"
-
+    
+    - name: Build Website
+      uses: borales/actions-yarn@v2.1.0
+    - run: |
+          cd app
+          yarn install
+          yarn build
+          
     - name: Deploy Website
       uses: chrislennon/action-aws-cli@v1.1
     - run: |
           cd app
-          yarn build
           s3 cp build/* s3://${{ steps.terraform-apply.outputs.website_bucket }}
 
 
