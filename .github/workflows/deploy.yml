@@ -63,6 +63,6 @@ jobs:
     - name: Deploy Website
       run: |
           cd app
-          aws s3 cp build/ s3://${{ steps.terraform-apply.outputs.website_bucket_arn }}
+          aws s3 cp build/ ${{ steps.terraform-apply.outputs.website_bucket_arn }}
 
 
