@@ -1,6 +1,10 @@
 package neo4j
 
-import "github.com/neo4j/neo4j-go-driver/neo4j"
+import (
+	"fmt"
+
+	"github.com/neo4j/neo4j-go-driver/neo4j"
+)
 
 // Node represents a node in the database
 type Node interface {
@@ -27,6 +31,10 @@ func New(session neo4j.Session) Runner {
 
 func (n neo4jSession) Run(statement string, parameters map[string]interface{}) (data map[string]interface{}, err error) {
 	result, err := n.session.Run(statement, parameters)
+	if err != nil {
+		fmt.Println("Could not connect database ", err.Error())
+		return
+	}
 	for result.Next() {
 		data = result.Record().GetByIndex(0).(map[string]interface{})
 	}
