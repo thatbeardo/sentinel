@@ -32,7 +32,7 @@ jobs:
           uses: codecov/codecov-action@v1
           with:
             token: ${{ secrets.CODECOV_TOKEN }}
-            file: ./coverage.out
+            file: ./sentinel/coverage.out
             flags: unittests
             env_vars: OS,GO
             name: codecov-umbrella
@@ -43,7 +43,7 @@ jobs:
 
         - name: Begin Terraform
           run: |
-                cd ../infrastructure/dev
+                cd infrastructure/dev
                 terraform init
                 terraform plan
                 terraform validate

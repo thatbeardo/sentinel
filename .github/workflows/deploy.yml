@@ -38,7 +38,7 @@ jobs:
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v1
     - run: |
-            cd ../infrastructure/dev
+            cd infrastructure/dev
             terraform init
             
             terraform plan
