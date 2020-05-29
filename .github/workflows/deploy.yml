@@ -36,10 +36,11 @@ jobs:
         echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
     - name: Setup Terraform
-      id: terraform-apply
       uses: hashicorp/setup-terraform@v1
 
-    - run: |
+    - name: Terraform Apply
+      id: terraform-apply
+      run: |
             cd infrastructure/dev
             terraform init
             
@@ -47,16 +48,20 @@ jobs:
             terraform apply -var 'app_image=${{ steps.build-image.outputs.image }}' -auto-approve
             echo "::set-output name=website_bucket_arn::$(terraform output website_bucket_arn)"
     
-    - name: Build Website
+    - name: Install Yarn
       uses: borales/actions-yarn@v2.1.0
-    - run: |
+    
+    - name: Install AWS CLI
+      uses: chrislennon/action-aws-cli@v1.1
+    
+    - name: Build Website
+      run: |
           cd app
           yarn install
           yarn build
           
     - name: Deploy Website
-      uses: chrislennon/action-aws-cli@v1.1
-    - run: |
+      run: |
           cd app
           aws s3 cp build/ s3://${{ steps.terraform-apply.outputs.website_bucket_arn }}
 
