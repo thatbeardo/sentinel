@@ -4,20 +4,20 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/thatbeardo/go-sentinel/api/views"
-	"github.com/thatbeardo/go-sentinel/mocks"
-	models "github.com/thatbeardo/go-sentinel/models"
-	entity "github.com/thatbeardo/go-sentinel/models/resource"
+	"github.com/bithippie/go-sentinel/sentinel/api/views"
+	"github.com/bithippie/go-sentinel/sentinel/mocks"
+	models "github.com/bithippie/go-sentinel/sentinel/models"
+	entity "github.com/bithippie/go-sentinel/sentinel/models/resource"
 
 	m "github.com/stretchr/testify/mock"
-	"github.com/thatbeardo/go-sentinel/server"
-	"github.com/thatbeardo/go-sentinel/testutil"
+	"github.com/bithippie/go-sentinel/sentinel/server"
+	"github.com/bithippie/go-sentinel/sentinel/testutil"
 )
 
 const noErrors = `{"data":{"type":"resource","attributes":{"source_id":"much-required"}}}`
 const sourceIdAbsent = `{"data":{"type":"resource","attributes":{"someField":"not-much-required"}}}`
 const sourceIdBlank = `{"data":{"type":"resource","attributes":{"source_id":""}}}`
-const typeAbsent = `{"data":{"typoo":"resource","attributes":{"source_id":"not-much-required"}}}`
+const typeAbsent = `{"data":{"typo":"resource","attributes":{"source_id":"not-much-required"}}}`
 const typeBlank = `{"data":{"type":"","attributes":{"source_id":"much-required"}}}`
 
 const relationshipsEmptyPayload = `{"data":{"type":"resource","attributes":{"source_id":"test-id"},"relationships":{}}}`

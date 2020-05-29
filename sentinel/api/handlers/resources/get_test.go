@@ -4,12 +4,12 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/thatbeardo/go-sentinel/api/views"
-	"github.com/thatbeardo/go-sentinel/mocks"
-	models "github.com/thatbeardo/go-sentinel/models"
-	entity "github.com/thatbeardo/go-sentinel/models/resource"
-	"github.com/thatbeardo/go-sentinel/server"
-	"github.com/thatbeardo/go-sentinel/testutil"
+	"github.com/bithippie/go-sentinel/sentinel/api/views"
+	"github.com/bithippie/go-sentinel/sentinel/mocks"
+	models "github.com/bithippie/go-sentinel/sentinel/models"
+	entity "github.com/bithippie/go-sentinel/sentinel/models/resource"
+	"github.com/bithippie/go-sentinel/sentinel/server"
+	"github.com/bithippie/go-sentinel/sentinel/testutil"
 )
 
 func TestInvalidPath(t *testing.T) {
@@ -17,7 +17,7 @@ func TestInvalidPath(t *testing.T) {
 	mockService := &mocks.Service{}
 
 	router := server.SetupRouter(mockService)
-	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/resurces/", "")
+	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/resources/", "")
 	defer cleanup()
 
 	testutil.ValidateResponse(t, response, generateError("", "query-parameter-todo", "Path not found", http.StatusNotFound), http.StatusNotFound)
@@ -38,7 +38,7 @@ func TestGetResourcesOk(t *testing.T) {
 func TestGetResourcesDatabaseError(t *testing.T) {
 
 	mockService := &mocks.Service{}
-	mockService.On("Get").Return(getReourceReturns500())
+	mockService.On("Get").Return(getResourceReturns500())
 
 	router := server.SetupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/resources/", "")
@@ -84,7 +84,7 @@ func getResourceByIdNoResource() (entity.Element, error) {
 	return generateElement(), models.ErrNotFound
 }
 
-func getReourceReturns500() (entity.Response, error) {
+func getResourceReturns500() (entity.Response, error) {
 	return entity.Response{}, models.ErrDatabase
 }
 

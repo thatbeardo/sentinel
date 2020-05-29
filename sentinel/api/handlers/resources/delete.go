@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/thatbeardo/go-sentinel/api/views"
-	"github.com/thatbeardo/go-sentinel/models/resource/service"
+	"github.com/bithippie/go-sentinel/sentinel/api/views"
+	"github.com/bithippie/go-sentinel/sentinel/models/resource/service"
 )
 
 // @Summary Delete a resource by its ID

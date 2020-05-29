@@ -5,10 +5,10 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/thatbeardo/go-sentinel/mocks/data"
-	models "github.com/thatbeardo/go-sentinel/models"
-	"github.com/thatbeardo/go-sentinel/models/resource/injection"
-	"github.com/thatbeardo/go-sentinel/models/resource/session"
+	"github.com/bithippie/go-sentinel/sentinel/mocks/data"
+	models "github.com/bithippie/go-sentinel/sentinel/models"
+	"github.com/bithippie/go-sentinel/sentinel/models/resource/injection"
+	"github.com/bithippie/go-sentinel/sentinel/models/resource/session"
 )
 
 type mockNode struct {

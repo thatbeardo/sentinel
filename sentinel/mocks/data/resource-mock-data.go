@@ -1,6 +1,6 @@
 package data
 
-import entity "github.com/thatbeardo/go-sentinel/models/resource"
+import entity "github.com/bithippie/go-sentinel/sentinel/models/resource"
 
 var policy = &entity.Identifier{
 	Type: "policy",
@@ -113,13 +113,13 @@ var ParentElement = entity.Element{
 	ID:         "parent-id",
 }
 
-// Input represente the payload sent by the user to the service
+// Input represents the payload sent by the user to the service
 var Input = &entity.Input{Data: inputElement}
 
 // InputWithDifferentName represents an input with a different name
 var InputWithDifferentName = &entity.Input{Data: inputElementDifferentName}
 
-// InputRelationshipsAbsent represente the payload sent by the user to the service
+// InputRelationshipsAbsent represents the payload sent by the user to the service
 var InputRelationshipsAbsent = &entity.Input{Data: inputElementRelationshipsAbsent}
 
 // Response is the payload sent to the user

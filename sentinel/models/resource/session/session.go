@@ -1,10 +1,10 @@
 package session
 
 import (
-	models "github.com/thatbeardo/go-sentinel/models"
-	entity "github.com/thatbeardo/go-sentinel/models/resource"
-	"github.com/thatbeardo/go-sentinel/models/resource/injection"
-	"github.com/thatbeardo/go-sentinel/models/resource/neo4j"
+	models "github.com/bithippie/go-sentinel/sentinel/models"
+	entity "github.com/bithippie/go-sentinel/sentinel/models/resource"
+	"github.com/bithippie/go-sentinel/sentinel/models/resource/injection"
+	"github.com/bithippie/go-sentinel/sentinel/models/resource/neo4j"
 )
 
 // Session interface defines methods needed to communicate/execute queries and a cleanup function when everything is done
@@ -29,7 +29,7 @@ type resourceNode struct {
 	ID       string `mapstructure:"id"`
 }
 
-// Execute runs the statement passed as a query and opulates the data parameter with result
+// Execute runs the statement passed as a query and populates the data parameter with result
 func (n session) Execute(statement string, parameters map[string]interface{}) (response entity.Response, err error) {
 	resultMap, err := n.session.Run(statement, parameters)
 	if err != nil {

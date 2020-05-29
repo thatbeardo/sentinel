@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/thatbeardo/go-sentinel/api/views"
-	entity "github.com/thatbeardo/go-sentinel/models/resource"
-	"github.com/thatbeardo/go-sentinel/models/resource/service"
+	"github.com/bithippie/go-sentinel/sentinel/api/views"
+	entity "github.com/bithippie/go-sentinel/sentinel/models/resource"
+	"github.com/bithippie/go-sentinel/sentinel/models/resource/service"
 )
 
 // @Summary Create a new Resource

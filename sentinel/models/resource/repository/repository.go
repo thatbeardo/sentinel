@@ -1,9 +1,9 @@
 package repository
 
 import (
-	models "github.com/thatbeardo/go-sentinel/models"
-	entity "github.com/thatbeardo/go-sentinel/models/resource"
-	"github.com/thatbeardo/go-sentinel/models/resource/session"
+	models "github.com/bithippie/go-sentinel/sentinel/models"
+	entity "github.com/bithippie/go-sentinel/sentinel/models/resource"
+	"github.com/bithippie/go-sentinel/sentinel/models/resource/session"
 )
 
 // Repository is used by the service to communicate with the underlying database

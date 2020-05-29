@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	models "github.com/thatbeardo/go-sentinel/models"
+	models "github.com/bithippie/go-sentinel/sentinel/models"
 )
 
 // ErrView represents the error structure sent as a response

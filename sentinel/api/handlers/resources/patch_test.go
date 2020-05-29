@@ -5,10 +5,10 @@ import (
 	"testing"
 
 	m "github.com/stretchr/testify/mock"
-	"github.com/thatbeardo/go-sentinel/api/views"
-	"github.com/thatbeardo/go-sentinel/mocks"
-	"github.com/thatbeardo/go-sentinel/server"
-	"github.com/thatbeardo/go-sentinel/testutil"
+	"github.com/bithippie/go-sentinel/sentinel/api/views"
+	"github.com/bithippie/go-sentinel/sentinel/mocks"
+	"github.com/bithippie/go-sentinel/sentinel/server"
+	"github.com/bithippie/go-sentinel/sentinel/testutil"
 )
 
 func TestPatchResourceOk(t *testing.T) {

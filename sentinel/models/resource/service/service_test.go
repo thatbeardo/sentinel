@@ -5,11 +5,11 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	m "github.com/stretchr/testify/mock"
-	"github.com/thatbeardo/go-sentinel/mocks"
-	"github.com/thatbeardo/go-sentinel/mocks/data"
-	models "github.com/thatbeardo/go-sentinel/models"
-	entity "github.com/thatbeardo/go-sentinel/models/resource"
-	"github.com/thatbeardo/go-sentinel/models/resource/service"
+	"github.com/bithippie/go-sentinel/sentinel/mocks"
+	"github.com/bithippie/go-sentinel/sentinel/mocks/data"
+	models "github.com/bithippie/go-sentinel/sentinel/models"
+	entity "github.com/bithippie/go-sentinel/sentinel/models/resource"
+	"github.com/bithippie/go-sentinel/sentinel/models/resource/service"
 )
 
 func TestGetServiceDatabaseError(t *testing.T) {

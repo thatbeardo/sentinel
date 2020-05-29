@@ -1,11 +1,11 @@
 package service
 
 import (
-	entity "github.com/thatbeardo/go-sentinel/models/resource"
-	"github.com/thatbeardo/go-sentinel/models/resource/repository"
+	entity "github.com/bithippie/go-sentinel/sentinel/models/resource"
+	"github.com/bithippie/go-sentinel/sentinel/models/resource/repository"
 )
 
-// Service recieves commands from handlers and forwards them to the repository
+// Service receives commands from handlers and forwards them to the repository
 type Service interface {
 	Get() (entity.Response, error)
 	GetByID(string) (entity.Element, error)

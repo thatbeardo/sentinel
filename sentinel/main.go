@@ -134,11 +134,11 @@
 package main
 
 import (
-	"github.com/thatbeardo/go-sentinel/models/resource/neo4j"
-	"github.com/thatbeardo/go-sentinel/models/resource/repository"
-	"github.com/thatbeardo/go-sentinel/models/resource/service"
-	"github.com/thatbeardo/go-sentinel/models/resource/session"
-	"github.com/thatbeardo/go-sentinel/server"
+	"github.com/bithippie/go-sentinel/sentinel/models/resource/neo4j"
+	"github.com/bithippie/go-sentinel/sentinel/models/resource/repository"
+	"github.com/bithippie/go-sentinel/sentinel/models/resource/service"
+	"github.com/bithippie/go-sentinel/sentinel/models/resource/session"
+	"github.com/bithippie/go-sentinel/sentinel/server"
 )
 
 func main() {

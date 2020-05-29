@@ -1,4 +1,4 @@
-module github.com/thatbeardo/go-sentinel
+module github.com/bithippie/go-sentinel
 
 go 1.14
 
