@@ -4,14 +4,14 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/bithippie/go-sentinel/sentinel/api/views"
-	"github.com/bithippie/go-sentinel/sentinel/mocks"
-	models "github.com/bithippie/go-sentinel/sentinel/models"
-	entity "github.com/bithippie/go-sentinel/sentinel/models/resource"
+	"github.com/bithippie/guard-my-app/sentinel/api/views"
+	"github.com/bithippie/guard-my-app/sentinel/mocks"
+	models "github.com/bithippie/guard-my-app/sentinel/models"
+	entity "github.com/bithippie/guard-my-app/sentinel/models/resource"
 
 	m "github.com/stretchr/testify/mock"
-	"github.com/bithippie/go-sentinel/sentinel/server"
-	"github.com/bithippie/go-sentinel/sentinel/testutil"
+	"github.com/bithippie/guard-my-app/sentinel/server"
+	"github.com/bithippie/guard-my-app/sentinel/testutil"
 )
 
 const noErrors = `{"data":{"type":"resource","attributes":{"source_id":"much-required"}}}`

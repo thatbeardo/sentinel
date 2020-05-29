@@ -3,3 +3,4 @@ coverage.out
 go-sentinel.exe
 
 docs/
+.DS_Store

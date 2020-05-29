@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/bithippie/go-sentinel/sentinel/api/views"
-	entity "github.com/bithippie/go-sentinel/sentinel/models/resource"
-	"github.com/bithippie/go-sentinel/sentinel/models/resource/service"
+	"github.com/bithippie/guard-my-app/sentinel/api/views"
+	entity "github.com/bithippie/guard-my-app/sentinel/models/resource"
+	"github.com/bithippie/guard-my-app/sentinel/models/resource/service"
 )
 
 // @Summary Update a resource by it's ID

@@ -1,6 +1,6 @@
 package data
 
-import entity "github.com/bithippie/go-sentinel/sentinel/models/resource"
+import entity "github.com/bithippie/guard-my-app/sentinel/models/resource"
 
 var policy = &entity.Identifier{
 	Type: "policy",

@@ -5,10 +5,10 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/bithippie/go-sentinel/sentinel/mocks"
-	models "github.com/bithippie/go-sentinel/sentinel/models"
-	"github.com/bithippie/go-sentinel/sentinel/server"
-	"github.com/bithippie/go-sentinel/sentinel/testutil"
+	"github.com/bithippie/guard-my-app/sentinel/mocks"
+	models "github.com/bithippie/guard-my-app/sentinel/models"
+	"github.com/bithippie/guard-my-app/sentinel/server"
+	"github.com/bithippie/guard-my-app/sentinel/testutil"
 )
 
 func TestDeleteResourcesOk(t *testing.T) {

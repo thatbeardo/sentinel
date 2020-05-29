@@ -1,10 +1,10 @@
 package session
 
 import (
-	models "github.com/bithippie/go-sentinel/sentinel/models"
-	entity "github.com/bithippie/go-sentinel/sentinel/models/resource"
-	"github.com/bithippie/go-sentinel/sentinel/models/resource/injection"
-	"github.com/bithippie/go-sentinel/sentinel/models/resource/neo4j"
+	models "github.com/bithippie/guard-my-app/sentinel/models"
+	entity "github.com/bithippie/guard-my-app/sentinel/models/resource"
+	"github.com/bithippie/guard-my-app/sentinel/models/resource/injection"
+	"github.com/bithippie/guard-my-app/sentinel/models/resource/neo4j"
 )
 
 // Session interface defines methods needed to communicate/execute queries and a cleanup function when everything is done

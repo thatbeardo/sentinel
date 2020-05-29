@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/bithippie/go-sentinel/sentinel/api/views"
-	"github.com/bithippie/go-sentinel/sentinel/models/resource/service"
+	"github.com/bithippie/guard-my-app/sentinel/api/views"
+	"github.com/bithippie/guard-my-app/sentinel/models/resource/service"
 )
 
 // @Summary Get all the resources

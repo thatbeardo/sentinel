@@ -1,8 +1,8 @@
 package service
 
 import (
-	entity "github.com/bithippie/go-sentinel/sentinel/models/resource"
-	"github.com/bithippie/go-sentinel/sentinel/models/resource/repository"
+	entity "github.com/bithippie/guard-my-app/sentinel/models/resource"
+	"github.com/bithippie/guard-my-app/sentinel/models/resource/repository"
 )
 
 // Service receives commands from handlers and forwards them to the repository

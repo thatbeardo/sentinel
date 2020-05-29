@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/bithippie/go-sentinel/sentinel/mocks/data"
-	entity "github.com/bithippie/go-sentinel/sentinel/models/resource"
-	"github.com/bithippie/go-sentinel/sentinel/models/resource/repository"
+	"github.com/bithippie/guard-my-app/sentinel/mocks/data"
+	entity "github.com/bithippie/guard-my-app/sentinel/models/resource"
+	"github.com/bithippie/guard-my-app/sentinel/models/resource/repository"
 )
 
 var errTest = errors.New("test-error")

@@ -2,7 +2,7 @@ package resources
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/bithippie/go-sentinel/sentinel/models/resource/service"
+	"github.com/bithippie/guard-my-app/sentinel/models/resource/service"
 )
 
 // ResourceRoutes sets up resource specific routes on the engine instance

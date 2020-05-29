@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"github.com/gin-gonic/gin"
-	"github.com/bithippie/go-sentinel/sentinel/api/views"
+	"github.com/bithippie/guard-my-app/sentinel/api/views"
 )
 
 // NoRoute represents a 404 error for an invalid request URL

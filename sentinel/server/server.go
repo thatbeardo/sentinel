@@ -15,13 +15,13 @@ import (
 	"github.com/neo4j/neo4j-go-driver/neo4j"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	handler "github.com/bithippie/go-sentinel/sentinel/api/handlers"
-	"github.com/bithippie/go-sentinel/sentinel/api/handlers/resources"
-	"github.com/bithippie/go-sentinel/sentinel/docs"
-	"github.com/bithippie/go-sentinel/sentinel/models/resource/service"
+	handler "github.com/bithippie/guard-my-app/sentinel/api/handlers"
+	"github.com/bithippie/guard-my-app/sentinel/api/handlers/resources"
+	"github.com/bithippie/guard-my-app/sentinel/docs"
+	"github.com/bithippie/guard-my-app/sentinel/models/resource/service"
 
 	// Swaggo import
-	_ "github.com/bithippie/go-sentinel/sentinel/docs"
+	_ "github.com/bithippie/guard-my-app/sentinel/docs"
 )
 
 // SetupRouter instantiates and initializes a new Router.
