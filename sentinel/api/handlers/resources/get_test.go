@@ -17,7 +17,7 @@ func TestInvalidPath(t *testing.T) {
 	mockService := &mocks.Service{}
 
 	router := server.SetupRouter(mockService)
-	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/resources/", "")
+	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/invalid-path/", "")
 	defer cleanup()
 
 	testutil.ValidateResponse(t, response, generateError("", "query-parameter-todo", "Path not found", http.StatusNotFound), http.StatusNotFound)
