@@ -45,7 +45,7 @@ jobs:
         terraform init
         terraform plan
         terraform apply -var 'app_image=${{ steps.build-image.outputs.image }}' -auto-approve
-        echo "::set-env name=WEBSITE_BUCKET_ARN::$(terraform output website_bucket_arn)"
+        terraform output website_bucket_arn
 
     
     - name: Install Yarn
@@ -63,7 +63,6 @@ jobs:
     - name: Deploy Website
       run: |
           cd app
-          echo $WEBSITE_BUCKET_ARN
           aws cp --recursive ./build $WEBSITE_BUCKET_ARN
 
 
