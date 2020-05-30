@@ -61,8 +61,7 @@ jobs:
           
     - name: Deploy Website
       run: |
-          echo ${{ steps.terraform-apply.outputs.stdout }}
           cd app
-          aws cp --recursive ./build $WEBSITE_BUCKET_ARN
+          aws cp --recursive ./build ${{ steps.terraform-apply.outputs.stdout }}
 
 
