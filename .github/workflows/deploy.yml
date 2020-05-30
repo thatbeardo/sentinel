@@ -43,9 +43,10 @@ jobs:
       run: |
         cd infrastructure/dev
         terraform init
-        
         terraform plan
         terraform apply -var 'app_image=${{ steps.build-image.outputs.image }}' -auto-approve
+        echo "::set-env name=WEBSITE_BUCKET_ARN::$(terraform output website_bucket_arn)"
+
     
     - name: Install Yarn
       uses: borales/actions-yarn@v2.1.0
@@ -62,8 +63,7 @@ jobs:
     - name: Deploy Website
       run: |
           cd app
-          echo ${{ steps.terraform-apply.outputs.website_bucket_arn }}
-          echo ${{ steps.terraform-apply.outputs.WEBSITE_BUCKET_ARN }}
-          aws cp sync ./build ${{ steps.terraform-apply.outputs.WEBSITE_BUCKET_ARN }} --recursive
+          echo $WEBSITE_BUCKET_ARN
+          aws cp --recursive ./build $WEBSITE_BUCKET_ARN
 
 
