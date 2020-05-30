@@ -4,10 +4,10 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/bithippie/guard-my-app/sentinel/mocks/data"
 	entity "github.com/bithippie/guard-my-app/sentinel/models/resource"
 	"github.com/bithippie/guard-my-app/sentinel/models/resource/repository"
+	"github.com/stretchr/testify/assert"
 )
 
 var errTest = errors.New("test-error")
@@ -16,13 +16,15 @@ var errNotFound = errors.New("Data not found")
 var getStatement = `
 		MATCH(child:Resource)
 		OPTIONAL MATCH (child: Resource)-[:OWNED_BY]->(parent: Resource)
-		RETURN {child: child, parent: parent}`
+		OPTIONAL MATCH (policy: Policy)-[:GRANTED_TO]->(child: Resource)
+		RETURN {child: child, parent: parent, policy: policy}`
 
 var getByIDStatement = `
 		MATCH(child:Resource)
 		WHERE child.id = $id
 		OPTIONAL MATCH (child: Resource)-[:OWNED_BY]->(parent: Resource)
-		RETURN {child: child, parent: parent}`
+		OPTIONAL MATCH (policy: Policy)-[:GRANTED_TO]->(child: Resource)
+		RETURN {child: child, parent: parent, policy: policy}`
 
 var createStatement = `
 		CREATE(child:Resource{name:$name, source_id: $source_id, id: randomUUID()})

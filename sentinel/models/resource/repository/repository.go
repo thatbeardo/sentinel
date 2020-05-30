@@ -24,7 +24,8 @@ func (repo *repository) Get() (entity.Response, error) {
 	return repo.session.Execute(`
 		MATCH(child:Resource)
 		OPTIONAL MATCH (child: Resource)-[:OWNED_BY]->(parent: Resource)
-		RETURN {child: child, parent: parent}`,
+		OPTIONAL MATCH (policy: Policy)-[:GRANTED_TO]->(child: Resource)
+		RETURN {child: child, parent: parent, policy: policy}`,
 		map[string]interface{}{})
 }
 
@@ -34,7 +35,8 @@ func (repo *repository) GetByID(id string) (entity.Element, error) {
 		MATCH(child:Resource)
 		WHERE child.id = $id
 		OPTIONAL MATCH (child: Resource)-[:OWNED_BY]->(parent: Resource)
-		RETURN {child: child, parent: parent}`,
+		OPTIONAL MATCH (policy: Policy)-[:GRANTED_TO]->(child: Resource)
+		RETURN {child: child, parent: parent, policy: policy}`,
 		map[string]interface{}{
 			"id": id,
 		})
