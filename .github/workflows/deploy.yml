@@ -49,7 +49,6 @@ jobs:
     
     - name: Install Yarn
       uses: borales/actions-yarn@v2.1.0
-      run: echo ${{ steps.terraform-apply.outputs.stdout }}
 
     - name: Install AWS CLI
       uses: chrislennon/action-aws-cli@v1.1
@@ -62,6 +61,7 @@ jobs:
           
     - name: Deploy Website
       run: |
+          echo ${{ steps.terraform-apply.outputs.stdout }}
           cd app
           aws cp --recursive ./build $WEBSITE_BUCKET_ARN
 
