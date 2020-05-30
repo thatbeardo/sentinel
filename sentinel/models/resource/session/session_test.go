@@ -4,11 +4,11 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/bithippie/guard-my-app/sentinel/mocks/data"
 	models "github.com/bithippie/guard-my-app/sentinel/models"
 	"github.com/bithippie/guard-my-app/sentinel/models/resource/injection"
 	"github.com/bithippie/guard-my-app/sentinel/models/resource/session"
+	"github.com/stretchr/testify/assert"
 )
 
 type mockNode struct {
@@ -68,6 +68,16 @@ func TestExecute_NoErrorsFromDB_ReturnResponse(t *testing.T) {
 	response, err := session.Execute(`cypher-query`, map[string]interface{}{})
 
 	assert.Equal(t, data.ResponseWithoutPolicies, response)
+	assert.Nil(t, err)
+}
+
+func TestExecute_DatabaseReturnsNoResources_EmptyResourcesArrayReturned(t *testing.T) {
+	session := session.NewNeo4jSession(mockNeo4jSession{
+		RunResponse: map[string]interface{}{},
+	})
+
+	response, err := session.Execute(`cypher-query`, map[string]interface{}{})
+	assert.Equal(t, data.EmptyResponse, response)
 	assert.Nil(t, err)
 }
 

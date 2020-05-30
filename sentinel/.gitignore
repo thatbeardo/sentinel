@@ -17,5 +17,6 @@ vendor/
 *.html
 coverage
 
+docs/
 swagger.json
 swagger.yaml

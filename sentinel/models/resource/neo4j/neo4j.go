@@ -31,6 +31,8 @@ func New(session neo4j.Session) Runner {
 
 func (n neo4jSession) Run(statement string, parameters map[string]interface{}) (data map[string]interface{}, err error) {
 	result, err := n.session.Run(statement, parameters)
+	data = map[string]interface{}{}
+
 	if err != nil {
 		fmt.Println("Could not connect database ", err.Error())
 		return

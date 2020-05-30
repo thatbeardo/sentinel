@@ -32,11 +32,16 @@ type resourceNode struct {
 // Execute runs the statement passed as a query and populates the data parameter with result
 func (n session) Execute(statement string, parameters map[string]interface{}) (response entity.Response, err error) {
 	resultMap, err := n.session.Run(statement, parameters)
+	resources := []entity.Element{}
+
 	if err != nil {
 		return entity.Response{}, models.ErrDatabase
 	}
+	if len(resultMap) == 0 {
+		response = entity.Response{Data: resources}
+		return
+	}
 
-	resources := []entity.Element{}
 	var childResource, parentResource resourceNode
 
 	err = decodeResource(resultMap, "child", &childResource)
