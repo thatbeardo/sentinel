@@ -64,6 +64,7 @@ jobs:
     - name: Deploy Website
       run: |
           cd app
+          echo ${{ steps.terraform-apply.outputs.website_bucket_arn }}
           echo ${{ steps.terraform-apply.outputs.WEBSITE_BUCKET_ARN }}
           aws s3 sync ./build ${{ steps.terraform-apply.outputs.WEBSITE_BUCKET_ARN }} --recursive
 
