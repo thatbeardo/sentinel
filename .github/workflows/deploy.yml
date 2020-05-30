@@ -46,11 +46,11 @@ jobs:
         terraform plan
         terraform apply -var 'app_image=${{ steps.build-image.outputs.image }}' -auto-approve
         terraform output website_bucket_arn
-
     
     - name: Install Yarn
       uses: borales/actions-yarn@v2.1.0
-    
+      run: echo ${{ steps.terraform-apply.outputs.stdout }}
+
     - name: Install AWS CLI
       uses: chrislennon/action-aws-cli@v1.1
     
