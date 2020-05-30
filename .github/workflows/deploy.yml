@@ -46,7 +46,7 @@ jobs:
             
             terraform plan
             terraform apply -var 'app_image=${{ steps.build-image.outputs.image }}' -auto-approve
-            WEBSITE_BUCKET_ARN=$(terraform output website_bucket_arn)
+            WEBSITE_BUCKET_ARN=(terraform output website_bucket_arn)
             echo "::set-output name=WEBSITE_BUCKET_ARN::$WEBSITE_BUCKET_ARN"
     
     - name: Install Yarn
