@@ -55,16 +55,11 @@ jobs:
     
     - name: Build Website
       run: |
-          cd app
-          yarn install
-          yarn build
+        cd app
+        yarn install
+        yarn build
           
     - name: Deploy Website
-      uses: jakejarvis/s3-sync-action@master
-      with:
-        args: --acl public-read --follow-symlinks --delete
-      env:
-        AWS_S3_BUCKET: ${{ steps.terraform-apply.outputs.stdout }}
-        SOURCE_DIR: './app/build'
-
-
+      run: |
+        cd app
+        aws s3 sync ./build/ s3://${{ steps.terraform-apply.outputs.stdout }}
