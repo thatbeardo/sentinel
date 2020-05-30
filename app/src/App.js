@@ -16,7 +16,7 @@ function App() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Learn React
+          This version was deployed by the CD workflow! 
         </a>
       </header>
     </div>

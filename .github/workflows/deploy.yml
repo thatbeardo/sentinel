@@ -62,6 +62,6 @@ jobs:
     - name: Deploy Website
       run: |
           cd app
-          aws s3 cp --recursive ./build ${{ steps.terraform-apply.outputs.stdout }}
+          aws s3 cp ./build ${{ steps.terraform-apply.outputs.stdout }} --recursive
 
 
