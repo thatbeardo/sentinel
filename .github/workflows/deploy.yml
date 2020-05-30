@@ -45,7 +45,7 @@ jobs:
         terraform init
         terraform plan
         terraform apply -var 'app_image=${{ steps.build-image.outputs.image }}' -auto-approve
-        terraform output website_bucket_name
+        terraform output website_bucket_id
     
     - name: Install Yarn
       uses: borales/actions-yarn@v2.1.0
@@ -63,6 +63,6 @@ jobs:
       uses: jakejarvis/s3-sync-action@master
       env:
         AWS_S3_BUCKET: ${{ steps.terraform-apply.outputs.stdout }}
-        SOURCE_DIR: './app/build'      # optional: defaults to entire repository
+        SOURCE_DIR: './app/build'
 
 
