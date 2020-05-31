@@ -2,9 +2,9 @@ package session
 
 import (
 	models "github.com/bithippie/guard-my-app/sentinel/models"
+	"github.com/bithippie/guard-my-app/sentinel/models/injection"
 	"github.com/bithippie/guard-my-app/sentinel/models/neo4j"
 	entity "github.com/bithippie/guard-my-app/sentinel/models/resource"
-	"github.com/bithippie/guard-my-app/sentinel/models/resource/injection"
 )
 
 // Session interface defines methods needed to communicate/execute queries and a cleanup function when everything is done
@@ -44,31 +44,32 @@ func (n session) Execute(statement string, parameters map[string]interface{}) (r
 
 	var childResource, parentResource resourceNode
 
-	err = decodeResource(resultMap, "child", &childResource)
-	if err != nil {
-		return
-	}
+	for _, result := range resultMap {
+		err = decodeField(result, "child", &childResource)
+		if err != nil {
+			return
+		}
 
-	err = decodeResource(resultMap, "parent", &parentResource)
-	if err != nil {
-		return
+		err = decodeField(result, "parent", &parentResource)
+		if err != nil {
+			return
+		}
+		parent := generateParentResource(parentResource.ID)
+		resources = append(resources, generateElement(childResource, parent))
 	}
-
-	parent := generateParentResource(parentResource.ID)
-	resources = append(resources, generateElement(childResource, parent))
 
 	response = entity.Response{Data: resources}
 	return
 }
 
-func decodeResource(results map[string]interface{}, resourceKey string, target interface{}) (err error) {
+func decodeField(results map[string]interface{}, field string, target interface{}) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = models.ErrDatabase
 		}
 	}()
-	if results[resourceKey] != nil {
-		node := results[resourceKey].(neo4j.Node)
+	if results[field] != nil {
+		node := results[field].(neo4j.Node)
 		err = injection.MapDecoder(node.Props(), &target)
 	}
 	return

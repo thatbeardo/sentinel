@@ -4,10 +4,11 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/bithippie/guard-my-app/sentinel/mocks/data"
 	models "github.com/bithippie/guard-my-app/sentinel/models"
 	"github.com/bithippie/guard-my-app/sentinel/models/injection"
-	"github.com/bithippie/guard-my-app/sentinel/models/resource/session"
+	"github.com/bithippie/guard-my-app/sentinel/models/policy/outputs"
+	"github.com/bithippie/guard-my-app/sentinel/models/policy/session"
+	testdata "github.com/bithippie/guard-my-app/sentinel/models/policy/test-data"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -47,6 +48,16 @@ func TestExecute_RunReturnsError_ReturnDatabaseError(t *testing.T) {
 	assert.Equal(t, models.ErrDatabase, err)
 }
 
+func TestExecute_DatabaseReturnsNoPolicies_EmptyResourcesArrayReturned(t *testing.T) {
+	session := session.NewNeo4jSession(mockNeo4jSession{
+		RunResponse: []map[string]interface{}{},
+	})
+
+	response, err := session.Execute(`cypher-query`, map[string]interface{}{})
+	assert.Equal(t, outputs.Response{Data: []outputs.Policy{}}, response)
+	assert.Nil(t, err)
+}
+
 func TestExecute_DecodeFails_ReturnDatabaseError(t *testing.T) {
 	defer injection.Reset()
 	var errDecoding = errors.New("some-decoder-error")
@@ -67,50 +78,18 @@ func TestExecute_NoErrorsFromDB_ReturnResponse(t *testing.T) {
 
 	response, err := session.Execute(`cypher-query`, map[string]interface{}{})
 
-	assert.Equal(t, data.ResponseWithoutPolicies, response)
+	assert.Equal(t, testdata.Response, response)
 	assert.Nil(t, err)
-}
-
-func TestExecute_DatabaseReturnsNoResources_EmptyResourcesArrayReturned(t *testing.T) {
-	session := session.NewNeo4jSession(mockNeo4jSession{
-		RunResponse: []map[string]interface{}{},
-	})
-
-	response, err := session.Execute(`cypher-query`, map[string]interface{}{})
-	assert.Equal(t, data.EmptyResponse, response)
-	assert.Nil(t, err)
-}
-
-func TestExecute_ParentDecodeFails_ReturnError(t *testing.T) {
-	results := generateValidResultMap()
-	results[0]["parent"] = "invalid entry"
-
-	session := session.NewNeo4jSession(mockNeo4jSession{
-		RunResponse: results,
-	})
-
-	_, err := session.Execute(`cypher-query`, map[string]interface{}{})
-	assert.Equal(t, models.ErrDatabase, err)
 }
 
 func generateValidResultMap() []map[string]interface{} {
 	result := map[string]interface{}{
-		"child": mockNode{
+		"policy": mockNode{
 			id:     1,
-			labels: []string{"Resource"},
+			labels: []string{"Policy"},
 			props: map[string]interface{}{
-				"id":        "test-id",
-				"name":      "test-resource",
-				"source_id": "test-source-id",
-			},
-		},
-		"parent": mockNode{
-			id:     2,
-			labels: []string{"Resource"},
-			props: map[string]interface{}{
-				"id":        "parent-id",
-				"name":      "parent",
-				"source_id": "parent-source-id",
+				"id":   "test-id",
+				"name": "test-policy",
 			},
 		},
 	}
