@@ -22,7 +22,7 @@ var policies = outputs.Policy{
 }
 
 // Payload represents the data sent by the customer to the POST endpoint
-var Payload = inputs.Payload{
+var Payload = &inputs.Payload{
 	Data: &inputs.PolicyDetails{
 		Type: "policy",
 		Attributes: &inputs.Attributes{

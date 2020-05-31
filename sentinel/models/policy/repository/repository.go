@@ -9,7 +9,7 @@ import (
 
 // Repository exposes wrapper methods around the underlying session
 type Repository interface {
-	Create(inputs.Payload) (outputs.Policy, error)
+	Create(*inputs.Payload) (outputs.Policy, error)
 }
 
 type repository struct {
@@ -23,7 +23,7 @@ func New(session session.Session) Repository {
 	}
 }
 
-func (repo *repository) Create(input inputs.Payload) (response outputs.Policy, err error) {
+func (repo *repository) Create(input *inputs.Payload) (response outputs.Policy, err error) {
 	policy, err := repo.session.Execute(`
 		CREATE ( policy:Policy{ name:$name, id:randomUUID() })
 		RETURN { policy: policy }`,
