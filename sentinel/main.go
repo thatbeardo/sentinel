@@ -134,7 +134,7 @@
 package main
 
 import (
-	"github.com/bithippie/guard-my-app/sentinel/models/resource/neo4j"
+	"github.com/bithippie/guard-my-app/sentinel/models/neo4j"
 	"github.com/bithippie/guard-my-app/sentinel/models/resource/repository"
 	"github.com/bithippie/guard-my-app/sentinel/models/resource/service"
 	"github.com/bithippie/guard-my-app/sentinel/models/resource/session"

@@ -2,9 +2,9 @@ package session
 
 import (
 	models "github.com/bithippie/guard-my-app/sentinel/models"
+	"github.com/bithippie/guard-my-app/sentinel/models/neo4j"
 	entity "github.com/bithippie/guard-my-app/sentinel/models/resource"
 	"github.com/bithippie/guard-my-app/sentinel/models/resource/injection"
-	"github.com/bithippie/guard-my-app/sentinel/models/resource/neo4j"
 )
 
 // Session interface defines methods needed to communicate/execute queries and a cleanup function when everything is done
