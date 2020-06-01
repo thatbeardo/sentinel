@@ -6,7 +6,7 @@ import (
 	models "github.com/bithippie/guard-my-app/sentinel/models"
 	"github.com/bithippie/guard-my-app/sentinel/models/policy/outputs"
 	"github.com/bithippie/guard-my-app/sentinel/models/policy/repository"
-	testdata "github.com/bithippie/guard-my-app/sentinel/models/policy/test-data"
+	"github.com/bithippie/guard-my-app/sentinel/models/policy/testdata"
 	"github.com/stretchr/testify/assert"
 )
 

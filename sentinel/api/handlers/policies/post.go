@@ -7,6 +7,9 @@ import (
 	"github.com/bithippie/guard-my-app/sentinel/models/policy/inputs"
 	"github.com/bithippie/guard-my-app/sentinel/models/policy/service"
 	"github.com/gin-gonic/gin"
+
+	// Used in annotations
+	_ "github.com/bithippie/guard-my-app/sentinel/models/policy/outputs"
 )
 
 // @Summary Create a new Policy

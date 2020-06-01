@@ -11,7 +11,7 @@ import (
 	"github.com/bithippie/guard-my-app/sentinel/models/policy/inputs"
 	"github.com/bithippie/guard-my-app/sentinel/models/policy/outputs"
 	"github.com/bithippie/guard-my-app/sentinel/models/policy/service"
-	testdata "github.com/bithippie/guard-my-app/sentinel/models/policy/test-data"
+	"github.com/bithippie/guard-my-app/sentinel/models/policy/testdata"
 	"github.com/bithippie/guard-my-app/sentinel/testutil"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"

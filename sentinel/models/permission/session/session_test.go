@@ -6,9 +6,9 @@ import (
 
 	models "github.com/bithippie/guard-my-app/sentinel/models"
 	"github.com/bithippie/guard-my-app/sentinel/models/injection"
-	"github.com/bithippie/guard-my-app/sentinel/models/policy/outputs"
-	"github.com/bithippie/guard-my-app/sentinel/models/policy/session"
-	"github.com/bithippie/guard-my-app/sentinel/models/policy/testdata"
+	"github.com/bithippie/guard-my-app/sentinel/models/permission/outputs"
+	"github.com/bithippie/guard-my-app/sentinel/models/permission/session"
+	"github.com/bithippie/guard-my-app/sentinel/models/permission/testdata"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -54,7 +54,7 @@ func TestExecute_DatabaseReturnsNoPolicies_EmptyResourcesArrayReturned(t *testin
 	})
 
 	response, err := session.Execute(`cypher-query`, map[string]interface{}{})
-	assert.Equal(t, outputs.Response{Data: []outputs.Policy{}}, response)
+	assert.Equal(t, outputs.Response{Data: []outputs.Permission{}}, response)
 	assert.Nil(t, err)
 }
 
@@ -84,12 +84,13 @@ func TestExecute_NoErrorsFromDB_ReturnResponse(t *testing.T) {
 
 func generateValidResultMap() []map[string]interface{} {
 	result := map[string]interface{}{
-		"policy": mockNode{
+		"permission": mockNode{
 			id:     1,
-			labels: []string{"Policy"},
+			labels: []string{"Permission"},
 			props: map[string]interface{}{
-				"id":   "test-id",
-				"name": "test-policy",
+				"id":        "test-id",
+				"name":      "test-permission",
+				"permitted": "allow",
 			},
 		},
 	}
