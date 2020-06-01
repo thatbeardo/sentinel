@@ -2,7 +2,7 @@ package inputs
 
 // Payload represent the data sent from the user to create a permission
 type Payload struct {
-	Data []PermissionDetails `json:"data" binding:"required"`
+	Data PermissionDetails `json:"data" binding:"required"`
 }
 
 // PermissionDetails represents whether a policy has access to a resource

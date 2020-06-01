@@ -5,6 +5,17 @@ import (
 	"github.com/bithippie/guard-my-app/sentinel/models/permission/outputs"
 )
 
+// Payload represent the input used to create a permission
+var Payload = &inputs.Payload{
+	Data: inputs.PermissionDetails{
+		Type: "permission",
+		Attributes: &inputs.Attributes{
+			Name:      "test-permission",
+			Permitted: "allow",
+		},
+	},
+}
+
 // Response denotes mocked data that is sent back in response body
 var Response = outputs.Response{
 	Data: []outputs.Permission{permission},
