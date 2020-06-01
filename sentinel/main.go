@@ -134,11 +134,15 @@
 package main
 
 import (
+	handler "github.com/bithippie/guard-my-app/sentinel/api/handlers"
+	"github.com/bithippie/guard-my-app/sentinel/api/handlers/resources"
 	"github.com/bithippie/guard-my-app/sentinel/models/neo4j"
 	"github.com/bithippie/guard-my-app/sentinel/models/resource/repository"
 	"github.com/bithippie/guard-my-app/sentinel/models/resource/service"
 	"github.com/bithippie/guard-my-app/sentinel/models/resource/session"
 	"github.com/bithippie/guard-my-app/sentinel/server"
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -148,7 +152,18 @@ func main() {
 	session := session.NewNeo4jSession(runner)
 	resourceRepository := repository.New(session)
 	resourceService := service.NewService(resourceRepository)
+	engine := gin.Default()
 
-	engine := server.SetupRouter(resourceService)
+	router := server.GenerateRouter(engine)
+	resources.Routes(router, resourceService)
+
+	server.GenerateRouter(engine)
 	server.Orchestrate(engine, shutdown)
+}
+
+func generateRouter() *gin.RouterGroup {
+	r := gin.Default()
+	r.Use(cors.Default())
+	r.NoRoute(handler.NoRoute)
+	return r.Group("/v1")
 }

@@ -4,18 +4,17 @@ import (
 	"net/http"
 	"testing"
 
-	m "github.com/stretchr/testify/mock"
 	"github.com/bithippie/guard-my-app/sentinel/api/views"
 	"github.com/bithippie/guard-my-app/sentinel/mocks"
-	"github.com/bithippie/guard-my-app/sentinel/server"
 	"github.com/bithippie/guard-my-app/sentinel/testutil"
+	m "github.com/stretchr/testify/mock"
 )
 
 func TestPatchResourceOk(t *testing.T) {
 	mockService := &mocks.Service{}
 	mockService.On("Update", "test-id", m.AnythingOfType("*entity.Input")).Return(createResourceNoErrors())
 
-	router := server.SetupRouter(mockService)
+	router := setupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "PATCH", "/v1/resources/test-id", noErrors)
 	defer cleanup()
 
@@ -26,7 +25,7 @@ func TestPatchResourceDatabaseError(t *testing.T) {
 	mockService := &mocks.Service{}
 	mockService.On("Update", "test-id", m.AnythingOfType("*entity.Input")).Return(databaseError())
 
-	router := server.SetupRouter(mockService)
+	router := setupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "PATCH", "/v1/resources/test-id", noErrors)
 	defer cleanup()
 
@@ -36,7 +35,7 @@ func TestPatchResourceDatabaseError(t *testing.T) {
 func TestPatchResourcesSourceIdBlank(t *testing.T) {
 	mockService := &mocks.Service{}
 
-	router := server.SetupRouter(mockService)
+	router := setupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "PATCH", "/v1/resources/test-id", sourceIdBlank)
 	defer cleanup()
 
