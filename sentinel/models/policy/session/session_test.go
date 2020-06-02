@@ -71,6 +71,17 @@ func TestExecute_DecodeFails_ReturnDatabaseError(t *testing.T) {
 	assert.Equal(t, errDecoding, err)
 }
 
+func TestExecute_DecodeFailsDuringCast_ReturnDatabaseError(t *testing.T) {
+	results := generateValidResultMap()
+	results[0]["policy"] = "invalid-field"
+	session := session.NewNeo4jSession(mockNeo4jSession{
+		RunResponse: results,
+	})
+
+	_, err := session.Execute(`cypher-query`, map[string]interface{}{})
+	assert.Equal(t, models.ErrDatabase, err)
+}
+
 func TestExecute_NoErrorsFromDB_ReturnResponse(t *testing.T) {
 	session := session.NewNeo4jSession(mockNeo4jSession{
 		RunResponse: generateValidResultMap(),
