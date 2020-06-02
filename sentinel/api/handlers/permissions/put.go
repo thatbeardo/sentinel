@@ -5,11 +5,14 @@ import (
 
 	"github.com/bithippie/guard-my-app/sentinel/api/views"
 	"github.com/bithippie/guard-my-app/sentinel/models/permission/inputs"
+	"github.com/bithippie/guard-my-app/sentinel/models/permission/outputs"
 	"github.com/bithippie/guard-my-app/sentinel/models/permission/service"
 	"github.com/gin-gonic/gin"
+)
 
-	// Used for swaggo annotation
-	_ "github.com/bithippie/guard-my-app/sentinel/models/permission/outputs"
+var (
+	_ = inputs.Payload{}
+	_ = outputs.Response{}
 )
 
 // @Summary Update a permission that permits apolicy on a resource

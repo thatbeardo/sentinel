@@ -24,7 +24,7 @@ func NewNeo4jSession(neo4jsession neo4j.Runner) Session {
 	}
 }
 
-type node struct {
+type relationship struct {
 	ID        string `mapstructure:"id"`
 	Name      string `mapstructure:"name"`
 	Permitted string `mapstructure:"permitted"`
@@ -43,7 +43,7 @@ func (n session) Execute(statement string, parameters map[string]interface{}) (r
 		return
 	}
 
-	var permission node
+	var permission relationship
 	for _, result := range results {
 		err = decodeField(result, "permission", &permission)
 		if err != nil {
@@ -63,7 +63,7 @@ func decodeField(results map[string]interface{}, field string, target interface{
 		}
 	}()
 	if results[field] != nil {
-		node := results[field].(neo4j.Node)
+		node := results[field].(neo4j.Relationship)
 		err = injection.MapDecoder(node.Props(), &target)
 	}
 	return

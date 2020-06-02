@@ -6,6 +6,15 @@ import (
 	"github.com/neo4j/neo4j-go-driver/neo4j"
 )
 
+// Relationship represents a relationship in the neo4j graph database
+type Relationship interface {
+	Id() int64
+	StartId() int64
+	EndId() int64
+	Type() string
+	Props() map[string]interface{}
+}
+
 // Node represents a node in the database
 type Node interface {
 	Id() int64

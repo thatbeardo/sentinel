@@ -4,12 +4,15 @@ import (
 	"net/http"
 
 	"github.com/bithippie/guard-my-app/sentinel/api/views"
-	"github.com/bithippie/guard-my-app/sentinel/models/policy/inputs"
+	input "github.com/bithippie/guard-my-app/sentinel/models/policy/inputs"
+	"github.com/bithippie/guard-my-app/sentinel/models/policy/outputs"
 	"github.com/bithippie/guard-my-app/sentinel/models/policy/service"
 	"github.com/gin-gonic/gin"
+)
 
-	// Used in annotations
-	_ "github.com/bithippie/guard-my-app/sentinel/models/policy/outputs"
+var (
+	_ = input.Payload{}
+	_ = outputs.Response{}
 )
 
 // @Summary Create a new Policy
@@ -23,7 +26,7 @@ import (
 // @Router /v1/policies [post]
 func post(service service.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var resourceInput inputs.Payload
+		var resourceInput input.Payload
 		if err := c.ShouldBind(&resourceInput); err != nil {
 			views.Wrap(err, c)
 			return

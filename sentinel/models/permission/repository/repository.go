@@ -26,8 +26,8 @@ func New(session session.Session) Repository {
 func (repo *repository) Create(input *inputs.Payload, policyID string, targetID string) (response outputs.Permission, err error) {
 	permission, err := repo.session.Execute(`
 		MATCH (policy: Policy), (target: Resource)
-		WHERE policy.id = $policyID AND target.ID = $targetID
-		CREATE (policy)-[r:PERMISSION {name: $name, permitted: $permitted}]->(target)
+		WHERE policy.id = $policyID AND target.id = $targetID
+		CREATE (policy)-[r:PERMISSION {name: $name, permitted: $permitted, id: randomUUID()}]->(target)
 		RETURN {permission: r}`,
 		map[string]interface{}{
 			"name":      input.Data.Attributes.Name,

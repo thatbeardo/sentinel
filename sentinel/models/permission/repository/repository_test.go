@@ -12,8 +12,8 @@ import (
 
 var createStatement = `
 		MATCH (policy: Policy), (target: Resource)
-		WHERE policy.id = $policyID AND target.ID = $targetID
-		CREATE (policy)-[r:PERMISSION {name: $name, permitted: $permitted}]->(target)
+		WHERE policy.id = $policyID AND target.id = $targetID
+		CREATE (policy)-[r:PERMISSION {name: $name, permitted: $permitted, id: randomUUID()}]->(target)
 		RETURN {permission: r}`
 
 type mockSession struct {

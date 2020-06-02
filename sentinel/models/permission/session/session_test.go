@@ -12,21 +12,31 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type mockNode struct {
-	id     int64
-	labels []string
-	props  map[string]interface{}
+type mockRelationship struct {
+	id      int64
+	startId int64
+	endId   int64
+	relType string
+	props   map[string]interface{}
 }
 
-func (m mockNode) Id() int64 {
+func (m mockRelationship) Id() int64 {
 	return m.id
 }
 
-func (m mockNode) Labels() []string {
-	return m.labels
+func (m mockRelationship) StartId() int64 {
+	return m.startId
 }
 
-func (m mockNode) Props() map[string]interface{} {
+func (m mockRelationship) EndId() int64 {
+	return m.endId
+}
+
+func (m mockRelationship) Type() string {
+	return m.relType
+}
+
+func (m mockRelationship) Props() map[string]interface{} {
 	return m.props
 }
 
@@ -84,9 +94,9 @@ func TestExecute_NoErrorsFromDB_ReturnResponse(t *testing.T) {
 
 func generateValidResultMap() []map[string]interface{} {
 	result := map[string]interface{}{
-		"permission": mockNode{
-			id:     1,
-			labels: []string{"Permission"},
+		"permission": mockRelationship{
+			id:      1,
+			relType: "Permission",
 			props: map[string]interface{}{
 				"id":        "test-id",
 				"name":      "test-permission",
