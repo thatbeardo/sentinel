@@ -1,6 +1,7 @@
 package permissions_test
 
 import (
+	"errors"
 	"net/http"
 	"testing"
 
@@ -94,4 +95,19 @@ func TestPut_PermittedFieldAbsent_ReturnsBadRequest(t *testing.T) {
 		response,
 		views.GenerateErrorResponse(response.StatusCode, "Key: 'Payload.Data.Attributes.Permitted' Error:Field validation for 'Permitted' failed on the 'required' tag", "/v1/policies/:policy_id/resources/:resource_id/permissions"),
 		http.StatusBadRequest)
+}
+
+func TestPut_ServiceReturnsError_Returns500(t *testing.T) {
+	mockService := mockService{
+		Err: errors.New("some-test-error"),
+	}
+
+	router := setupRouter(mockService)
+	response, cleanup := testutil.PerformRequest(router, "PUT", "/v1/policies/test-policy-id/resources/test-target-id/permissions", noErrors)
+	defer cleanup()
+
+	testutil.ValidateResponse(t,
+		response,
+		views.GenerateErrorResponse(response.StatusCode, "some-test-error", "/v1/policies/:policy_id/resources/:resource_id/permissions"),
+		http.StatusInternalServerError)
 }
