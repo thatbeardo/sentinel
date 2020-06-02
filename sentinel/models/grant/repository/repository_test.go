@@ -13,7 +13,7 @@ import (
 var createStatement = `
 		MATCH (policy: Policy), (target: Resource)
 		WHERE policy.id = $policyID AND target.id = $targetID
-		CREATE (policy)-[r:GRANT {with_grant: $withGrant, id: randomUUID()}]->(target)
+		CREATE (policy)-[r:GRANTED_TO {with_grant: $withGrant, id: randomUUID()}]->(target)
 		RETURN {grant: r}`
 
 type mockSession struct {

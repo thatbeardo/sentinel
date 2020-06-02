@@ -27,7 +27,7 @@ func (repo *repository) Create(input *inputs.Payload, policyID string, targetID 
 	permission, err := repo.session.Execute(`
 		MATCH (policy: Policy), (target: Resource)
 		WHERE policy.id = $policyID AND target.id = $targetID
-		CREATE (policy)-[r:GRANT {with_grant: $withGrant, id: randomUUID()}]->(target)
+		CREATE (policy)-[r:GRANTED_TO {with_grant: $withGrant, id: randomUUID()}]->(target)
 		RETURN {grant: r}`,
 		map[string]interface{}{
 			"withGrant": input.Data.Attributes.WithGrant,
