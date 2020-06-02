@@ -13,8 +13,9 @@ data template_file sentinel_app {
     aws_region     = var.aws_region
     db_uri         = aws_instance.neo4j.public_dns
     host           = aws_alb.main.dns_name
+    username       = var.username
+    password       = aws_instance.neo4j.id
   }
-
   depends_on = [aws_instance.neo4j, aws_alb.main]
 }
 
