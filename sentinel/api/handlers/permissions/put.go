@@ -12,14 +12,14 @@ import (
 	_ "github.com/bithippie/guard-my-app/sentinel/models/permission/outputs"
 )
 
-// @Summary Update a per
-// @Tags Resources
+// @Summary Update a permission that permits apolicy on a resource
+// @Tags Permissions
 // @Description Create a permission for a policy on a resource
 // @Accept  json
 // @Produce  json
-// @Param id path string true "Policy ID"
-// @Param id path string true "Resource ID"
-// @Param input body inputs.Payload true "Resource to be created"
+// @Param policy_id path string true "Policy ID"
+// @Param resource_id path string true "Resource ID"
+// @Param input body inputs.Payload true "Details about the permission to be added"
 // @Success 204 {object} outputs.Response	"ok"
 // @Success 404 {object} views.ErrView
 // @Router /v1/policies/{policy_id}/resources/{resource_id}/permissions [put]

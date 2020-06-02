@@ -135,11 +135,19 @@ package main
 
 import (
 	handler "github.com/bithippie/guard-my-app/sentinel/api/handlers"
+	"github.com/bithippie/guard-my-app/sentinel/api/handlers/permissions"
+	"github.com/bithippie/guard-my-app/sentinel/api/handlers/policies"
 	"github.com/bithippie/guard-my-app/sentinel/api/handlers/resources"
 	"github.com/bithippie/guard-my-app/sentinel/models/neo4j"
-	"github.com/bithippie/guard-my-app/sentinel/models/resource/repository"
-	"github.com/bithippie/guard-my-app/sentinel/models/resource/service"
-	"github.com/bithippie/guard-my-app/sentinel/models/resource/session"
+	permissionRepository "github.com/bithippie/guard-my-app/sentinel/models/permission/repository"
+	permissionService "github.com/bithippie/guard-my-app/sentinel/models/permission/service"
+	permissionSession "github.com/bithippie/guard-my-app/sentinel/models/permission/session"
+	policyRepository "github.com/bithippie/guard-my-app/sentinel/models/policy/repository"
+	policyService "github.com/bithippie/guard-my-app/sentinel/models/policy/service"
+	policySession "github.com/bithippie/guard-my-app/sentinel/models/policy/session"
+	resourceRepository "github.com/bithippie/guard-my-app/sentinel/models/resource/repository"
+	resourceService "github.com/bithippie/guard-my-app/sentinel/models/resource/service"
+	resourceSession "github.com/bithippie/guard-my-app/sentinel/models/resource/session"
 	"github.com/bithippie/guard-my-app/sentinel/server"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -149,15 +157,27 @@ func main() {
 	shutdown, neo4jSession := server.Initialize()
 
 	runner := neo4j.New(neo4jSession)
-	session := session.NewNeo4jSession(runner)
-	resourceRepository := repository.New(session)
-	resourceService := service.NewService(resourceRepository)
+
+	resourceSession := resourceSession.NewNeo4jSession(runner)
+	resourceRepository := resourceRepository.New(resourceSession)
+	resourceService := resourceService.NewService(resourceRepository)
+
+	permissionSession := permissionSession.NewNeo4jSession(runner)
+	permissionRepository := permissionRepository.New(permissionSession)
+	permissionService := permissionService.NewService(permissionRepository)
+
+	policiesSession := policySession.NewNeo4jSession(runner)
+	policyRepository := policyRepository.New(policiesSession)
+	policyService := policyService.NewService(policyRepository)
+
 	engine := gin.Default()
 
 	router := server.GenerateRouter(engine)
-	resources.Routes(router, resourceService)
 
-	server.GenerateRouter(engine)
+	resources.Routes(router, resourceService)
+	permissions.Routes(router, permissionService)
+	policies.Routes(router, policyService)
+
 	server.Orchestrate(engine, shutdown)
 }
 
