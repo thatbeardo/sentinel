@@ -25,7 +25,7 @@ var (
 // @Param input body inputs.Payload true "Details about the Grant to be added"
 // @Success 204 {object} outputs.Response	"ok"
 // @Success 404 {object} views.ErrView
-// @Router /v1/resources/{resource_id}/policies/{policy_id} [put]
+// @Router /v1/resources/{resource_id}/grants/{policy_id} [put]
 func put(service service.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		policyID := c.Param("policy_id")

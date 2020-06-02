@@ -135,9 +135,13 @@ package main
 
 import (
 	handler "github.com/bithippie/guard-my-app/sentinel/api/handlers"
+	"github.com/bithippie/guard-my-app/sentinel/api/handlers/grants"
 	"github.com/bithippie/guard-my-app/sentinel/api/handlers/permissions"
 	"github.com/bithippie/guard-my-app/sentinel/api/handlers/policies"
 	"github.com/bithippie/guard-my-app/sentinel/api/handlers/resources"
+	grantRepository "github.com/bithippie/guard-my-app/sentinel/models/grant/repository"
+	grantService "github.com/bithippie/guard-my-app/sentinel/models/grant/service"
+	grantSession "github.com/bithippie/guard-my-app/sentinel/models/grant/session"
 	"github.com/bithippie/guard-my-app/sentinel/models/neo4j"
 	permissionRepository "github.com/bithippie/guard-my-app/sentinel/models/permission/repository"
 	permissionService "github.com/bithippie/guard-my-app/sentinel/models/permission/service"
@@ -170,6 +174,10 @@ func main() {
 	policyRepository := policyRepository.New(policiesSession)
 	policyService := policyService.NewService(policyRepository)
 
+	grantSession := grantSession.NewNeo4jSession(runner)
+	grantRepository := grantRepository.New(grantSession)
+	grantService := grantService.NewService(grantRepository)
+
 	engine := gin.Default()
 
 	router := server.GenerateRouter(engine)
@@ -177,6 +185,7 @@ func main() {
 	resources.Routes(router, resourceService)
 	permissions.Routes(router, permissionService)
 	policies.Routes(router, policyService)
+	grants.Routes(router, grantService)
 
 	server.Orchestrate(engine, shutdown)
 }
