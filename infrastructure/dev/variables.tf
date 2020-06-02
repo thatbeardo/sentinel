@@ -44,6 +44,11 @@ variable fargate_memory {
   default     = "2048"
 }
 
+variable username {
+  description = "Database username"
+  default     = "neo4j"
+}
+
 variable db_bolt_port {
   description = "Ingress port 7474 to establish http - insecure connections remotely"
   default     = 7474

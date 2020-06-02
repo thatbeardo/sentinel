@@ -4,11 +4,11 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/bithippie/guard-my-app/sentinel/mocks/data"
 	models "github.com/bithippie/guard-my-app/sentinel/models"
-	"github.com/bithippie/guard-my-app/sentinel/models/resource/injection"
+	"github.com/bithippie/guard-my-app/sentinel/models/injection"
 	"github.com/bithippie/guard-my-app/sentinel/models/resource/session"
+	"github.com/stretchr/testify/assert"
 )
 
 type mockNode struct {
@@ -30,11 +30,11 @@ func (m mockNode) Props() map[string]interface{} {
 }
 
 type mockNeo4jSession struct {
-	RunResponse map[string]interface{}
+	RunResponse []map[string]interface{}
 	RunErr      error
 }
 
-func (m mockNeo4jSession) Run(statement string, parameters map[string]interface{}) (map[string]interface{}, error) {
+func (m mockNeo4jSession) Run(statement string, parameters map[string]interface{}) ([]map[string]interface{}, error) {
 	return m.RunResponse, m.RunErr
 }
 
@@ -71,20 +71,30 @@ func TestExecute_NoErrorsFromDB_ReturnResponse(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func TestExecute_DatabaseReturnsNoResources_EmptyResourcesArrayReturned(t *testing.T) {
+	session := session.NewNeo4jSession(mockNeo4jSession{
+		RunResponse: []map[string]interface{}{},
+	})
+
+	response, err := session.Execute(`cypher-query`, map[string]interface{}{})
+	assert.Equal(t, data.EmptyResponse, response)
+	assert.Nil(t, err)
+}
+
 func TestExecute_ParentDecodeFails_ReturnError(t *testing.T) {
-	resultMap := generateValidResultMap()
-	resultMap["parent"] = "invalid entry"
+	results := generateValidResultMap()
+	results[0]["parent"] = "invalid entry"
 
 	session := session.NewNeo4jSession(mockNeo4jSession{
-		RunResponse: resultMap,
+		RunResponse: results,
 	})
 
 	_, err := session.Execute(`cypher-query`, map[string]interface{}{})
 	assert.Equal(t, models.ErrDatabase, err)
 }
 
-func generateValidResultMap() map[string]interface{} {
-	return map[string]interface{}{
+func generateValidResultMap() []map[string]interface{} {
+	result := map[string]interface{}{
 		"child": mockNode{
 			id:     1,
 			labels: []string{"Resource"},
@@ -104,4 +114,5 @@ func generateValidResultMap() map[string]interface{} {
 			},
 		},
 	}
+	return []map[string]interface{}{result}
 }

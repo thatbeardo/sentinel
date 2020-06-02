@@ -10,45 +10,28 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/bithippie/guard-my-app/sentinel/docs"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/neo4j/neo4j-go-driver/neo4j"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	handler "github.com/bithippie/guard-my-app/sentinel/api/handlers"
-	"github.com/bithippie/guard-my-app/sentinel/api/handlers/resources"
-	"github.com/bithippie/guard-my-app/sentinel/docs"
-	"github.com/bithippie/guard-my-app/sentinel/models/resource/service"
-
-	// Swaggo import
-	_ "github.com/bithippie/guard-my-app/sentinel/docs"
 )
 
-// SetupRouter instantiates and initializes a new Router.
-func SetupRouter(service service.Service) *gin.Engine {
-	r := gin.Default()
+// GenerateRouter instantiates and initializes a new Router.
+func GenerateRouter(r *gin.Engine) *gin.RouterGroup {
 	r.Use(cors.Default())
-
 	setupSwagger(r)
-	r.NoRoute(handler.NoRoute)
-
-	router := r.Group("/v1")
-	resources.ResourceRoutes(router, service)
-
-	return r
+	return r.Group("/v1")
 }
 
 func setupSwagger(r *gin.Engine) {
-	hostURL := getHostURL()
+	hostURL := fmt.Sprintf("http://%s:%s", os.Getenv("HOST"), os.Getenv("PORT"))
 	docs.SwaggerInfo.Host = hostURL
 	r.StaticFile("/docs/", "./docs/swagger.json")
 
 	url := ginSwagger.URL(fmt.Sprintf("%s/docs", hostURL))
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
-}
-
-func getHostURL() string {
-	return fmt.Sprintf("http://%s:%s", os.Getenv("HOST"), os.Getenv("PORT"))
 }
 
 // Initialize connects to the database and returns a shut down function

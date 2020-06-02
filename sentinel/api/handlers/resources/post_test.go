@@ -9,9 +9,8 @@ import (
 	models "github.com/bithippie/guard-my-app/sentinel/models"
 	entity "github.com/bithippie/guard-my-app/sentinel/models/resource"
 
-	m "github.com/stretchr/testify/mock"
-	"github.com/bithippie/guard-my-app/sentinel/server"
 	"github.com/bithippie/guard-my-app/sentinel/testutil"
+	m "github.com/stretchr/testify/mock"
 )
 
 const noErrors = `{"data":{"type":"resource","attributes":{"source_id":"much-required"}}}`
@@ -29,7 +28,7 @@ func TestPostResourcesOk(t *testing.T) {
 	mockService := &mocks.Service{}
 	mockService.On("Create", m.AnythingOfType("*entity.Input")).Return(createResourceNoErrors())
 
-	router := server.SetupRouter(mockService)
+	router := setupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "POST", "/v1/resources/", noErrors)
 	defer cleanup()
 
@@ -40,7 +39,7 @@ func TestPostResourcesSourceIdBlank(t *testing.T) {
 
 	mockService := &mocks.Service{}
 
-	router := server.SetupRouter(mockService)
+	router := setupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "POST", "/v1/resources/", sourceIdBlank)
 	defer cleanup()
 
@@ -51,7 +50,7 @@ func TestPostResourcesSourceIdAbsent(t *testing.T) {
 
 	mockService := &mocks.Service{}
 
-	router := server.SetupRouter(mockService)
+	router := setupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "POST", "/v1/resources/", sourceIdAbsent)
 	defer cleanup()
 
@@ -62,7 +61,7 @@ func TestPostResourcesTypeBlank(t *testing.T) {
 
 	mockService := &mocks.Service{}
 
-	router := server.SetupRouter(mockService)
+	router := setupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "POST", "/v1/resources/", typeBlank)
 	defer cleanup()
 
@@ -72,7 +71,7 @@ func TestPostResourcesTypeBlank(t *testing.T) {
 func TestPostResourcesTypeAbsent(t *testing.T) {
 	mockService := &mocks.Service{}
 
-	router := server.SetupRouter(mockService)
+	router := setupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "POST", "/v1/resources/", typeAbsent)
 	defer cleanup()
 
@@ -82,7 +81,7 @@ func TestPostResourcesTypeAbsent(t *testing.T) {
 func TestPostResourceEmptyRelationships(t *testing.T) {
 	mockService := &mocks.Service{}
 
-	router := server.SetupRouter(mockService)
+	router := setupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "POST", "/v1/resources/", relationshipsEmptyPayload)
 	defer cleanup()
 
@@ -92,7 +91,7 @@ func TestPostResourceEmptyRelationships(t *testing.T) {
 func TestPostResourceParentDataAbsent(t *testing.T) {
 	mockService := &mocks.Service{}
 
-	router := server.SetupRouter(mockService)
+	router := setupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "POST", "/v1/resources/", relationshipsParentDataAbsentPayload)
 	defer cleanup()
 
@@ -102,7 +101,7 @@ func TestPostResourceParentDataAbsent(t *testing.T) {
 func TestPostResourceParentIdAbsent(t *testing.T) {
 	mockService := &mocks.Service{}
 
-	router := server.SetupRouter(mockService)
+	router := setupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "POST", "/v1/resources/", parentDataIDAbsentPayload)
 	defer cleanup()
 
@@ -112,7 +111,7 @@ func TestPostResourceParentIdAbsent(t *testing.T) {
 func TestPostResourceParentTypeAbsent(t *testing.T) {
 	mockService := &mocks.Service{}
 
-	router := server.SetupRouter(mockService)
+	router := setupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "POST", "/v1/resources/", parentDataTypeAbsentPayload)
 	defer cleanup()
 
@@ -123,7 +122,7 @@ func TestPostResourceParentAbsentInDatabase(t *testing.T) {
 	mockService := &mocks.Service{}
 	mockService.On("Create", m.AnythingOfType("*entity.Input")).Return(createResourceParentNotFound())
 
-	router := server.SetupRouter(mockService)
+	router := setupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "POST", "/v1/resources/", noErrors)
 	defer cleanup()
 

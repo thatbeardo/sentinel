@@ -8,7 +8,6 @@ import (
 	"github.com/bithippie/guard-my-app/sentinel/mocks"
 	models "github.com/bithippie/guard-my-app/sentinel/models"
 	entity "github.com/bithippie/guard-my-app/sentinel/models/resource"
-	"github.com/bithippie/guard-my-app/sentinel/server"
 	"github.com/bithippie/guard-my-app/sentinel/testutil"
 )
 
@@ -16,7 +15,7 @@ func TestInvalidPath(t *testing.T) {
 
 	mockService := &mocks.Service{}
 
-	router := server.SetupRouter(mockService)
+	router := setupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/invalid-path/", "")
 	defer cleanup()
 
@@ -28,7 +27,7 @@ func TestGetResourcesOk(t *testing.T) {
 	mockService := &mocks.Service{}
 	mockService.On("Get").Return(getResourceMockResponseNoErrors())
 
-	router := server.SetupRouter(mockService)
+	router := setupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/resources/", "")
 	defer cleanup()
 
@@ -40,7 +39,7 @@ func TestGetResourcesDatabaseError(t *testing.T) {
 	mockService := &mocks.Service{}
 	mockService.On("Get").Return(getResourceReturns500())
 
-	router := server.SetupRouter(mockService)
+	router := setupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/resources/", "")
 	defer cleanup()
 
@@ -53,7 +52,7 @@ func TestGetResourceByIDOk(t *testing.T) {
 	mockService := &mocks.Service{}
 	mockService.On("GetByID", "test-id").Return(getResourceByIdMockResponseNoErrors())
 
-	router := server.SetupRouter(mockService)
+	router := setupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/resources/test-id", "")
 	defer cleanup()
 
@@ -65,7 +64,7 @@ func TestGetResourceByIDNoResourceFound(t *testing.T) {
 	mockService := &mocks.Service{}
 	mockService.On("GetByID", "test-id").Return(getResourceByIdNoResource())
 
-	router := server.SetupRouter(mockService)
+	router := setupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/resources/test-id", "")
 	defer cleanup()
 
