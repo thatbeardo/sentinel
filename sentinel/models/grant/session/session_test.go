@@ -5,10 +5,10 @@ import (
 	"testing"
 
 	models "github.com/bithippie/guard-my-app/sentinel/models"
+	"github.com/bithippie/guard-my-app/sentinel/models/grant/outputs"
+	"github.com/bithippie/guard-my-app/sentinel/models/grant/session"
+	"github.com/bithippie/guard-my-app/sentinel/models/grant/testdata"
 	"github.com/bithippie/guard-my-app/sentinel/models/injection"
-	"github.com/bithippie/guard-my-app/sentinel/models/permission/outputs"
-	"github.com/bithippie/guard-my-app/sentinel/models/permission/session"
-	"github.com/bithippie/guard-my-app/sentinel/models/permission/testdata"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -58,13 +58,13 @@ func TestExecute_RunReturnsError_ReturnDatabaseError(t *testing.T) {
 	assert.Equal(t, models.ErrDatabase, err)
 }
 
-func TestExecute_DatabaseReturnsNoPermissions_EmptyResourcesArrayReturned(t *testing.T) {
+func TestExecute_DatabaseReturnsNoGrants_EmptyResourcesArrayReturned(t *testing.T) {
 	session := session.NewNeo4jSession(mockNeo4jSession{
 		RunResponse: []map[string]interface{}{},
 	})
 
 	response, err := session.Execute(`cypher-query`, map[string]interface{}{})
-	assert.Equal(t, outputs.Response{Data: []outputs.Permission{}}, response)
+	assert.Equal(t, outputs.Response{Data: []outputs.Grant{}}, response)
 	assert.Nil(t, err)
 }
 
@@ -94,13 +94,12 @@ func TestExecute_NoErrorsFromDB_ReturnResponse(t *testing.T) {
 
 func generateValidResultMap() []map[string]interface{} {
 	result := map[string]interface{}{
-		"permission": mockRelationship{
+		"grant": mockRelationship{
 			id:      1,
-			relType: "Permission",
+			relType: "Grant",
 			props: map[string]interface{}{
-				"id":        "test-id",
-				"name":      "test-permission",
-				"permitted": "allow",
+				"id":         "test-grant-id",
+				"with_grant": true,
 			},
 		},
 	}
