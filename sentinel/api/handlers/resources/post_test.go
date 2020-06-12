@@ -5,12 +5,10 @@ import (
 	"testing"
 
 	"github.com/bithippie/guard-my-app/sentinel/api/views"
-	"github.com/bithippie/guard-my-app/sentinel/mocks"
 	models "github.com/bithippie/guard-my-app/sentinel/models"
-	entity "github.com/bithippie/guard-my-app/sentinel/models/resource"
+	"github.com/bithippie/guard-my-app/sentinel/models/resource/testdata"
 
 	"github.com/bithippie/guard-my-app/sentinel/testutil"
-	m "github.com/stretchr/testify/mock"
 )
 
 const noErrors = `{"data":{"type":"resource","attributes":{"source_id":"much-required"}}}`
@@ -25,19 +23,20 @@ const parentDataIDAbsentPayload = `{"data":{"type":"resource","attributes":{"sou
 const parentDataTypeAbsentPayload = `{"data":{"type":"resource","attributes":{"source_id":"test-id"},"relationships":{"parent":{"data":{"id":"test-id"}}}}}`
 
 func TestPostResourcesOk(t *testing.T) {
-	mockService := &mocks.Service{}
-	mockService.On("Create", m.AnythingOfType("*entity.Input")).Return(createResourceNoErrors())
+	mockService := mockService{
+		CreateResponse: testdata.ModificationResult,
+	}
 
 	router := setupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "POST", "/v1/resources/", noErrors)
 	defer cleanup()
 
-	testutil.ValidateResponse(t, response, generateElement(), http.StatusAccepted)
+	testutil.ValidateResponse(t, response, testdata.ModificationResult, http.StatusAccepted)
 }
 
 func TestPostResourcesSourceIdBlank(t *testing.T) {
 
-	mockService := &mocks.Service{}
+	mockService := mockService{}
 
 	router := setupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "POST", "/v1/resources/", sourceIdBlank)
@@ -48,7 +47,7 @@ func TestPostResourcesSourceIdBlank(t *testing.T) {
 
 func TestPostResourcesSourceIdAbsent(t *testing.T) {
 
-	mockService := &mocks.Service{}
+	mockService := mockService{}
 
 	router := setupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "POST", "/v1/resources/", sourceIdAbsent)
@@ -59,7 +58,7 @@ func TestPostResourcesSourceIdAbsent(t *testing.T) {
 
 func TestPostResourcesTypeBlank(t *testing.T) {
 
-	mockService := &mocks.Service{}
+	mockService := mockService{}
 
 	router := setupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "POST", "/v1/resources/", typeBlank)
@@ -69,7 +68,7 @@ func TestPostResourcesTypeBlank(t *testing.T) {
 }
 
 func TestPostResourcesTypeAbsent(t *testing.T) {
-	mockService := &mocks.Service{}
+	mockService := mockService{}
 
 	router := setupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "POST", "/v1/resources/", typeAbsent)
@@ -79,7 +78,7 @@ func TestPostResourcesTypeAbsent(t *testing.T) {
 }
 
 func TestPostResourceEmptyRelationships(t *testing.T) {
-	mockService := &mocks.Service{}
+	mockService := mockService{}
 
 	router := setupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "POST", "/v1/resources/", relationshipsEmptyPayload)
@@ -89,7 +88,7 @@ func TestPostResourceEmptyRelationships(t *testing.T) {
 }
 
 func TestPostResourceParentDataAbsent(t *testing.T) {
-	mockService := &mocks.Service{}
+	mockService := mockService{}
 
 	router := setupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "POST", "/v1/resources/", relationshipsParentDataAbsentPayload)
@@ -99,7 +98,7 @@ func TestPostResourceParentDataAbsent(t *testing.T) {
 }
 
 func TestPostResourceParentIdAbsent(t *testing.T) {
-	mockService := &mocks.Service{}
+	mockService := mockService{}
 
 	router := setupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "POST", "/v1/resources/", parentDataIDAbsentPayload)
@@ -109,7 +108,7 @@ func TestPostResourceParentIdAbsent(t *testing.T) {
 }
 
 func TestPostResourceParentTypeAbsent(t *testing.T) {
-	mockService := &mocks.Service{}
+	mockService := mockService{}
 
 	router := setupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "POST", "/v1/resources/", parentDataTypeAbsentPayload)
@@ -119,24 +118,13 @@ func TestPostResourceParentTypeAbsent(t *testing.T) {
 }
 
 func TestPostResourceParentAbsentInDatabase(t *testing.T) {
-	mockService := &mocks.Service{}
-	mockService.On("Create", m.AnythingOfType("*entity.Input")).Return(createResourceParentNotFound())
+	mockService := mockService{
+		CreateErr: models.ErrNotFound,
+	}
 
 	router := setupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "POST", "/v1/resources/", noErrors)
 	defer cleanup()
 
 	testutil.ValidateResponse(t, response, views.GenerateErrorResponse(http.StatusNotFound, "Data not found", "/v1/resources/"), http.StatusNotFound)
-}
-
-func createResourceNoErrors() (entity.Element, error) {
-	return generateElement(), nil
-}
-
-func createResourceParentNotFound() (entity.Element, error) {
-	return entity.Element{}, models.ErrNotFound
-}
-
-func databaseError() (entity.Element, error) {
-	return entity.Element{}, models.ErrDatabase
 }

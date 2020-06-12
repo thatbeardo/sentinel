@@ -28,9 +28,9 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/v1/policies": {
-            "post": {
-                "description": "Add a new Policy to existing Policies",
+        "/v1/grants/resources/{resource_id}": {
+            "get": {
+                "description": "Shows all Principal access to Target Resources managed through a Policy",
                 "consumes": [
                     "application/json"
                 ],
@@ -38,29 +38,27 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Policies"
+                    "Grants"
                 ],
-                "summary": "Create a new Policy",
+                "summary": "Shows all Principal access to Target Resources managed through a Policy",
                 "parameters": [
                     {
-                        "description": "Policy to be created",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/inputs.Payload"
-                        }
+                        "type": "string",
+                        "description": "Resource ID",
+                        "name": "resource_id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
-                    "202": {
+                    "200": {
                         "description": "ok",
                         "schema": {
-                            "$ref": "#/definitions/outputs.Policy"
+                            "$ref": "#/definitions/grant.Output"
                         }
                     },
                     "500": {
-                        "description": "ok",
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/views.ErrView"
                         }
@@ -68,7 +66,219 @@ var doc = `{
                 }
             }
         },
-        "/v1/policies/{policy_id}/resources/{resource_id}/permissions": {
+        "/v1/grants/resources/{resource_id}/policies/{policy_id}": {
+            "put": {
+                "description": "Create a grant for a policy on a resource",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Grants"
+                ],
+                "summary": "Update a grant that permits a policy on a resource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Policy ID",
+                        "name": "policy_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Resource ID",
+                        "name": "resource_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Details about the Grant to be added",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/grant.Input"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "ok",
+                        "schema": {
+                            "$ref": "#/definitions/grant.Output"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/views.ErrView"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/permissions/{id}": {
+            "delete": {
+                "description": "Delete a permission by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Permissions"
+                ],
+                "summary": "Delete a permission by its ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Permission ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/views.ErrView"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update Permission Details.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Permissions"
+                ],
+                "summary": "Update a Permission by its ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Permission ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "New name to be assigned to an existing permission",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/permission.Input"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "ok",
+                        "schema": {
+                            "$ref": "#/definitions/permission.OutputDetails"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/views.ErrView"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/permissions/{policy_id}/resources": {
+            "get": {
+                "description": "List all Permissions for all Target Resources in Policy.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Permissions"
+                ],
+                "summary": "List all Permissions for all Target Resources in Policy.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Policy ID",
+                        "name": "policy_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "$ref": "#/definitions/permission.Output"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/views.ErrView"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/permissions/{policy_id}/resources/{resource_id}": {
+            "get": {
+                "description": "List all permissions for a policy for a given target",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Permissions"
+                ],
+                "summary": "List all permissions for a policy for a given target",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Policy ID",
+                        "name": "policy_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Resource ID",
+                        "name": "resource_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "$ref": "#/definitions/permission.Output"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/views.ErrView"
+                        }
+                    }
+                }
+            },
             "put": {
                 "description": "Create a permission for a policy on a resource",
                 "consumes": [
@@ -102,7 +312,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/inputs.Payload"
+                            "$ref": "#/definitions/permission.Input"
                         }
                     }
                 ],
@@ -110,11 +320,267 @@ var doc = `{
                     "204": {
                         "description": "ok",
                         "schema": {
-                            "$ref": "#/definitions/outputs.Response"
+                            "$ref": "#/definitions/permission.OutputDetails"
                         }
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/views.ErrView"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/policies": {
+            "get": {
+                "description": "Get all the Policies stored",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Policies"
+                ],
+                "summary": "Get all the Policies",
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "$ref": "#/definitions/policy.Output"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/views.ErrView"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Add a new Policy to existing Policies",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Policies"
+                ],
+                "summary": "Create a new Policy",
+                "parameters": [
+                    {
+                        "description": "Policy to be created",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/policy.Input"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "ok",
+                        "schema": {
+                            "$ref": "#/definitions/policy.OutputDetails"
+                        }
+                    },
+                    "500": {
+                        "description": "ok",
+                        "schema": {
+                            "$ref": "#/definitions/views.ErrView"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/policies/{id}": {
+            "get": {
+                "description": "Get a Policy by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Policies"
+                ],
+                "summary": "Get Policy by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Policy ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "$ref": "#/definitions/policy.OutputDetails"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/views.ErrView"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/views.ErrView"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a policy by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Policies"
+                ],
+                "summary": "Delete a policy by its ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Policy ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/views.ErrView"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update Polciy name.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Policies"
+                ],
+                "summary": "Update a Policy by it's ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Policy ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "New name to be assigned to an existing policy",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/policy.Input"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "ok",
+                        "schema": {
+                            "$ref": "#/definitions/policy.OutputDetails"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/views.ErrView"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/principal/{principal_id}/authorization": {
+            "get": {
+                "description": "Shows all the permissions this principal has to provided target resources",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authorization"
+                ],
+                "summary": "Get authorization details about a principal.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Principal ID",
+                        "name": "principal_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Name of the permissions which allow access to the target",
+                        "name": "permissions",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Name of the targtes to which a permission allows access",
+                        "name": "targets",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Name of the permissions which allow access to the target",
+                        "name": "depth",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Include permissions that have deny permit fields set",
+                        "name": "include_denied",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "$ref": "#/definitions/authorization.Output"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/views.ErrView"
                         }
@@ -139,7 +605,7 @@ var doc = `{
                     "200": {
                         "description": "ok",
                         "schema": {
-                            "$ref": "#/definitions/entity.Response"
+                            "$ref": "#/definitions/resource.Output"
                         }
                     },
                     "500": {
@@ -169,7 +635,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/entity.Input"
+                            "$ref": "#/definitions/resource.Input"
                         }
                     }
                 ],
@@ -177,7 +643,7 @@ var doc = `{
                     "202": {
                         "description": "ok",
                         "schema": {
-                            "$ref": "#/definitions/entity.Element"
+                            "$ref": "#/definitions/resource.OutputDetails"
                         }
                     },
                     "500": {
@@ -215,7 +681,7 @@ var doc = `{
                     "200": {
                         "description": "ok",
                         "schema": {
-                            "$ref": "#/definitions/entity.Element"
+                            "$ref": "#/definitions/resource.OutputDetails"
                         }
                     },
                     "404": {
@@ -254,12 +720,6 @@ var doc = `{
                     }
                 ],
                 "responses": {
-                    "204": {
-                        "description": "ok",
-                        "schema": {
-                            "$ref": "#/definitions/entity.Response"
-                        }
-                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -294,7 +754,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/entity.Input"
+                            "$ref": "#/definitions/resource.Input"
                         }
                     }
                 ],
@@ -302,61 +762,7 @@ var doc = `{
                     "204": {
                         "description": "ok",
                         "schema": {
-                            "$ref": "#/definitions/entity.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/views.ErrView"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/resources/{resource_id}/grants/{policy_id}": {
-            "put": {
-                "description": "Create a grant for a policy on a resource",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Grant"
-                ],
-                "summary": "Update a grant that permits a policy on a resource",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Policy ID",
-                        "name": "policy_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Resource ID",
-                        "name": "resource_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Details about the Grant to be added",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/inputs.Payload"
-                        }
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "ok",
-                        "schema": {
-                            "$ref": "#/definitions/outputs.Response"
+                            "$ref": "#/definitions/resource.Output"
                         }
                     },
                     "404": {
@@ -370,30 +776,74 @@ var doc = `{
         }
     },
     "definitions": {
-        "entity.Element": {
+        "authorization.Details": {
             "type": "object",
-            "required": [
-                "attributes",
-                "type"
-            ],
             "properties": {
                 "attributes": {
                     "type": "object",
-                    "$ref": "#/definitions/entity.Resource"
+                    "$ref": "#/definitions/resource.Attributes"
                 },
                 "id": {
                     "type": "string"
                 },
                 "relationships": {
                     "type": "object",
-                    "$ref": "#/definitions/entity.Relationships"
+                    "$ref": "#/definitions/authorization.Relationships"
                 },
                 "type": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "resource"
+                    ]
                 }
             }
         },
-        "entity.Identifier": {
+        "authorization.Output": {
+            "type": "object",
+            "required": [
+                "data"
+            ],
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/authorization.Details"
+                    }
+                }
+            }
+        },
+        "authorization.Permissions": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/permission.Attributes"
+                    }
+                }
+            }
+        },
+        "authorization.Relationships": {
+            "type": "object",
+            "properties": {
+                "permissions": {
+                    "type": "object",
+                    "$ref": "#/definitions/authorization.Permissions"
+                }
+            }
+        },
+        "grant.Attributes": {
+            "type": "object",
+            "required": [
+                "with_grant"
+            ],
+            "properties": {
+                "with_grant": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "grant.Data": {
             "type": "object",
             "required": [
                 "id",
@@ -404,17 +854,40 @@ var doc = `{
                     "type": "string"
                 },
                 "type": {
-                    "type": "string",
-                    "enum": [
-                        "policy",
-                        " resource",
-                        " grant",
-                        " permission"
-                    ]
+                    "type": "string"
                 }
             }
         },
-        "entity.Input": {
+        "grant.Details": {
+            "type": "object",
+            "required": [
+                "attributes",
+                "policy",
+                "principal",
+                "type"
+            ],
+            "properties": {
+                "attributes": {
+                    "type": "object",
+                    "$ref": "#/definitions/grant.Attributes"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "policy": {
+                    "type": "object",
+                    "$ref": "#/definitions/grant.Relationship"
+                },
+                "principal": {
+                    "type": "object",
+                    "$ref": "#/definitions/grant.Relationship"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "grant.Input": {
             "type": "object",
             "required": [
                 "data"
@@ -422,11 +895,11 @@ var doc = `{
             "properties": {
                 "data": {
                     "type": "object",
-                    "$ref": "#/definitions/entity.InputElement"
+                    "$ref": "#/definitions/grant.InputDetails"
                 }
             }
         },
-        "entity.InputElement": {
+        "grant.InputDetails": {
             "type": "object",
             "required": [
                 "attributes",
@@ -435,91 +908,34 @@ var doc = `{
             "properties": {
                 "attributes": {
                     "type": "object",
-                    "$ref": "#/definitions/entity.Resource"
-                },
-                "relationships": {
-                    "type": "object",
-                    "$ref": "#/definitions/entity.RelationshipsInput"
+                    "$ref": "#/definitions/grant.Attributes"
                 },
                 "type": {
                     "type": "string"
                 }
             }
         },
-        "entity.Parent": {
-            "type": "object",
-            "required": [
-                "data"
-            ],
-            "properties": {
-                "data": {
-                    "type": "object",
-                    "$ref": "#/definitions/entity.Identifier"
-                }
-            }
-        },
-        "entity.Policies": {
+        "grant.Output": {
             "type": "object",
             "properties": {
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/entity.Identifier"
+                        "$ref": "#/definitions/grant.Details"
                     }
                 }
             }
         },
-        "entity.Relationships": {
-            "type": "object",
-            "properties": {
-                "parent": {
-                    "type": "object",
-                    "$ref": "#/definitions/entity.Parent"
-                },
-                "policies": {
-                    "type": "object",
-                    "$ref": "#/definitions/entity.Policies"
-                }
-            }
-        },
-        "entity.RelationshipsInput": {
-            "type": "object",
-            "required": [
-                "parent"
-            ],
-            "properties": {
-                "parent": {
-                    "type": "object",
-                    "$ref": "#/definitions/entity.Parent"
-                }
-            }
-        },
-        "entity.Resource": {
-            "type": "object",
-            "required": [
-                "source_id"
-            ],
-            "properties": {
-                "name": {
-                    "type": "string"
-                },
-                "source_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "entity.Response": {
+        "grant.Relationship": {
             "type": "object",
             "properties": {
                 "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/entity.Element"
-                    }
+                    "type": "object",
+                    "$ref": "#/definitions/grant.Data"
                 }
             }
         },
-        "inputs.Attributes": {
+        "permission.Attributes": {
             "type": "object",
             "required": [
                 "name",
@@ -534,7 +950,26 @@ var doc = `{
                 }
             }
         },
-        "inputs.Payload": {
+        "permission.Details": {
+            "type": "object",
+            "required": [
+                "attributes",
+                "type"
+            ],
+            "properties": {
+                "attributes": {
+                    "type": "object",
+                    "$ref": "#/definitions/permission.Attributes"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "permission.Input": {
             "type": "object",
             "required": [
                 "data"
@@ -542,11 +977,11 @@ var doc = `{
             "properties": {
                 "data": {
                     "type": "object",
-                    "$ref": "#/definitions/inputs.PermissionDetails"
+                    "$ref": "#/definitions/permission.InputDetails"
                 }
             }
         },
-        "inputs.PermissionDetails": {
+        "permission.InputDetails": {
             "type": "object",
             "required": [
                 "attributes",
@@ -555,14 +990,45 @@ var doc = `{
             "properties": {
                 "attributes": {
                     "type": "object",
-                    "$ref": "#/definitions/inputs.Attributes"
+                    "$ref": "#/definitions/permission.Attributes"
                 },
                 "type": {
                     "type": "string"
                 }
             }
         },
-        "outputs.Policy": {
+        "permission.Output": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/permission.Details"
+                    }
+                }
+            }
+        },
+        "permission.OutputDetails": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "$ref": "#/definitions/permission.Details"
+                }
+            }
+        },
+        "policy.Attributes": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "policy.Details": {
             "type": "object",
             "required": [
                 "attributes",
@@ -571,21 +1037,69 @@ var doc = `{
             "properties": {
                 "attributes": {
                     "type": "object",
-                    "$ref": "#/definitions/inputs.Attributes"
+                    "$ref": "#/definitions/policy.Attributes"
                 },
                 "id": {
                     "type": "string"
                 },
                 "relationships": {
                     "type": "object",
-                    "$ref": "#/definitions/outputs.Relationships"
+                    "$ref": "#/definitions/policy.Relationships"
                 },
                 "type": {
                     "type": "string"
                 }
             }
         },
-        "outputs.PolicyDetails": {
+        "policy.Input": {
+            "type": "object",
+            "required": [
+                "data"
+            ],
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "$ref": "#/definitions/policy.InputDetails"
+                }
+            }
+        },
+        "policy.InputDetails": {
+            "type": "object",
+            "required": [
+                "attributes",
+                "type"
+            ],
+            "properties": {
+                "attributes": {
+                    "type": "object",
+                    "$ref": "#/definitions/policy.Attributes"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "policy.Output": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/policy.Details"
+                    }
+                }
+            }
+        },
+        "policy.OutputDetails": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "$ref": "#/definitions/policy.Details"
+                }
+            }
+        },
+        "policy.Relationship": {
             "type": "object",
             "required": [
                 "data"
@@ -594,12 +1108,12 @@ var doc = `{
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/outputs.Resource"
+                        "$ref": "#/definitions/policy.Resource"
                     }
                 }
             }
         },
-        "outputs.Relationships": {
+        "policy.Relationships": {
             "type": "object",
             "required": [
                 "principals",
@@ -608,15 +1122,15 @@ var doc = `{
             "properties": {
                 "principals": {
                     "type": "object",
-                    "$ref": "#/definitions/outputs.PolicyDetails"
+                    "$ref": "#/definitions/policy.Relationship"
                 },
                 "target_resources": {
                     "type": "object",
-                    "$ref": "#/definitions/outputs.PolicyDetails"
+                    "$ref": "#/definitions/policy.Relationship"
                 }
             }
         },
-        "outputs.Resource": {
+        "policy.Resource": {
             "type": "object",
             "required": [
                 "id",
@@ -631,14 +1145,160 @@ var doc = `{
                 }
             }
         },
-        "outputs.Response": {
+        "resource.Attributes": {
+            "type": "object",
+            "required": [
+                "source_id"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "source_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "resource.Data": {
+            "type": "object",
+            "required": [
+                "id",
+                "type"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "resource"
+                    ]
+                }
+            }
+        },
+        "resource.Details": {
+            "type": "object",
+            "properties": {
+                "attributes": {
+                    "type": "object",
+                    "$ref": "#/definitions/resource.Attributes"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "relationships": {
+                    "type": "object",
+                    "$ref": "#/definitions/resource.Relationships"
+                },
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "resource"
+                    ]
+                }
+            }
+        },
+        "resource.Input": {
+            "type": "object",
+            "required": [
+                "data"
+            ],
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "$ref": "#/definitions/resource.InputDetails"
+                }
+            }
+        },
+        "resource.InputDetails": {
+            "type": "object",
+            "required": [
+                "attributes",
+                "type"
+            ],
+            "properties": {
+                "attributes": {
+                    "type": "object",
+                    "$ref": "#/definitions/resource.Attributes"
+                },
+                "relationships": {
+                    "type": "object",
+                    "$ref": "#/definitions/resource.InputRelationships"
+                },
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "resource"
+                    ]
+                }
+            }
+        },
+        "resource.InputRelationships": {
+            "type": "object",
+            "required": [
+                "parent"
+            ],
+            "properties": {
+                "parent": {
+                    "type": "object",
+                    "$ref": "#/definitions/resource.Parent"
+                }
+            }
+        },
+        "resource.Output": {
             "type": "object",
             "properties": {
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/outputs.Policy"
+                        "$ref": "#/definitions/resource.Details"
                     }
+                }
+            }
+        },
+        "resource.OutputDetails": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "$ref": "#/definitions/resource.Details"
+                }
+            }
+        },
+        "resource.Parent": {
+            "type": "object",
+            "required": [
+                "data"
+            ],
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "$ref": "#/definitions/resource.Data"
+                }
+            }
+        },
+        "resource.Policies": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/resource.Data"
+                    }
+                }
+            }
+        },
+        "resource.Relationships": {
+            "type": "object",
+            "properties": {
+                "parent": {
+                    "type": "object",
+                    "$ref": "#/definitions/resource.Parent"
+                },
+                "policies": {
+                    "type": "object",
+                    "$ref": "#/definitions/resource.Policies"
                 }
             }
         },

@@ -1,33 +1,39 @@
 package testdata
 
 import (
-	"github.com/bithippie/guard-my-app/sentinel/models/permission/inputs"
-	"github.com/bithippie/guard-my-app/sentinel/models/permission/outputs"
+	permission "github.com/bithippie/guard-my-app/sentinel/models/permission/dto"
 )
 
-// Payload represent the input used to create a permission
-var Payload = &inputs.Payload{
-	Data: inputs.PermissionDetails{
+// Input represent the input used to create a permission
+var Input = &permission.Input{
+	Data: permission.InputDetails{
 		Type: "permission",
-		Attributes: &inputs.Attributes{
+		Attributes: &permission.Attributes{
 			Name:      "test-permission",
 			Permitted: "allow",
 		},
 	},
 }
 
-// Response denotes mocked data that is sent back in response body
-var Response = outputs.Response{
-	Data: []outputs.Permission{permission},
+// Output denotes mocked data that is sent back in response body
+var Output = permission.Output{
+	Data: []permission.Details{details},
 }
 
-var permission = outputs.Permission{
+// OutputDetails mocks data pertaining to one permission
+var OutputDetails = permission.OutputDetails{
+	Data: details,
+}
+
+var details = permission.Details{
 	ID: "test-id",
-	PermissionDetails: inputs.PermissionDetails{
-		Type: "permission",
-		Attributes: &inputs.Attributes{
-			Name:      "test-permission",
-			Permitted: "allow",
-		},
+	InputDetails: permission.InputDetails{
+		Type:       "permission",
+		Attributes: attributes,
 	},
+}
+
+var attributes = &permission.Attributes{
+	Name:      "test-permission",
+	Permitted: "allow",
 }

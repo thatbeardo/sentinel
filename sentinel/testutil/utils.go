@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/bithippie/guard-my-app/sentinel/api/views"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -34,4 +35,18 @@ func ValidateResponse(t *testing.T, response *http.Response, expected interface{
 	}
 
 	assert.Equal(t, string(out), string(body))
+}
+
+// GenerateError creates an error response instance
+func GenerateError(pointer string, parameter string, detail string, code int) views.ErrView {
+	source := views.Source{
+		Pointer:   pointer,
+		Parameter: parameter,
+	}
+	return views.ErrView{
+		ID:     "error-id-todo",
+		Status: code,
+		Source: source,
+		Detail: detail,
+	}
 }

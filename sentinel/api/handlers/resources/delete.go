@@ -3,9 +3,9 @@ package resources
 import (
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"github.com/bithippie/guard-my-app/sentinel/api/views"
 	"github.com/bithippie/guard-my-app/sentinel/models/resource/service"
+	"github.com/gin-gonic/gin"
 )
 
 // @Summary Delete a resource by its ID
@@ -14,7 +14,6 @@ import (
 // @Accept  json
 // @Produce  json
 // @Param id path string true "Resource ID"
-// @Success 204 {object} entity.Response	"ok"
 // @Success 404 {object} views.ErrView
 // @Router /v1/resources/{id} [delete]
 func delete(service service.Service) gin.HandlerFunc {

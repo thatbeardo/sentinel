@@ -135,6 +135,7 @@ package main
 
 import (
 	handler "github.com/bithippie/guard-my-app/sentinel/api/handlers"
+	authorizations "github.com/bithippie/guard-my-app/sentinel/api/handlers/authorization"
 	"github.com/bithippie/guard-my-app/sentinel/api/handlers/grants"
 	"github.com/bithippie/guard-my-app/sentinel/api/handlers/permissions"
 	"github.com/bithippie/guard-my-app/sentinel/api/handlers/policies"
@@ -152,6 +153,10 @@ import (
 	resourceRepository "github.com/bithippie/guard-my-app/sentinel/models/resource/repository"
 	resourceService "github.com/bithippie/guard-my-app/sentinel/models/resource/service"
 	resourceSession "github.com/bithippie/guard-my-app/sentinel/models/resource/session"
+
+	authorizationRepository "github.com/bithippie/guard-my-app/sentinel/models/authorization/repository"
+	authorizationService "github.com/bithippie/guard-my-app/sentinel/models/authorization/service"
+	authorizationSession "github.com/bithippie/guard-my-app/sentinel/models/authorization/session"
 	"github.com/bithippie/guard-my-app/sentinel/server"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -168,15 +173,19 @@ func main() {
 
 	permissionSession := permissionSession.NewNeo4jSession(runner)
 	permissionRepository := permissionRepository.New(permissionSession)
-	permissionService := permissionService.NewService(permissionRepository)
+	permissionService := permissionService.New(permissionRepository)
 
 	policiesSession := policySession.NewNeo4jSession(runner)
 	policyRepository := policyRepository.New(policiesSession)
-	policyService := policyService.NewService(policyRepository)
+	policyService := policyService.New(policyRepository)
 
 	grantSession := grantSession.NewNeo4jSession(runner)
 	grantRepository := grantRepository.New(grantSession)
 	grantService := grantService.NewService(grantRepository)
+
+	authorizationSession := authorizationSession.NewNeo4jSession(runner)
+	authorizationRepository := authorizationRepository.New(authorizationSession)
+	authorizationService := authorizationService.New(authorizationRepository)
 
 	engine := gin.Default()
 
@@ -186,7 +195,7 @@ func main() {
 	permissions.Routes(router, permissionService)
 	policies.Routes(router, policyService)
 	grants.Routes(router, grantService)
-
+	authorizations.Routes(router, authorizationService)
 	server.Orchestrate(engine, shutdown)
 }
 

@@ -1,12 +1,12 @@
-package inputs
+package policy
 
-// Payload is the payload that a POST endpoint expects.
-type Payload struct {
-	Data *PolicyDetails `json:"data" binding:"required,dive"`
+// Input is the payload that a POST endpoint expects.
+type Input struct {
+	Data *InputDetails `json:"data" binding:"required,dive"`
 }
 
-// PolicyDetails is the paylaod sent when creating a new resource
-type PolicyDetails struct {
+// InputDetails is the paylaod sent when creating a new resource
+type InputDetails struct {
 	Type       string      `json:"type" binding:"required"`
 	Attributes *Attributes `json:"attributes" binding:"required,dive"`
 }

@@ -4,15 +4,9 @@ import (
 	"net/http"
 
 	"github.com/bithippie/guard-my-app/sentinel/api/views"
-	input "github.com/bithippie/guard-my-app/sentinel/models/policy/inputs"
-	"github.com/bithippie/guard-my-app/sentinel/models/policy/outputs"
+	policy "github.com/bithippie/guard-my-app/sentinel/models/policy/dto"
 	"github.com/bithippie/guard-my-app/sentinel/models/policy/service"
 	"github.com/gin-gonic/gin"
-)
-
-var (
-	_ = input.Payload{}
-	_ = outputs.Response{}
 )
 
 // @Summary Create a new Policy
@@ -20,22 +14,22 @@ var (
 // @Tags Policies
 // @Accept  json
 // @Produce  json
-// @Param input body inputs.Payload true "Policy to be created"
-// @Success 202 {object} outputs.Policy	"ok"
+// @Param input body policy.Input true "Policy to be created"
+// @Success 202 {object} policy.OutputDetails	"ok"
 // @Failure 500 {object} views.ErrView	"ok"
 // @Router /v1/policies [post]
 func post(service service.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var resourceInput input.Payload
-		if err := c.ShouldBind(&resourceInput); err != nil {
+		var input policy.Input
+		if err := c.ShouldBind(&input); err != nil {
 			views.Wrap(err, c)
 			return
 		}
-		resourceResponse, err := service.Create(&resourceInput)
+		response, err := service.Create(&input)
 		if err != nil {
 			views.Wrap(err, c)
 			return
 		}
-		c.JSON(http.StatusAccepted, resourceResponse)
+		c.JSON(http.StatusAccepted, response)
 	}
 }

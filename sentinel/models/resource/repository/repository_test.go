@@ -4,9 +4,9 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/bithippie/guard-my-app/sentinel/mocks/data"
-	entity "github.com/bithippie/guard-my-app/sentinel/models/resource"
+	resource "github.com/bithippie/guard-my-app/sentinel/models/resource/dto"
 	"github.com/bithippie/guard-my-app/sentinel/models/resource/repository"
+	"github.com/bithippie/guard-my-app/sentinel/models/resource/testdata"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -17,14 +17,14 @@ var getStatement = `
 		MATCH(child:Resource)
 		OPTIONAL MATCH (child: Resource)-[:OWNED_BY]->(parent: Resource)
 		OPTIONAL MATCH (policy: Policy)-[:GRANTED_TO]->(child: Resource)
-		RETURN {child: child, parent: parent, policy: policy}`
+		RETURN {child: child, parent: parent, policy: COLLECT(policy)}`
 
 var getByIDStatement = `
 		MATCH(child:Resource)
 		WHERE child.id = $id
 		OPTIONAL MATCH (child: Resource)-[:OWNED_BY]->(parent: Resource)
 		OPTIONAL MATCH (policy: Policy)-[:GRANTED_TO]->(child: Resource)
-		RETURN {child: child, parent: parent, policy: policy}`
+		RETURN {child: child, parent: parent, policy: COLLECT(policy)}`
 
 var createStatement = `
 		CREATE(child:Resource{name:$name, source_id: $source_id, id: randomUUID()})
@@ -58,14 +58,14 @@ var deleteStatement = `
 		MATCH (n:Resource { id: $id }) DETACH DELETE n`
 
 type mockSession struct {
-	ExecuteResponse   entity.Response
+	ExecuteResponse   resource.Output
 	ExecuteErr        error
 	ExpectedStatement string
 	ExpectedParameter map[string]interface{}
 	t                 *testing.T
 }
 
-func (m mockSession) Execute(statement string, parameters map[string]interface{}) (entity.Response, error) {
+func (m mockSession) Execute(statement string, parameters map[string]interface{}) (resource.Output, error) {
 	assert.Equal(m.t, m.ExpectedStatement, statement)
 	assert.Equal(m.t, m.ExpectedParameter, parameters)
 	return m.ExecuteResponse, m.ExecuteErr
@@ -73,14 +73,14 @@ func (m mockSession) Execute(statement string, parameters map[string]interface{}
 
 func TestGet_SessionReturnsResponse_NoErrors(t *testing.T) {
 	session := mockSession{
-		ExecuteResponse:   data.Response,
+		ExecuteResponse:   testdata.Output,
 		ExpectedStatement: getStatement,
 		ExpectedParameter: map[string]interface{}{},
 		t:                 t,
 	}
 	repository := repository.New(session)
 	response, err := repository.Get()
-	assert.Equal(t, data.Response, response)
+	assert.Equal(t, testdata.Output, response)
 	assert.Nil(t, err)
 }
 
@@ -98,7 +98,7 @@ func TestGet_SessionReturnsError_ReturnsError(t *testing.T) {
 
 func TestGetByID_SessionReturnsResponse_NoErrors(t *testing.T) {
 	session := mockSession{
-		ExecuteResponse:   data.Response,
+		ExecuteResponse:   testdata.Output,
 		ExpectedStatement: getByIDStatement,
 		ExpectedParameter: map[string]interface{}{
 			"id": "test-id",
@@ -107,7 +107,7 @@ func TestGetByID_SessionReturnsResponse_NoErrors(t *testing.T) {
 	}
 	repository := repository.New(session)
 	response, err := repository.GetByID("test-id")
-	assert.Equal(t, data.Response.Data[0], response)
+	assert.Equal(t, testdata.ModificationResult, response)
 	assert.Nil(t, err)
 }
 
@@ -127,7 +127,7 @@ func TestGetByID_SessionReturnsError_ReturnsError(t *testing.T) {
 
 func TestCreate_SessionReturnsResponse_NoErrors(t *testing.T) {
 	session := mockSession{
-		ExecuteResponse:   data.Response,
+		ExecuteResponse:   testdata.Output,
 		ExpectedStatement: createStatement,
 		ExpectedParameter: map[string]interface{}{
 			"name":      "test-resource",
@@ -137,8 +137,8 @@ func TestCreate_SessionReturnsResponse_NoErrors(t *testing.T) {
 		t: t,
 	}
 	repository := repository.New(session)
-	response, err := repository.Create(data.Input)
-	assert.Equal(t, data.Response.Data[0], response)
+	response, err := repository.Create(testdata.Input)
+	assert.Equal(t, testdata.ModificationResult, response)
 	assert.Nil(t, err)
 }
 
@@ -154,13 +154,13 @@ func TestCreate_SessionReturnsError_ReturnsError(t *testing.T) {
 		t: t,
 	}
 	repository := repository.New(session)
-	_, err := repository.Create(data.Input)
+	_, err := repository.Create(testdata.Input)
 	assert.Equal(t, errNotFound, err)
 }
 
 func TestUpdate_NewParentProvidedSessionReturnsResponse_NoErrors(t *testing.T) {
 	session := mockSession{
-		ExecuteResponse:   data.Response,
+		ExecuteResponse:   testdata.Output,
 		ExpectedStatement: updateStatementNewParent,
 		ExpectedParameter: map[string]interface{}{
 			"child_id":      "test-id",
@@ -171,14 +171,14 @@ func TestUpdate_NewParentProvidedSessionReturnsResponse_NoErrors(t *testing.T) {
 		t: t,
 	}
 	repository := repository.New(session)
-	response, err := repository.Update(data.Element, data.Input)
-	assert.Equal(t, data.Response.Data[0], response)
+	response, err := repository.Update(testdata.Output.Data[0], testdata.Input)
+	assert.Equal(t, testdata.ModificationResult, response)
 	assert.Nil(t, err)
 }
 
 func TestUpdate_ParentAbsentSessionReturnsError_ReturnsError(t *testing.T) {
 	session := mockSession{
-		ExecuteResponse:   data.Response,
+		ExecuteResponse:   testdata.Output,
 		ExpectedStatement: updateStatementOldParent,
 		ExpectedParameter: map[string]interface{}{
 			"child_id":      "test-id",
@@ -189,8 +189,8 @@ func TestUpdate_ParentAbsentSessionReturnsError_ReturnsError(t *testing.T) {
 		t: t,
 	}
 	repository := repository.New(session)
-	response, err := repository.Update(data.ElementWithoutParent, data.InputRelationshipsAbsent)
-	assert.Equal(t, data.Response.Data[0], response)
+	response, err := repository.Update(testdata.OutputWithoutParent.Data[0], testdata.InputWithoutRelationship)
+	assert.Equal(t, testdata.ModificationResult, response)
 	assert.Nil(t, err)
 }
 
@@ -207,13 +207,13 @@ func TestUpdate_SessionReturnsError_ReturnsError(t *testing.T) {
 		t: t,
 	}
 	repository := repository.New(session)
-	_, err := repository.Update(data.ElementWithoutParent, data.InputRelationshipsAbsent)
+	_, err := repository.Update(testdata.OutputWithoutParent.Data[0], testdata.InputWithoutRelationship)
 	assert.Equal(t, errNotFound, err)
 }
 
 func TestDelete_SessionReturnsResponse_ReturnsNoErrors(t *testing.T) {
 	session := mockSession{
-		ExecuteResponse:   data.Response,
+		ExecuteResponse:   testdata.Output,
 		ExpectedStatement: deleteStatement,
 		ExpectedParameter: map[string]interface{}{
 			"id": "test-id",

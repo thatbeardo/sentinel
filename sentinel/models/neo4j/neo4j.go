@@ -40,6 +40,7 @@ func New(session neo4j.Session) Runner {
 
 func (n neo4jSession) Run(statement string, parameters map[string]interface{}) (data []map[string]interface{}, err error) {
 	result, err := n.session.Run(statement, parameters)
+	fmt.Println(statement)
 	data = []map[string]interface{}{}
 
 	if err != nil {

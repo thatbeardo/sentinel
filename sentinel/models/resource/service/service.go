@@ -1,16 +1,16 @@
 package service
 
 import (
-	entity "github.com/bithippie/guard-my-app/sentinel/models/resource"
+	resource "github.com/bithippie/guard-my-app/sentinel/models/resource/dto"
 	"github.com/bithippie/guard-my-app/sentinel/models/resource/repository"
 )
 
 // Service receives commands from handlers and forwards them to the repository
 type Service interface {
-	Get() (entity.Response, error)
-	GetByID(string) (entity.Element, error)
-	Create(*entity.Input) (entity.Element, error)
-	Update(string, *entity.Input) (entity.Element, error)
+	Get() (resource.Output, error)
+	GetByID(string) (resource.OutputDetails, error)
+	Create(*resource.Input) (resource.OutputDetails, error)
+	Update(string, *resource.Input) (resource.OutputDetails, error)
 	Delete(string) error
 }
 
@@ -23,38 +23,38 @@ func NewService(repository repository.Repository) Service {
 	return &service{repository: repository}
 }
 
-func (service *service) Get() (entity.Response, error) {
+func (service *service) Get() (resource.Output, error) {
 	return service.repository.Get()
 }
 
-func (service *service) GetByID(id string) (entity.Element, error) {
+func (service *service) GetByID(id string) (resource.OutputDetails, error) {
 	return service.repository.GetByID(id)
 }
 
-func (service *service) Update(id string, resource *entity.Input) (entity.Element, error) {
+func (service *service) Update(id string, input *resource.Input) (resource.OutputDetails, error) {
 	child, err := service.repository.GetByID(id)
 	if err != nil {
-		return entity.Element{}, err
+		return resource.OutputDetails{}, err
 	}
 
-	if resource.Data.Relationships != nil {
-		_, err = service.repository.GetByID(resource.Data.Relationships.Parent.Data.ID)
+	if input.Data.Relationships != nil {
+		_, err = service.repository.GetByID(input.Data.Relationships.Parent.Data.ID)
 		if err != nil {
-			return entity.Element{}, err
+			return resource.OutputDetails{}, err
 		}
 	}
 
-	return service.repository.Update(child, resource)
+	return service.repository.Update(child.Data, input)
 }
 
-func (service *service) Create(resource *entity.Input) (entity.Element, error) {
-	if resource.Data.Relationships != nil {
-		_, err := service.repository.GetByID(resource.Data.Relationships.Parent.Data.ID)
+func (service *service) Create(input *resource.Input) (resource.OutputDetails, error) {
+	if input.Data.Relationships != nil {
+		_, err := service.repository.GetByID(input.Data.Relationships.Parent.Data.ID)
 		if err != nil {
-			return entity.Element{}, err
+			return resource.OutputDetails{}, err
 		}
 	}
-	return service.repository.Create(resource)
+	return service.repository.Create(input)
 }
 
 func (service *service) Delete(id string) error {

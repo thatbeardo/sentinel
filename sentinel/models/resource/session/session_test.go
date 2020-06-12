@@ -4,30 +4,13 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/bithippie/guard-my-app/sentinel/mocks/data"
+	"github.com/bithippie/guard-my-app/sentinel/mocks"
 	models "github.com/bithippie/guard-my-app/sentinel/models"
 	"github.com/bithippie/guard-my-app/sentinel/models/injection"
 	"github.com/bithippie/guard-my-app/sentinel/models/resource/session"
+	"github.com/bithippie/guard-my-app/sentinel/models/resource/testdata"
 	"github.com/stretchr/testify/assert"
 )
-
-type mockNode struct {
-	id     int64
-	labels []string
-	props  map[string]interface{}
-}
-
-func (m mockNode) Id() int64 {
-	return m.id
-}
-
-func (m mockNode) Labels() []string {
-	return m.labels
-}
-
-func (m mockNode) Props() map[string]interface{} {
-	return m.props
-}
 
 type mockNeo4jSession struct {
 	RunResponse []map[string]interface{}
@@ -51,13 +34,24 @@ func TestExecute_DecodeFails_ReturnDatabaseError(t *testing.T) {
 	defer injection.Reset()
 	var errDecoding = errors.New("some-decoder-error")
 
-	injection.MapDecoder = func(interface{}, interface{}) error { return errDecoding }
+	injection.NodeDecoder = func(map[string]interface{}, string, interface{}) error { return errDecoding }
 	session := session.NewNeo4jSession(mockNeo4jSession{
 		RunResponse: generateValidResultMap(),
 	})
 
 	_, err := session.Execute(`cypher-query`, map[string]interface{}{})
 	assert.Equal(t, errDecoding, err)
+}
+
+func TestExecute_PolicyDecodeFails_ReturnDatabaseError(t *testing.T) {
+	result := generateValidResultMap()
+	result[0]["policy"] = "invalid-policy"
+	session := session.NewNeo4jSession(mockNeo4jSession{
+		RunResponse: result,
+	})
+
+	_, err := session.Execute(`cypher-query`, map[string]interface{}{})
+	assert.Equal(t, models.ErrDatabase, err)
 }
 
 func TestExecute_NoErrorsFromDB_ReturnResponse(t *testing.T) {
@@ -67,7 +61,7 @@ func TestExecute_NoErrorsFromDB_ReturnResponse(t *testing.T) {
 
 	response, err := session.Execute(`cypher-query`, map[string]interface{}{})
 
-	assert.Equal(t, data.ResponseWithoutPolicies, response)
+	assert.Equal(t, testdata.Output, response)
 	assert.Nil(t, err)
 }
 
@@ -77,7 +71,7 @@ func TestExecute_DatabaseReturnsNoResources_EmptyResourcesArrayReturned(t *testi
 	})
 
 	response, err := session.Execute(`cypher-query`, map[string]interface{}{})
-	assert.Equal(t, data.EmptyResponse, response)
+	assert.Equal(t, testdata.EmptyOutput, response)
 	assert.Nil(t, err)
 }
 
@@ -95,23 +89,27 @@ func TestExecute_ParentDecodeFails_ReturnError(t *testing.T) {
 
 func generateValidResultMap() []map[string]interface{} {
 	result := map[string]interface{}{
-		"child": mockNode{
-			id:     1,
-			labels: []string{"Resource"},
-			props: map[string]interface{}{
+		"child": mocks.NewNode(1,
+			[]string{"Resource"},
+			map[string]interface{}{
 				"id":        "test-id",
 				"name":      "test-resource",
 				"source_id": "test-source-id",
-			},
-		},
-		"parent": mockNode{
-			id:     2,
-			labels: []string{"Resource"},
-			props: map[string]interface{}{
+			}),
+		"parent": mocks.NewNode(
+			2,
+			[]string{"Resource"},
+			map[string]interface{}{
 				"id":        "parent-id",
 				"name":      "parent",
 				"source_id": "parent-source-id",
-			},
+			}),
+		"policy": []interface{}{mocks.NewNode(2,
+			[]string{"Resource"},
+			map[string]interface{}{
+				"id":   "policy-id",
+				"name": "policy",
+			}),
 		},
 	}
 	return []map[string]interface{}{result}

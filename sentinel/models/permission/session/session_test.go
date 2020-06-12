@@ -4,41 +4,14 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/bithippie/guard-my-app/sentinel/mocks"
 	models "github.com/bithippie/guard-my-app/sentinel/models"
 	"github.com/bithippie/guard-my-app/sentinel/models/injection"
-	"github.com/bithippie/guard-my-app/sentinel/models/permission/outputs"
+	permission "github.com/bithippie/guard-my-app/sentinel/models/permission/dto"
 	"github.com/bithippie/guard-my-app/sentinel/models/permission/session"
 	"github.com/bithippie/guard-my-app/sentinel/models/permission/testdata"
 	"github.com/stretchr/testify/assert"
 )
-
-type mockRelationship struct {
-	id      int64
-	startId int64
-	endId   int64
-	relType string
-	props   map[string]interface{}
-}
-
-func (m mockRelationship) Id() int64 {
-	return m.id
-}
-
-func (m mockRelationship) StartId() int64 {
-	return m.startId
-}
-
-func (m mockRelationship) EndId() int64 {
-	return m.endId
-}
-
-func (m mockRelationship) Type() string {
-	return m.relType
-}
-
-func (m mockRelationship) Props() map[string]interface{} {
-	return m.props
-}
 
 type mockNeo4jSession struct {
 	RunResponse []map[string]interface{}
@@ -64,7 +37,7 @@ func TestExecute_DatabaseReturnsNoPermissions_EmptyResourcesArrayReturned(t *tes
 	})
 
 	response, err := session.Execute(`cypher-query`, map[string]interface{}{})
-	assert.Equal(t, outputs.Response{Data: []outputs.Permission{}}, response)
+	assert.Equal(t, permission.Output{Data: []permission.Details{}}, response)
 	assert.Nil(t, err)
 }
 
@@ -72,7 +45,7 @@ func TestExecute_DecodeFails_ReturnDatabaseError(t *testing.T) {
 	defer injection.Reset()
 	var errDecoding = errors.New("some-decoder-error")
 
-	injection.MapDecoder = func(interface{}, interface{}) error { return errDecoding }
+	injection.EdgeDecoder = func(map[string]interface{}, string, interface{}) error { return errDecoding }
 	session := session.NewNeo4jSession(mockNeo4jSession{
 		RunResponse: generateValidResultMap(),
 	})
@@ -93,27 +66,24 @@ func TestExecute_DecodeFailsDuringCast_ReturnDatabaseError(t *testing.T) {
 }
 
 func TestExecute_NoErrorsFromDB_ReturnResponse(t *testing.T) {
+
 	session := session.NewNeo4jSession(mockNeo4jSession{
 		RunResponse: generateValidResultMap(),
 	})
 
 	response, err := session.Execute(`cypher-query`, map[string]interface{}{})
 
-	assert.Equal(t, testdata.Response, response)
+	assert.Equal(t, testdata.Output, response)
 	assert.Nil(t, err)
 }
 
 func generateValidResultMap() []map[string]interface{} {
 	result := map[string]interface{}{
-		"permission": mockRelationship{
-			id:      1,
-			relType: "Permission",
-			props: map[string]interface{}{
-				"id":        "test-id",
-				"name":      "test-permission",
-				"permitted": "allow",
-			},
-		},
+		"permission": mocks.NewRelationship(1, 0, 0, "Permission", map[string]interface{}{
+			"id":        "test-id",
+			"name":      "test-permission",
+			"permitted": "allow",
+		}),
 	}
 	return []map[string]interface{}{result}
 }

@@ -2,15 +2,14 @@ package session
 
 import (
 	models "github.com/bithippie/guard-my-app/sentinel/models"
-	"github.com/bithippie/guard-my-app/sentinel/models/grant/inputs"
-	"github.com/bithippie/guard-my-app/sentinel/models/grant/outputs"
+	grant "github.com/bithippie/guard-my-app/sentinel/models/grant/dto"
 	"github.com/bithippie/guard-my-app/sentinel/models/injection"
 	"github.com/bithippie/guard-my-app/sentinel/models/neo4j"
 )
 
 // Session interface defines methods needed to communicate/execute queries and a cleanup function when everything is done
 type Session interface {
-	Execute(statement string, parameters map[string]interface{}) (response outputs.Response, err error)
+	Execute(statement string, parameters map[string]interface{}) (response grant.Output, err error)
 }
 
 type session struct {
@@ -24,59 +23,94 @@ func NewNeo4jSession(neo4jsession neo4j.Runner) Session {
 	}
 }
 
-type relationship struct {
+type edge struct {
 	ID        string `mapstructure:"id"`
-	Name      string `mapstructure:"name"`
 	WithGrant bool   `mapstructure:"with_grant"`
 }
 
+type resource struct {
+	ID       string `mapstructure:"id"`
+	Name     string `mapstructure:"name"`
+	SourceID string `mapstructure:"source_id"`
+}
+
+type policy struct {
+	ID   string `mapstructure:"id"`
+	Name string `mapstructure:"name"`
+}
+
 // Execute runs the statement passed as a query and populates the data parameter with result
-func (n session) Execute(statement string, parameters map[string]interface{}) (response outputs.Response, err error) {
+func (n session) Execute(statement string, parameters map[string]interface{}) (output grant.Output, err error) {
 	results, err := n.session.Run(statement, parameters)
-	grants := []outputs.Grant{}
+	grants := []grant.Details{}
 
 	if err != nil {
-		return outputs.Response{}, models.ErrDatabase
+		return grant.Output{}, models.ErrDatabase
 	}
 	if len(results) == 0 {
-		response = outputs.Response{Data: grants}
+		output = grant.Output{Data: grants}
 		return
 	}
 
-	var grant relationship
 	for _, result := range results {
-		err = decodeField(result, "grant", &grant)
+		var grant edge
+		err = injection.EdgeDecoder(result, "grant", &grant)
 		if err != nil {
 			return
 		}
-		grants = append(grants, generateGrant(grant.ID, grant.Name, grant.WithGrant))
-	}
 
-	response = outputs.Response{Data: grants}
-	return
-}
-
-func decodeField(results map[string]interface{}, field string, target interface{}) (err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err = models.ErrDatabase
+		var policy policy
+		err = injection.NodeDecoder(result, "policy", &policy)
+		if err != nil {
+			return
 		}
-	}()
-	if results[field] != nil {
-		node := results[field].(neo4j.Relationship)
-		err = injection.MapDecoder(node.Props(), &target)
+
+		var principal resource
+		err = injection.NodeDecoder(result, "principal", &principal)
+		if err != nil {
+			return
+		}
+
+		relationships := generateRelationships(policy.ID, principal.ID)
+		grants = append(grants, generateGrant(grant.ID, grant.WithGrant, relationships))
 	}
+
+	output = grant.Output{Data: grants}
 	return
 }
 
-func generateGrant(id string, name string, withGrant bool) (permission outputs.Grant) {
-	return outputs.Grant{
-		GrantDetails: inputs.GrantDetails{
+func generateRelationships(policyID, principalID string) grant.Relationships {
+	// TODO:
+	// Generate relationship only if ID is non-empty
+	policy := grant.Relationship{
+		Data: grant.Data{
+			Type: "policy",
+			ID:   policyID,
+		},
+	}
+
+	principal := grant.Relationship{
+		Data: grant.Data{
+			Type: "resource",
+			ID:   principalID,
+		},
+	}
+
+	return grant.Relationships{
+		Principal: &principal,
+		Policy:    &policy,
+	}
+}
+
+func generateGrant(id string, withGrant bool, relationships grant.Relationships) grant.Details {
+	return grant.Details{
+		InputDetails: grant.InputDetails{
 			Type: "grant",
-			Attributes: &inputs.Attributes{
+			Attributes: &grant.Attributes{
 				WithGrant: withGrant,
 			},
 		},
-		ID: id,
+		Relationships: relationships,
+		ID:            id,
 	}
 }

@@ -4,41 +4,14 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/bithippie/guard-my-app/sentinel/mocks"
 	models "github.com/bithippie/guard-my-app/sentinel/models"
-	"github.com/bithippie/guard-my-app/sentinel/models/grant/outputs"
+	grant "github.com/bithippie/guard-my-app/sentinel/models/grant/dto"
 	"github.com/bithippie/guard-my-app/sentinel/models/grant/session"
 	"github.com/bithippie/guard-my-app/sentinel/models/grant/testdata"
 	"github.com/bithippie/guard-my-app/sentinel/models/injection"
 	"github.com/stretchr/testify/assert"
 )
-
-type mockRelationship struct {
-	id      int64
-	startId int64
-	endId   int64
-	relType string
-	props   map[string]interface{}
-}
-
-func (m mockRelationship) Id() int64 {
-	return m.id
-}
-
-func (m mockRelationship) StartId() int64 {
-	return m.startId
-}
-
-func (m mockRelationship) EndId() int64 {
-	return m.endId
-}
-
-func (m mockRelationship) Type() string {
-	return m.relType
-}
-
-func (m mockRelationship) Props() map[string]interface{} {
-	return m.props
-}
 
 type mockNeo4jSession struct {
 	RunResponse []map[string]interface{}
@@ -64,7 +37,7 @@ func TestExecute_DatabaseReturnsNoGrants_EmptyResourcesArrayReturned(t *testing.
 	})
 
 	response, err := session.Execute(`cypher-query`, map[string]interface{}{})
-	assert.Equal(t, outputs.Response{Data: []outputs.Grant{}}, response)
+	assert.Equal(t, grant.Output{Data: []grant.Details{}}, response)
 	assert.Nil(t, err)
 }
 
@@ -72,7 +45,7 @@ func TestExecute_DecodeFails_ReturnDatabaseError(t *testing.T) {
 	defer injection.Reset()
 	var errDecoding = errors.New("some-decoder-error")
 
-	injection.MapDecoder = func(interface{}, interface{}) error { return errDecoding }
+	injection.NodeDecoder = func(map[string]interface{}, string, interface{}) error { return errDecoding }
 	session := session.NewNeo4jSession(mockNeo4jSession{
 		RunResponse: generateValidResultMap(),
 	})
@@ -99,20 +72,46 @@ func TestExecute_NoErrorsFromDB_ReturnResponse(t *testing.T) {
 
 	response, err := session.Execute(`cypher-query`, map[string]interface{}{})
 
-	assert.Equal(t, testdata.Response, response)
+	assert.Equal(t, testdata.Output, response)
 	assert.Nil(t, err)
+}
+
+func TestExecute_DecodePolicyNodeFails_ReturnInternalServerError(t *testing.T) {
+	result := generateValidResultMap()
+	result[0]["policy"] = "invalid-data"
+	session := session.NewNeo4jSession(mockNeo4jSession{
+		RunResponse: result,
+	})
+
+	_, err := session.Execute(`cypher-query`, map[string]interface{}{})
+
+	assert.Equal(t, models.ErrDatabase, err)
+}
+
+func TestExecute_DecodePrincipalNodeFails_ReturnInternalServerError(t *testing.T) {
+	result := generateValidResultMap()
+	result[0]["principal"] = "invalid-data"
+	session := session.NewNeo4jSession(mockNeo4jSession{
+		RunResponse: result,
+	})
+
+	_, err := session.Execute(`cypher-query`, map[string]interface{}{})
+
+	assert.Equal(t, models.ErrDatabase, err)
 }
 
 func generateValidResultMap() []map[string]interface{} {
 	result := map[string]interface{}{
-		"grant": mockRelationship{
-			id:      1,
-			relType: "Grant",
-			props: map[string]interface{}{
-				"id":         "test-grant-id",
-				"with_grant": true,
-			},
-		},
+		"grant": mocks.NewRelationship(1, 0, 0, "Grant", map[string]interface{}{
+			"id":         "test-grant-id",
+			"with_grant": true,
+		}),
+		"policy": mocks.NewNode(1, []string{"Policy"}, map[string]interface{}{
+			"id": "policy-id",
+		}),
+		"principal": mocks.NewNode(1, []string{"Resource"}, map[string]interface{}{
+			"id": "resource-id",
+		}),
 	}
 	return []map[string]interface{}{result}
 }

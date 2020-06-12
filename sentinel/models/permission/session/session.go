@@ -4,13 +4,12 @@ import (
 	models "github.com/bithippie/guard-my-app/sentinel/models"
 	"github.com/bithippie/guard-my-app/sentinel/models/injection"
 	"github.com/bithippie/guard-my-app/sentinel/models/neo4j"
-	"github.com/bithippie/guard-my-app/sentinel/models/permission/inputs"
-	"github.com/bithippie/guard-my-app/sentinel/models/permission/outputs"
+	permission "github.com/bithippie/guard-my-app/sentinel/models/permission/dto"
 )
 
 // Session interface defines methods needed to communicate/execute queries and a cleanup function when everything is done
 type Session interface {
-	Execute(statement string, parameters map[string]interface{}) (response outputs.Response, err error)
+	Execute(string, map[string]interface{}) (permission.Output, error)
 }
 
 type session struct {
@@ -31,49 +30,36 @@ type relationship struct {
 }
 
 // Execute runs the statement passed as a query and populates the data parameter with result
-func (n session) Execute(statement string, parameters map[string]interface{}) (response outputs.Response, err error) {
+func (n session) Execute(statement string, parameters map[string]interface{}) (output permission.Output, err error) {
 	results, err := n.session.Run(statement, parameters)
-	permissions := []outputs.Permission{}
+	permissions := []permission.Details{}
 
 	if err != nil {
-		return outputs.Response{}, models.ErrDatabase
+		return permission.Output{}, models.ErrDatabase
 	}
 	if len(results) == 0 {
-		response = outputs.Response{Data: permissions}
+		output = permission.Output{Data: permissions}
 		return
 	}
 
-	var permission relationship
 	for _, result := range results {
-		err = decodeField(result, "permission", &permission)
+		var permission relationship
+		err = injection.EdgeDecoder(result, "permission", &permission)
 		if err != nil {
 			return
 		}
 		permissions = append(permissions, generatePermission(permission.ID, permission.Name, permission.Permitted))
 	}
 
-	response = outputs.Response{Data: permissions}
+	output = permission.Output{Data: permissions}
 	return
 }
 
-func decodeField(results map[string]interface{}, field string, target interface{}) (err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err = models.ErrDatabase
-		}
-	}()
-	if results[field] != nil {
-		node := results[field].(neo4j.Relationship)
-		err = injection.MapDecoder(node.Props(), &target)
-	}
-	return
-}
-
-func generatePermission(id string, name string, permitted string) (permission outputs.Permission) {
-	return outputs.Permission{
-		PermissionDetails: inputs.PermissionDetails{
+func generatePermission(id string, name string, permitted string) permission.Details {
+	return permission.Details{
+		InputDetails: permission.InputDetails{
 			Type: "permission",
-			Attributes: &inputs.Attributes{
+			Attributes: &permission.Attributes{
 				Name:      name,
 				Permitted: permitted,
 			},

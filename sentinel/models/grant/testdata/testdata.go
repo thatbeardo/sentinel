@@ -1,31 +1,52 @@
 package testdata
 
 import (
-	"github.com/bithippie/guard-my-app/sentinel/models/grant/inputs"
-	"github.com/bithippie/guard-my-app/sentinel/models/grant/outputs"
+	grant "github.com/bithippie/guard-my-app/sentinel/models/grant/dto"
 )
 
-// Response represent mock data being sent back to the caller
-var Response = outputs.Response{
-	Data: []outputs.Grant{grant},
+// Output represent mock data being sent back to the caller
+var Output = grant.Output{
+	Data: []grant.Details{Details},
 }
 
-// Payload represents the data sent by the user as input
-var Payload = &inputs.Payload{
-	Data: inputs.GrantDetails{
+// Input represents the data sent by the user as input
+var Input = &grant.Input{
+	Data: grant.InputDetails{
 		Type: "grant",
-		Attributes: &inputs.Attributes{
+		Attributes: &grant.Attributes{
 			WithGrant: true,
 		},
 	},
 }
 
-var grant = outputs.Grant{
-	GrantDetails: inputs.GrantDetails{
+// Details is a mock response of a single grant
+var Details = grant.Details{
+	InputDetails: grant.InputDetails{
 		Type: "grant",
-		Attributes: &inputs.Attributes{
+		Attributes: &grant.Attributes{
 			WithGrant: true,
 		},
 	},
-	ID: "test-grant-id",
+	Relationships: relationships,
+	ID:            "test-grant-id",
+}
+
+// OutputDetails is a mock response of a single grant
+var OutputDetails = grant.OutputDetails{
+	Data: Details,
+}
+
+var relationships = grant.Relationships{
+	Policy: &grant.Relationship{
+		Data: grant.Data{
+			Type: "policy",
+			ID:   "policy-id",
+		},
+	},
+	Principal: &grant.Relationship{
+		Data: grant.Data{
+			Type: "resource",
+			ID:   "resource-id",
+		},
+	},
 }

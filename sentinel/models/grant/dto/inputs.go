@@ -1,12 +1,12 @@
-package inputs
+package grant
 
-// Payload represent the data sent from the user to create a permission
-type Payload struct {
-	Data GrantDetails `json:"data" binding:"required"`
+// Input represent the data sent from the user to create a permission
+type Input struct {
+	Data InputDetails `json:"data" binding:"required"`
 }
 
-// GrantDetails represents whether a policy has access to a resource
-type GrantDetails struct {
+// InputDetails represents whether a policy has access to a resource
+type InputDetails struct {
 	Type       string      `json:"type" binding:"required"`
 	Attributes *Attributes `json:"attributes" binding:"required,dive"`
 }
