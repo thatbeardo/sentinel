@@ -1,13 +1,10 @@
 {
-  "cSpell.words": [
-    "borales",
-    "chrislennon",
-    "codecov",
-    "hashicorp",
-    "jsession",
-    "stretchr",
-    "swaggo",
-    "thatbeardo",
-    "uuid"
-  ]
+    "terraform.languageServer": {
+        "enabled": true,
+        "args": []
+    },
+    "terraform.indexing": {
+        "enabled": false,
+        "liveIndexing": false
+    }
 }

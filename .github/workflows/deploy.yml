@@ -30,7 +30,7 @@ jobs:
     #     ECR_REPOSITORY: sentinel-community
     #     IMAGE_TAG: ${{ github.sha }}
     #   run: |
-    #     cd sentinel
+    #     cd apis
     #     docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
     #     docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
     #     echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"

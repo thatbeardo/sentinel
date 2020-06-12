@@ -1,0 +1,16 @@
+codecov:
+  require_ci_to_pass: yes
+
+coverage:
+  status:
+    project:
+      default:
+        target: 100%
+        threshold: 100%
+        base: auto 
+        branches: 
+          - master
+        if_not_found: success
+        if_ci_failed: error
+        informational: false
+        only_pulls: false
