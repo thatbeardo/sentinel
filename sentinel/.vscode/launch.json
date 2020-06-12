@@ -14,9 +14,9 @@
             "env": {
                 "HOST": "localhost",
                 "PORT": 8080,
-                "DB_URI": "bolt://neo4jdevelopment:7687",
+                "DB_URI": "bolt://localhost:7687",
                 "USERNAME": "",
-                "PASSWORD":"",
+                "PASSWORD": "",
             },
             "args": []
         }

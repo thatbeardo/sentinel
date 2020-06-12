@@ -4,39 +4,39 @@ import (
 	"net/http"
 	"testing"
 
-	m "github.com/stretchr/testify/mock"
 	"github.com/bithippie/guard-my-app/sentinel/api/views"
-	"github.com/bithippie/guard-my-app/sentinel/mocks"
-	"github.com/bithippie/guard-my-app/sentinel/server"
+	models "github.com/bithippie/guard-my-app/sentinel/models"
+	"github.com/bithippie/guard-my-app/sentinel/models/resource/testdata"
 	"github.com/bithippie/guard-my-app/sentinel/testutil"
 )
 
 func TestPatchResourceOk(t *testing.T) {
-	mockService := &mocks.Service{}
-	mockService.On("Update", "test-id", m.AnythingOfType("*entity.Input")).Return(createResourceNoErrors())
+	mockService := mockService{
+		UpdateResponse: testdata.ModificationResult,
+	}
 
-	router := server.SetupRouter(mockService)
+	router := setupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "PATCH", "/v1/resources/test-id", noErrors)
 	defer cleanup()
 
-	testutil.ValidateResponse(t, response, generateElement(), http.StatusAccepted)
+	testutil.ValidateResponse(t, response, testdata.ModificationResult, http.StatusAccepted)
 }
 
 func TestPatchResourceDatabaseError(t *testing.T) {
-	mockService := &mocks.Service{}
-	mockService.On("Update", "test-id", m.AnythingOfType("*entity.Input")).Return(databaseError())
+	mockService := mockService{
+		UpdateErr: models.ErrDatabase,
+	}
 
-	router := server.SetupRouter(mockService)
+	router := setupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "PATCH", "/v1/resources/test-id", noErrors)
 	defer cleanup()
 
-	testutil.ValidateResponse(t, response, generateError("/v1/resources/:id", "query-parameter-todo", "Database Error", http.StatusInternalServerError), http.StatusInternalServerError)
+	testutil.ValidateResponse(t, response, testutil.GenerateError("/v1/resources/:id", "query-parameter-todo", "Database Error", http.StatusInternalServerError), http.StatusInternalServerError)
 }
 
 func TestPatchResourcesSourceIdBlank(t *testing.T) {
-	mockService := &mocks.Service{}
-
-	router := server.SetupRouter(mockService)
+	mockService := mockService{}
+	router := setupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "PATCH", "/v1/resources/test-id", sourceIdBlank)
 	defer cleanup()
 

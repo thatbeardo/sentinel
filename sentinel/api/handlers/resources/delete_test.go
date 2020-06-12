@@ -4,17 +4,14 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-	"github.com/bithippie/guard-my-app/sentinel/mocks"
 	models "github.com/bithippie/guard-my-app/sentinel/models"
-	"github.com/bithippie/guard-my-app/sentinel/server"
 	"github.com/bithippie/guard-my-app/sentinel/testutil"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestDeleteResourcesOk(t *testing.T) {
-	mockService := &mocks.Service{}
-	mockService.On("Delete", "test-id").Return(nil)
-	router := server.SetupRouter(mockService)
+	mockService := mockService{}
+	router := setupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "DELETE", "/v1/resources/test-id", "")
 	defer cleanup()
 
@@ -22,9 +19,10 @@ func TestDeleteResourcesOk(t *testing.T) {
 }
 
 func TestDeleteResourcesServiceError(t *testing.T) {
-	mockService := &mocks.Service{}
-	mockService.On("Delete", "test-id").Return(models.ErrDatabase)
-	router := server.SetupRouter(mockService)
+	mockService := mockService{
+		DeleteErr: models.ErrDatabase,
+	}
+	router := setupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "DELETE", "/v1/resources/test-id", "")
 	defer cleanup()
 

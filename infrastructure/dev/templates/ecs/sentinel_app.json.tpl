@@ -7,6 +7,8 @@
     "networkMode": "awsvpc",
     "environment": [
       {"name": "DB_URI", "value": "bolt://${db_uri}:7687"},
+      {"name": "USERNAME", "value": "${username}"},
+      {"name": "PASSWORD", "value": "${password}"},
       {"name": "HOST", "value": "${host}"},
       {"name": "PORT", "value": "${app_port}"}
     ],

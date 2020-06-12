@@ -2,16 +2,16 @@ package repository
 
 import (
 	models "github.com/bithippie/guard-my-app/sentinel/models"
-	entity "github.com/bithippie/guard-my-app/sentinel/models/resource"
+	resource "github.com/bithippie/guard-my-app/sentinel/models/resource/dto"
 	"github.com/bithippie/guard-my-app/sentinel/models/resource/session"
 )
 
 // Repository is used by the service to communicate with the underlying database
 type Repository interface {
-	Get() (entity.Response, error)
-	GetByID(string) (entity.Element, error)
-	Create(*entity.Input) (entity.Element, error)
-	Update(entity.Element, *entity.Input) (entity.Element, error)
+	Get() (resource.Output, error)
+	GetByID(string) (resource.OutputDetails, error)
+	Create(*resource.Input) (resource.OutputDetails, error)
+	Update(resource.Details, *resource.Input) (resource.OutputDetails, error)
 	Delete(string) error
 }
 
@@ -20,37 +20,39 @@ type repository struct {
 }
 
 // Get retrieves all the resources present in the graph
-func (repo *repository) Get() (entity.Response, error) {
+func (repo *repository) Get() (resource.Output, error) {
 	return repo.session.Execute(`
 		MATCH(child:Resource)
 		OPTIONAL MATCH (child: Resource)-[:OWNED_BY]->(parent: Resource)
-		RETURN {child: child, parent: parent}`,
+		OPTIONAL MATCH (policy: Policy)-[:GRANTED_TO]->(child: Resource)
+		RETURN {child: child, parent: parent, policy: COLLECT(policy)}`,
 		map[string]interface{}{})
 }
 
 // GetByID function adds a resource node
-func (repo *repository) GetByID(id string) (entity.Element, error) {
-	elements, err := repo.session.Execute(`
+func (repo *repository) GetByID(id string) (resource.OutputDetails, error) {
+	results, err := repo.session.Execute(`
 		MATCH(child:Resource)
 		WHERE child.id = $id
 		OPTIONAL MATCH (child: Resource)-[:OWNED_BY]->(parent: Resource)
-		RETURN {child: child, parent: parent}`,
+		OPTIONAL MATCH (policy: Policy)-[:GRANTED_TO]->(child: Resource)
+		RETURN {child: child, parent: parent, policy: COLLECT(policy)}`,
 		map[string]interface{}{
 			"id": id,
 		})
-	if len(elements.Data) == 0 {
-		return entity.Element{}, models.ErrNotFound
+	if len(results.Data) == 0 {
+		return resource.OutputDetails{}, models.ErrNotFound
 	}
-	return elements.Data[0], err
+	return resource.OutputDetails{Data: results.Data[0]}, err
 }
 
 // Create function adds a node to the graph
-func (repo *repository) Create(resource *entity.Input) (entity.Element, error) {
+func (repo *repository) Create(input *resource.Input) (resource.OutputDetails, error) {
 	var parentID string
-	if resource.Data.Relationships != nil {
-		parentID = resource.Data.Relationships.Parent.Data.ID
+	if input.Data.Relationships != nil {
+		parentID = input.Data.Relationships.Parent.Data.ID
 	}
-	elements, err := repo.session.Execute(`
+	results, err := repo.session.Execute(`
 		CREATE(child:Resource{name:$name, source_id: $source_id, id: randomUUID()})
 		WITH child
 		OPTIONAL MATCH(parent:Resource{id:$parent_id})
@@ -58,31 +60,31 @@ func (repo *repository) Create(resource *entity.Input) (entity.Element, error) {
 		FOREACH (o IN CASE WHEN parent IS NOT NULL THEN [parent] ELSE [] END | CREATE (child)-[:OWNED_BY]->(parent))
 		RETURN {child: child, parent: parent}`,
 		map[string]interface{}{
-			"name":      resource.Data.Attributes.Name,
-			"source_id": resource.Data.Attributes.SourceID,
+			"name":      input.Data.Attributes.Name,
+			"source_id": input.Data.Attributes.SourceID,
 			"parent_id": parentID,
 		})
-	if len(elements.Data) == 0 {
-		return entity.Element{}, models.ErrNotFound
+	if len(results.Data) == 0 {
+		return resource.OutputDetails{}, models.ErrNotFound
 	}
-	return elements.Data[0], err
+	return resource.OutputDetails{Data: results.Data[0]}, err
 }
 
 // Update function Edits the contents of a node
-func (repo *repository) Update(oldResource entity.Element, newResource *entity.Input) (entity.Element, error) {
+func (repo *repository) Update(oldResource resource.Details, newResource *resource.Input) (resource.OutputDetails, error) {
 	newParentID := extractParentID(newResource)
 	statement := generateUpdateStatement(newParentID)
-	elements, err := repo.session.Execute(statement,
+	results, err := repo.session.Execute(statement,
 		map[string]interface{}{
 			"child_id":      oldResource.ID,
 			"name":          newResource.Data.Attributes.Name,
 			"source_id":     newResource.Data.Attributes.SourceID,
 			"new_parent_id": newParentID,
 		})
-	if len(elements.Data) == 0 {
-		return entity.Element{}, models.ErrNotFound
+	if len(results.Data) == 0 {
+		return resource.OutputDetails{}, models.ErrNotFound
 	}
-	return elements.Data[0], err
+	return resource.OutputDetails{Data: results.Data[0]}, err
 }
 
 // Delete function deletes a node from the graph
@@ -102,7 +104,7 @@ func New(session session.Session) Repository {
 	}
 }
 
-func extractParentID(newResource *entity.Input) string {
+func extractParentID(newResource *resource.Input) string {
 	var parentID string
 	if newResource.Data.Relationships != nil {
 		parentID = newResource.Data.Relationships.Parent.Data.ID

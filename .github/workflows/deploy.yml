@@ -23,46 +23,43 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
     
-    - name: Build, tag, and push image to Amazon ECR
-      id: build-image
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: sentinel-community
-        IMAGE_TAG: ${{ github.sha }}
-      run: |
-        cd sentinel
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-        echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+    # - name: Build, tag, and push image to Amazon ECR
+    #   id: build-image
+    #   env:
+    #     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+    #     ECR_REPOSITORY: sentinel-community
+    #     IMAGE_TAG: ${{ github.sha }}
+    #   run: |
+    #     cd sentinel
+    #     docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+    #     docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+    #     echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v1
 
-    - name: Terraform Apply
-      id: terraform-apply
-      run: |
-            cd infrastructure/dev
-            terraform init
-            
-            terraform plan
-            terraform apply -var 'app_image=${{ steps.build-image.outputs.image }}' -auto-approve
-            echo "::set-env name=WEBSITE_BUCKET_ARN::$(terraform output website_bucket_arn)"
+    # - name: Terraform Apply
+    #   id: terraform-apply
+    #   run: |
+    #     cd infrastructure/dev
+    #     terraform init
+    #     terraform plan
+    #     terraform apply -var 'app_image=${{ steps.build-image.outputs.image }}' -auto-approve
+    #     terraform output website_bucket_id
     
     - name: Install Yarn
       uses: borales/actions-yarn@v2.1.0
-    
+
     - name: Install AWS CLI
       uses: chrislennon/action-aws-cli@v1.1
     
     - name: Build Website
       run: |
-          cd app
-          yarn install
-          yarn build
+        cd app
+        yarn install
+        yarn build
           
-    - name: Deploy Website
-      run: |
-          cd app
-          aws s3 cp build/ $WEBSITE_BUCKET_ARN
-
-
+    # - name: Deploy Website
+    #   run: |
+    #     cd app
+    #     aws s3 sync ./build/ s3://${{ steps.terraform-apply.outputs.stdout }}

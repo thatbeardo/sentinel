@@ -3,10 +3,10 @@ package resources
 import (
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"github.com/bithippie/guard-my-app/sentinel/api/views"
-	entity "github.com/bithippie/guard-my-app/sentinel/models/resource"
+	resource "github.com/bithippie/guard-my-app/sentinel/models/resource/dto"
 	"github.com/bithippie/guard-my-app/sentinel/models/resource/service"
+	"github.com/gin-gonic/gin"
 )
 
 // @Summary Update a resource by it's ID
@@ -15,23 +15,23 @@ import (
 // @Accept  json
 // @Produce  json
 // @Param id path string true "Resource ID"
-// @Param input body entity.Input true "Resource to be created"
-// @Success 204 {object} entity.Response	"ok"
+// @Param input body resource.Input true "Resource to be created"
+// @Success 204 {object} resource.Output	"ok"
 // @Success 404 {object} views.ErrView
 // @Router /v1/resources/{id} [patch]
 func patch(service service.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id := c.Param("id")
-		var resourceInput entity.Input
-		if err := c.ShouldBind(&resourceInput); err != nil {
+		var input resource.Input
+		if err := c.ShouldBind(&input); err != nil {
 			views.Wrap(err, c)
 			return
 		}
-		resourceResponse, err := service.Update(id, &resourceInput)
+		resource, err := service.Update(id, &input)
 		if err != nil {
 			views.Wrap(err, c)
 			return
 		}
-		c.JSON(http.StatusAccepted, resourceResponse)
+		c.JSON(http.StatusAccepted, resource)
 	}
 }
