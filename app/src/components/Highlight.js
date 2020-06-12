@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 
-import hljs from "highlight.js/lib/highlight";
+import hljs from "highlight.js";
 import "highlight.js/styles/monokai-sublime.css";
 
 const registeredLanguages = {};
