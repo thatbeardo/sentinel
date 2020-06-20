@@ -17,9 +17,9 @@ RUN cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_LIBDIR=lib .. && cmake --
 WORKDIR /go/src/app
 ADD sentinel/ /go/src/app
 
-# Install Dependencies
+# Install Sentinel
 RUN go get -d -v ./...
 RUN go install -v ./...
 RUN make swagger
 
-CMD ["go", "run", "main.go"]
+CMD ["sh", "-c", "$GOPATH/bin/sentinel"]

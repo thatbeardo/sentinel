@@ -19,6 +19,7 @@ import (
 // @Param input body grant.Input true "Details about the Grant to be added"
 // @Success 204 {object} grant.Output	"ok"
 // @Success 404 {object} views.ErrView
+// @Security ApiKeyAuth
 // @Router /v1/grants/resources/{resource_id}/policies/{policy_id} [put]
 func put(service service.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {

@@ -130,6 +130,11 @@
 // @description
 // @description ### Getting Started
 // @description Review the [Getting Started Guide](http://localhost:3000/documentation/GettingStarted.md) for minimal setup instructions
+//
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
+//
 // @BasePath /
 package main
 
@@ -140,6 +145,7 @@ import (
 	"github.com/bithippie/guard-my-app/apis/sentinel/api/handlers/permissions"
 	"github.com/bithippie/guard-my-app/apis/sentinel/api/handlers/policies"
 	"github.com/bithippie/guard-my-app/apis/sentinel/api/handlers/resources"
+	"github.com/bithippie/guard-my-app/apis/sentinel/api/middleware"
 	grantRepository "github.com/bithippie/guard-my-app/apis/sentinel/models/grant/repository"
 	grantService "github.com/bithippie/guard-my-app/apis/sentinel/models/grant/service"
 	grantSession "github.com/bithippie/guard-my-app/apis/sentinel/models/grant/session"
@@ -190,12 +196,14 @@ func main() {
 	engine := gin.Default()
 
 	router := server.GenerateRouter(engine)
+	router.Use(middleware.VerifyToken())
 
 	resources.Routes(router, resourceService)
 	permissions.Routes(router, permissionService)
 	policies.Routes(router, policyService)
 	grants.Routes(router, grantService)
 	authorizations.Routes(router, authorizationService)
+
 	server.Orchestrate(engine, shutdown)
 }
 

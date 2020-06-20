@@ -17,6 +17,7 @@ import (
 // @Param input body policy.Input true "Policy to be created"
 // @Success 202 {object} policy.OutputDetails	"ok"
 // @Failure 500 {object} views.ErrView	"ok"
+// @Security ApiKeyAuth
 // @Router /v1/policies [post]
 func post(service service.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {

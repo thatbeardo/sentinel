@@ -19,6 +19,7 @@ import (
 // @Param input body permission.Input true "Details about the permission to be added"
 // @Success 204 {object} permission.OutputDetails	"ok"
 // @Success 404 {object} views.ErrView
+// @Security ApiKeyAuth
 // @Router /v1/permissions/{policy_id}/resources/{resource_id} [put]
 func put(service service.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {

@@ -18,6 +18,7 @@ import (
 // @Param input body policy.Input true "New name to be assigned to an existing policy"
 // @Success 204 {object} policy.OutputDetails	"ok"
 // @Success 404 {object} views.ErrView
+// @Security ApiKeyAuth
 // @Router /v1/policies/{id} [patch]
 func patch(service service.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {

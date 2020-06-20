@@ -16,6 +16,7 @@ import (
 // @Param policy_id path string true "Policy ID"
 // @Success 200 {object} permission.Output	"ok"
 // @Success 500 {object} views.ErrView
+// @Security ApiKeyAuth
 // @Router /v1/permissions/{policy_id}/resources [get]
 func getAllPermissionsForAPolicy(service service.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -38,6 +39,7 @@ func getAllPermissionsForAPolicy(service service.Service) gin.HandlerFunc {
 // @Param resource_id path string true "Resource ID"
 // @Success 200 {object} permission.Output	"ok"
 // @Success 500 {object} views.ErrView
+// @Security ApiKeyAuth
 // @Router /v1/permissions/{policy_id}/resources/{resource_id} [get]
 func getAllPermissionsForAPolicyWithResource(service service.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {

@@ -16,6 +16,7 @@ import (
 // @Param resource_id path string true "Resource ID"
 // @Success 200 {object} grant.Output	"ok"
 // @Success 500 {object} views.ErrView
+// @Security ApiKeyAuth
 // @Router /v1/grants/resources/{resource_id} [get]
 func getPrincipalsAndPoliciesForResource(service service.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {

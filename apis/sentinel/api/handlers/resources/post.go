@@ -17,6 +17,7 @@ import (
 // @Param input body resource.Input true "Resource to be created"
 // @Success 202 {object} resource.OutputDetails	"ok"
 // @Failure 500 {object} views.ErrView	"ok"
+// @Security ApiKeyAuth
 // @Router /v1/resources [post]
 func post(service service.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {

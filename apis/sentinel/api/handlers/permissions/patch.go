@@ -18,6 +18,7 @@ import (
 // @Param input body permission.Input true "New name to be assigned to an existing permission"
 // @Success 202 {object} permission.OutputDetails	"ok"
 // @Success 404 {object} views.ErrView
+// @Security ApiKeyAuth
 // @Router /v1/permissions/{id} [patch]
 func patch(service service.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {

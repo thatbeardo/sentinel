@@ -18,6 +18,7 @@ import (
 // @Param input body resource.Input true "Resource to be created"
 // @Success 204 {object} resource.Output	"ok"
 // @Success 404 {object} views.ErrView
+// @Security ApiKeyAuth
 // @Router /v1/resources/{id} [patch]
 func patch(service service.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {

@@ -23,6 +23,7 @@ import (
 // @Param include_denied query boolean false "Include permissions that have deny permit fields set" default(false)
 // @Success 200 {object} authorization.Output	"ok"
 // @Success 500 {object} views.ErrView
+// @Security ApiKeyAuth
 // @Router /v1/principal/{principal_id}/authorization [get]
 func getAuthorizationForPrincipal(service service.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {

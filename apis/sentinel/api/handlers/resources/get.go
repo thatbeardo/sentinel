@@ -15,6 +15,7 @@ import (
 // @Produce  json
 // @Success 200 {object} resource.Output	"ok"
 // @Success 500 {object} views.ErrView
+// @Security ApiKeyAuth
 // @Router /v1/resources [get]
 func get(service service.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
