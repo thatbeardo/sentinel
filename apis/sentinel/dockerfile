@@ -17,17 +17,9 @@ RUN cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_LIBDIR=lib .. && cmake --
 WORKDIR /go/src/app
 ADD . /go/src/app
 
-<<<<<<< Updated upstream
 # Install Sentinel
-=======
-# Install Dependencies
->>>>>>> Stashed changes
 RUN go get -d -v ./...
 RUN go install -v ./...
 RUN make swagger
 
-<<<<<<< Updated upstream
 CMD ["sh", "-c", "$GOPATH/bin/sentinel"]
-=======
-CMD ["go", "run", "main.go"]
->>>>>>> Stashed changes
