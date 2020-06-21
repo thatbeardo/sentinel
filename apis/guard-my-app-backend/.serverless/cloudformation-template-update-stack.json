@@ -192,7 +192,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/guard-my-app-backend/dev/1592091107069-2020-06-13T23:31:47.069Z/guard-my-app-backend.zip"
+          "S3Key": "serverless/guard-my-app-backend/dev/1592755121178-2020-06-21T15:58:41.178Z/guard-my-app-backend.zip"
         },
         "FunctionName": "guard-my-app-backend-dev-clients_create",
         "Handler": "bin/clients",
@@ -298,7 +298,7 @@
         "MethodResponses": []
       }
     },
-    "ApiGatewayDeployment1592091103983": {
+    "ApiGatewayDeployment1592755118973": {
       "Type": "AWS::ApiGateway::Deployment",
       "Properties": {
         "RestApiId": {
@@ -456,7 +456,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/guard-my-app-backend/dev/1592091107069-2020-06-13T23:31:47.069Z/custom-resources.zip"
+          "S3Key": "serverless/guard-my-app-backend/dev/1592755121178-2020-06-21T15:58:41.178Z/custom-resources.zip"
         },
         "FunctionName": "guard-my-app-backend-dev-custom-resource-apigw-cw-role",
         "Handler": "apiGatewayCloudWatchRole/handler.handler",
