@@ -30,6 +30,11 @@ var doc = `{
     "paths": {
         "/v1/grants/resources/{resource_id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Shows all Principal access to Target Resources managed through a Policy",
                 "consumes": [
                     "application/json"
@@ -68,6 +73,11 @@ var doc = `{
         },
         "/v1/grants/resources/{resource_id}/policies/{policy_id}": {
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create a grant for a policy on a resource",
                 "consumes": [
                     "application/json"
@@ -122,6 +132,11 @@ var doc = `{
         },
         "/v1/permissions/{id}": {
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Delete a permission by its ID",
                 "consumes": [
                     "application/json"
@@ -152,6 +167,11 @@ var doc = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Update Permission Details.",
                 "consumes": [
                     "application/json"
@@ -199,6 +219,11 @@ var doc = `{
         },
         "/v1/permissions/{policy_id}/resources": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "List all Permissions for all Target Resources in Policy.",
                 "consumes": [
                     "application/json"
@@ -237,6 +262,11 @@ var doc = `{
         },
         "/v1/permissions/{policy_id}/resources/{resource_id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "List all permissions for a policy for a given target",
                 "consumes": [
                     "application/json"
@@ -280,6 +310,11 @@ var doc = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create a permission for a policy on a resource",
                 "consumes": [
                     "application/json"
@@ -334,6 +369,11 @@ var doc = `{
         },
         "/v1/policies": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get all the Policies stored",
                 "consumes": [
                     "application/json"
@@ -361,6 +401,11 @@ var doc = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Add a new Policy to existing Policies",
                 "consumes": [
                     "application/json"
@@ -443,6 +488,11 @@ var doc = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Delete a policy by its ID",
                 "consumes": [
                     "application/json"
@@ -473,6 +523,11 @@ var doc = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Update Polciy name.",
                 "consumes": [
                     "application/json"
@@ -520,6 +575,11 @@ var doc = `{
         },
         "/v1/principal/{principal_id}/authorization": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Shows all the permissions this principal has to provided target resources",
                 "consumes": [
                     "application/json"
@@ -590,6 +650,11 @@ var doc = `{
         },
         "/v1/resources": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get all the resources stored",
                 "consumes": [
                     "application/json"
@@ -617,6 +682,11 @@ var doc = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Add a new resource to existing resources",
                 "consumes": [
                     "application/json"
@@ -729,6 +799,11 @@ var doc = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Update resource name, sourceID, parent, etc",
                 "consumes": [
                     "application/json"
@@ -1330,6 +1405,13 @@ var doc = `{
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`
