@@ -18,6 +18,7 @@ const withGrantFieldAbsent = `{"data":{"type":"grant","attributes":{}}}`
 
 type mockService struct {
 	GetAuthorizationForPrincipalResponse authorization.Output
+	IsTargetOwnedByTenantResponse        bool
 	ExpectedInput                        authorization.Input
 	Err                                  error
 	t                                    *testing.T
@@ -26,6 +27,10 @@ type mockService struct {
 func (m mockService) GetAuthorizationForPrincipal(principalID string, input authorization.Input) (output authorization.Output, err error) {
 	assert.Equal(m.t, m.ExpectedInput, input)
 	return m.GetAuthorizationForPrincipalResponse, m.Err
+}
+
+func (m mockService) IsTargetOwnedByTenant(string, string) bool {
+	return m.IsTargetOwnedByTenantResponse
 }
 
 func setupRouter(s service.Service) *gin.Engine {

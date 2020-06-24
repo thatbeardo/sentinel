@@ -11,7 +11,7 @@ import (
 
 // Session interface defines methods needed to communicate/execute queries and a cleanup function when everything is done
 type Session interface {
-	Execute(string, map[string]interface{}, authorization.Input) (authorization.Output, error)
+	Execute(string, map[string]interface{}) (authorization.Output, error)
 }
 
 type session struct {
@@ -26,7 +26,7 @@ func NewNeo4jSession(neo4jsession neo4j.Runner) Session {
 }
 
 // Execute runs the statement passed as a query and populates the data parameter with result
-func (n session) Execute(statement string, parameters map[string]interface{}, input authorization.Input) (output authorization.Output, err error) {
+func (n session) Execute(statement string, parameters map[string]interface{}) (output authorization.Output, err error) {
 
 	results, err := n.session.Run(statement, parameters)
 
@@ -39,7 +39,7 @@ func (n session) Execute(statement string, parameters map[string]interface{}, in
 		return
 	}
 
-	details, err := generateOutputData(results, input)
+	details, err := generateOutputData(results)
 	if err != nil {
 		err = models.ErrDatabase
 		return
@@ -66,7 +66,7 @@ func decodeEdges(results map[string]interface{}, field string) (permissions []pe
 	return
 }
 
-func generateOutputData(results []map[string]interface{}, input authorization.Input) (details []authorization.Details, err error) {
+func generateOutputData(results []map[string]interface{}) (details []authorization.Details, err error) {
 
 	for _, result := range results {
 		var target target

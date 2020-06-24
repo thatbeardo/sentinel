@@ -80,13 +80,14 @@ func decodeResources(results map[string]interface{}, field string) (resources *p
 	}()
 
 	var data = []policy.Resource{}
+	resources = &policy.Relationship{Data: data}
 	if results[field] != nil {
 		for _, node := range results[field].([]interface{}) {
 			var resource = resource{}
 			injection.MapDecoder(node.(neo4j.Node).Props(), &resource)
 			data = append(data, policy.Resource{Type: "resource", ID: resource.ID})
 		}
-		resources = &policy.Relationship{Data: data}
+		resources.Data = data
 	}
 	return
 }

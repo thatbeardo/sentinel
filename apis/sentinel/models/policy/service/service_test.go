@@ -46,23 +46,6 @@ func (m mockRepository) Delete(string) error {
 
 var errTest = errors.New("test-error")
 
-func TestGet_RepositoryReturnsError_ErrorReturned(t *testing.T) {
-	repository := mockRepository{Err: errTest}
-	service := service.New(repository)
-
-	_, err := service.Get()
-	assert.Equal(t, errTest, err)
-}
-
-func TestGet_RepositoryReturnsResponse_ResponseReturned(t *testing.T) {
-	repository := mockRepository{GetResponse: testdata.Output}
-	service := service.New(repository)
-
-	policy, err := service.Get()
-	assert.Equal(t, testdata.Output, policy)
-	assert.Nil(t, err)
-}
-
 func TestGetByID_RepositoryReturnsError_ErrorReturned(t *testing.T) {
 	repository := mockRepository{Err: errTest}
 	service := service.New(repository)
@@ -78,23 +61,6 @@ func TestGetByID_RepositoryReturnsResponse_ResponseReturned(t *testing.T) {
 	service := service.New(repository)
 
 	policy, err := service.GetByID("test-id")
-	assert.Equal(t, testdata.OutputDetails, policy)
-	assert.Nil(t, err)
-}
-
-func TestCreate_RepositoryReturnsError_ErrorReturned(t *testing.T) {
-	repository := mockRepository{Err: errTest}
-	service := service.New(repository)
-
-	_, err := service.Create(testdata.Input)
-	assert.Equal(t, errTest, err)
-}
-
-func TestCreate_RepositoryReturnsResponse_ResponseReturned(t *testing.T) {
-	repository := mockRepository{CreateResponse: testdata.OutputDetails}
-	service := service.New(repository)
-
-	policy, err := service.Create(testdata.Input)
 	assert.Equal(t, testdata.OutputDetails, policy)
 	assert.Nil(t, err)
 }

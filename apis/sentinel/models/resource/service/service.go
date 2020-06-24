@@ -1,6 +1,9 @@
 package service
 
 import (
+	"context"
+
+	policy "github.com/bithippie/guard-my-app/apis/sentinel/models/policy/dto"
 	resource "github.com/bithippie/guard-my-app/apis/sentinel/models/resource/dto"
 	"github.com/bithippie/guard-my-app/apis/sentinel/models/resource/repository"
 )
@@ -9,7 +12,9 @@ import (
 type Service interface {
 	Get() (resource.Output, error)
 	GetByID(string) (resource.OutputDetails, error)
-	Create(*resource.Input) (resource.OutputDetails, error)
+	Create(context.Context, *resource.Input) (resource.OutputDetails, error)
+	AssociatePolicy(string, *policy.Input) (policy.OutputDetails, error)
+	GetAllAssociatedPolicies(string) (policy.Output, error)
 	Update(string, *resource.Input) (resource.OutputDetails, error)
 	Delete(string) error
 }
@@ -18,8 +23,8 @@ type service struct {
 	repository repository.Repository
 }
 
-// NewService creates a service instance with the repository passed
-func NewService(repository repository.Repository) Service {
+// New creates a service instance with the repository passed
+func New(repository repository.Repository) Service {
 	return &service{repository: repository}
 }
 
@@ -47,14 +52,16 @@ func (service *service) Update(id string, input *resource.Input) (resource.Outpu
 	return service.repository.Update(child.Data, input)
 }
 
-func (service *service) Create(input *resource.Input) (resource.OutputDetails, error) {
-	if input.Data.Relationships != nil {
-		_, err := service.repository.GetByID(input.Data.Relationships.Parent.Data.ID)
-		if err != nil {
-			return resource.OutputDetails{}, err
-		}
-	}
-	return service.repository.Create(input)
+func (service *service) AssociatePolicy(principalID string, input *policy.Input) (policy.OutputDetails, error) {
+	return service.repository.AssociatePolicy(principalID, input)
+}
+
+func (service *service) GetAllAssociatedPolicies(id string) (policy.Output, error) {
+	return service.repository.GetAllAssociatedPolicies(id)
+}
+
+func (service *service) Create(ctx context.Context, input *resource.Input) (resource.OutputDetails, error) {
+	return service.repository.Create(ctx, input)
 }
 
 func (service *service) Delete(id string) error {

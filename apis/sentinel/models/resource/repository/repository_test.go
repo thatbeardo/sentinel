@@ -1,10 +1,16 @@
 package repository_test
 
 import (
+	"context"
 	"errors"
 	"testing"
 
+	"github.com/bithippie/guard-my-app/apis/sentinel/mocks"
+	policy "github.com/bithippie/guard-my-app/apis/sentinel/mocks/policy"
+	models "github.com/bithippie/guard-my-app/apis/sentinel/models"
+	policyTestData "github.com/bithippie/guard-my-app/apis/sentinel/models/policy/testdata"
 	resource "github.com/bithippie/guard-my-app/apis/sentinel/models/resource/dto"
+	"github.com/bithippie/guard-my-app/apis/sentinel/models/resource/injection"
 	"github.com/bithippie/guard-my-app/apis/sentinel/models/resource/repository"
 	"github.com/bithippie/guard-my-app/apis/sentinel/models/resource/testdata"
 	"github.com/stretchr/testify/assert"
@@ -26,13 +32,17 @@ var getByIDStatement = `
 		OPTIONAL MATCH (policy: Policy)-[:GRANTED_TO]->(child: Resource)
 		RETURN {child: child, parent: parent, policy: COLLECT(policy)}`
 
-var createStatement = `
-		CREATE(child:Resource{name:$name, source_id: $source_id, id: randomUUID()})
-		WITH child
-		OPTIONAL MATCH(parent:Resource{id:$parent_id})
-		WITH child,parent
-		FOREACH (o IN CASE WHEN parent IS NOT NULL THEN [parent] ELSE [] END | CREATE (child)-[:OWNED_BY]->(parent))
-		RETURN {child: child, parent: parent}`
+var createWithoutParentStatement = `
+		MATCH(tenant:Resource{source_id: $tenant_id})<-[:GRANTED_TO]-(policy:Policy)
+		WITH policy
+		CREATE (policy)-[:PERMISSION]->(child:Resource{name:$name, source_id:$source_id, id:randomUUID()})
+		RETURN {child:child}`
+
+var createWithParentStatement = `
+			MATCH (parent:Resource{id:$parent_id})
+			WITH parent
+			CREATE (child:Resource{name:$name, source_id:$source_id, id:randomUUID()})-[:OWNED_BY]->(parent)
+			RETURN {child:child, parent:parent}`
 
 var updateStatementNewParent = `
 		MATCH(child:Resource{id:$child_id})
@@ -53,6 +63,20 @@ var updateStatementOldParent = `
 		SET child.source_id=$source_id
 		WITH child
 		OPTIONAL MATCH (child)-[old_relationship:OWNED_BY]->(old_parent:Resource)RETURN {child: child, parent: old_parent}`
+
+var associatePolicyStatement = `
+		MATCH(principal:Resource{id: $principalID})
+		CREATE (principal)<-[:GRANTED_TO]-(policy:Policy{ name:$name, id:randomUUID() })
+		RETURN {policy: policy, principals: COLLECT(principal)}`
+
+var getAassociatedPoliciesStatement = `
+		MATCH (resource:Resource{id: $id}) 
+		WITH resource
+		MATCH(policy)-[:GRANTED_TO]->(resource)
+		WITH policy
+		OPTIONAL MATCH(policy)-[:PERMISSION]->(target:Resource)
+		OPTIONAL MATCH(policy)-[:GRANTED_TO]->(principal:Resource)
+		RETURN {policy:policy, principals:COLLECT(principal), targets:COLLECT(target)}`
 
 var deleteStatement = `
 		MATCH (n:Resource { id: $id }) DETACH DELETE n`
@@ -78,7 +102,7 @@ func TestGet_SessionReturnsResponse_NoErrors(t *testing.T) {
 		ExpectedParameter: map[string]interface{}{},
 		t:                 t,
 	}
-	repository := repository.New(session)
+	repository := repository.New(session, policy.Session{})
 	response, err := repository.Get()
 	assert.Equal(t, testdata.Output, response)
 	assert.Nil(t, err)
@@ -91,7 +115,7 @@ func TestGet_SessionReturnsError_ReturnsError(t *testing.T) {
 		ExpectedParameter: map[string]interface{}{},
 		t:                 t,
 	}
-	repository := repository.New(session)
+	repository := repository.New(session, policy.Session{})
 	_, err := repository.Get()
 	assert.Equal(t, errTest, err)
 }
@@ -105,7 +129,7 @@ func TestGetByID_SessionReturnsResponse_NoErrors(t *testing.T) {
 		},
 		t: t,
 	}
-	repository := repository.New(session)
+	repository := repository.New(session, policy.Session{})
 	response, err := repository.GetByID("test-id")
 	assert.Equal(t, testdata.ModificationResult, response)
 	assert.Nil(t, err)
@@ -120,41 +144,76 @@ func TestGetByID_SessionReturnsError_ReturnsError(t *testing.T) {
 		},
 		t: t,
 	}
-	repository := repository.New(session)
+	repository := repository.New(session, policy.Session{})
 	_, err := repository.GetByID("test-id")
 	assert.Equal(t, errNotFound, err)
 }
 
-func TestCreate_SessionReturnsResponse_NoErrors(t *testing.T) {
+func TestCreate_PayloadWithParentSessionReturnsResponse_NoErrors(t *testing.T) {
+	defer injection.Reset()
 	session := mockSession{
 		ExecuteResponse:   testdata.Output,
-		ExpectedStatement: createStatement,
+		ExpectedStatement: createWithParentStatement,
 		ExpectedParameter: map[string]interface{}{
 			"name":      "test-resource",
 			"source_id": "test-source-id",
 			"parent_id": "parent-id",
+			"tenant_id": "test-tenant",
 		},
 		t: t,
 	}
-	repository := repository.New(session)
-	response, err := repository.Create(testdata.Input)
+	injection.ExtractClaims = func(ctx context.Context, claim string) string {
+		return "test-tenant"
+	}
+
+	repository := repository.New(session, policy.Session{})
+	response, err := repository.Create(mocks.Context{}, testdata.Input)
+	assert.Equal(t, testdata.ModificationResult, response)
+	assert.Nil(t, err)
+}
+
+func TestCreate_PayloadWithoutParentSessionReturnsResponse_NoErrors(t *testing.T) {
+	defer injection.Reset()
+
+	session := mockSession{
+		ExecuteResponse:   testdata.Output,
+		ExpectedStatement: createWithoutParentStatement,
+		ExpectedParameter: map[string]interface{}{
+			"name":      "test-resource",
+			"source_id": "test-source-id",
+			"parent_id": "",
+			"tenant_id": "test-tenant",
+		},
+		t: t,
+	}
+	injection.ExtractClaims = func(ctx context.Context, claim string) string {
+		return "test-tenant"
+	}
+
+	repository := repository.New(session, policy.Session{})
+	response, err := repository.Create(mocks.Context{}, testdata.InputWithoutParent)
 	assert.Equal(t, testdata.ModificationResult, response)
 	assert.Nil(t, err)
 }
 
 func TestCreate_SessionReturnsError_ReturnsError(t *testing.T) {
+	defer injection.Reset()
+	injection.ExtractClaims = func(ctx context.Context, claim string) string {
+		return "test-tenant"
+	}
 	session := mockSession{
 		ExecuteErr:        errNotFound,
-		ExpectedStatement: createStatement,
+		ExpectedStatement: createWithParentStatement,
 		ExpectedParameter: map[string]interface{}{
 			"name":      "test-resource",
 			"source_id": "test-source-id",
 			"parent_id": "parent-id",
+			"tenant_id": "test-tenant",
 		},
 		t: t,
 	}
-	repository := repository.New(session)
-	_, err := repository.Create(testdata.Input)
+	repository := repository.New(session, policy.Session{})
+	_, err := repository.Create(mocks.Context{}, testdata.Input)
 	assert.Equal(t, errNotFound, err)
 }
 
@@ -170,7 +229,7 @@ func TestUpdate_NewParentProvidedSessionReturnsResponse_NoErrors(t *testing.T) {
 		},
 		t: t,
 	}
-	repository := repository.New(session)
+	repository := repository.New(session, policy.Session{})
 	response, err := repository.Update(testdata.Output.Data[0], testdata.Input)
 	assert.Equal(t, testdata.ModificationResult, response)
 	assert.Nil(t, err)
@@ -188,7 +247,7 @@ func TestUpdate_ParentAbsentSessionReturnsError_ReturnsError(t *testing.T) {
 		},
 		t: t,
 	}
-	repository := repository.New(session)
+	repository := repository.New(session, policy.Session{})
 	response, err := repository.Update(testdata.OutputWithoutParent.Data[0], testdata.InputWithoutRelationship)
 	assert.Equal(t, testdata.ModificationResult, response)
 	assert.Nil(t, err)
@@ -206,7 +265,7 @@ func TestUpdate_SessionReturnsError_ReturnsError(t *testing.T) {
 		},
 		t: t,
 	}
-	repository := repository.New(session)
+	repository := repository.New(session, policy.Session{})
 	_, err := repository.Update(testdata.OutputWithoutParent.Data[0], testdata.InputWithoutRelationship)
 	assert.Equal(t, errNotFound, err)
 }
@@ -220,7 +279,7 @@ func TestDelete_SessionReturnsResponse_ReturnsNoErrors(t *testing.T) {
 		},
 		t: t,
 	}
-	repository := repository.New(session)
+	repository := repository.New(session, policy.Session{})
 	err := repository.Delete("test-id")
 	assert.Nil(t, err)
 }
@@ -234,7 +293,70 @@ func TestDelete_SessionReturnsError_ReturnsNoErrors(t *testing.T) {
 		},
 		t: t,
 	}
-	repository := repository.New(session)
+	repository := repository.New(session, policy.Session{})
 	err := repository.Delete("test-id")
 	assert.Equal(t, errNotFound, err)
+}
+
+func TestAssociatePolicy_SessionReturnsError_ReturnError(t *testing.T) {
+	mockPolicySession := policy.Session{
+		ExecuteErr:        errNotFound,
+		ExecuteResponse:   policyTestData.Output,
+		ExpectedStatement: associatePolicyStatement,
+		ExpectedParameter: map[string]interface{}{
+			"principalID": "test-id",
+			"name":        "test-policy",
+		},
+		T: t,
+	}
+
+	repository := repository.New(mockSession{}, mockPolicySession)
+	_, err := repository.AssociatePolicy("test-id", policyTestData.Input)
+	assert.Equal(t, errNotFound, err)
+}
+
+func TestAssociatePolicy_SessionEmptyResults_ReturnError(t *testing.T) {
+	mockPolicySession := policy.Session{
+		ExpectedStatement: associatePolicyStatement,
+		ExpectedParameter: map[string]interface{}{
+			"principalID": "test-id",
+			"name":        "test-policy",
+		},
+		T: t,
+	}
+
+	repository := repository.New(mockSession{}, mockPolicySession)
+	_, err := repository.AssociatePolicy("test-id", policyTestData.Input)
+	assert.Equal(t, models.ErrDatabase, err)
+}
+
+func TestGetAllAssociatedPolicies_SessionReturnsError_ReturnError(t *testing.T) {
+	mockPolicySession := policy.Session{
+		ExecuteErr:        models.ErrDatabase,
+		ExpectedStatement: getAassociatedPoliciesStatement,
+		ExpectedParameter: map[string]interface{}{
+			"id": "test-id",
+		},
+		T: t,
+	}
+
+	repository := repository.New(mockSession{}, mockPolicySession)
+	_, err := repository.GetAllAssociatedPolicies("test-id")
+	assert.Equal(t, models.ErrDatabase, err)
+}
+
+func TestGetAllAssociatedPolicies_SessionReturnsData_ReturnData(t *testing.T) {
+	mockPolicySession := policy.Session{
+		ExecuteResponse:   policyTestData.Output,
+		ExpectedStatement: getAassociatedPoliciesStatement,
+		ExpectedParameter: map[string]interface{}{
+			"id": "test-id",
+		},
+		T: t,
+	}
+
+	repository := repository.New(mockSession{}, mockPolicySession)
+	response, err := repository.GetAllAssociatedPolicies("test-id")
+	assert.Nil(t, err)
+	assert.Equal(t, policyTestData.Output, response)
 }

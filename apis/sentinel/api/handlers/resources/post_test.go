@@ -5,9 +5,10 @@ import (
 	"testing"
 
 	"github.com/bithippie/guard-my-app/apis/sentinel/api/views"
+	errors "github.com/bithippie/guard-my-app/apis/sentinel/models"
 	models "github.com/bithippie/guard-my-app/apis/sentinel/models"
+	policyTestData "github.com/bithippie/guard-my-app/apis/sentinel/models/policy/testdata"
 	"github.com/bithippie/guard-my-app/apis/sentinel/models/resource/testdata"
-
 	"github.com/bithippie/guard-my-app/apis/sentinel/testutil"
 )
 
@@ -21,6 +22,13 @@ const relationshipsEmptyPayload = `{"data":{"type":"resource","attributes":{"sou
 const relationshipsParentDataAbsentPayload = `{"data":{"type":"resource","attributes":{"source_id":"test-id"},"relationships":{"parent":{"type":"resource"}}}}`
 const parentDataIDAbsentPayload = `{"data":{"type":"resource","attributes":{"source_id":"test-id"},"relationships":{"parent":{"data":{"type":"resource"}}}}}`
 const parentDataTypeAbsentPayload = `{"data":{"type":"resource","attributes":{"source_id":"test-id"},"relationships":{"parent":{"data":{"id":"test-id"}}}}}`
+
+const associatePolicyNoErrors = `{"data":{"type":"policy","attributes":{"name":"valid-request"}}}`
+const nameAbsentBadRequest = `{"data":{"type":"policy","attributes":{}}}`
+const attributeAbsentBadRequest = `{"data":{"type":"policy"}}`
+
+const typeAbsentBadRequest = `{"data":{"attributes":{"name":"valid-request"}}}`
+const dataAbsentBadRequest = `{"dayta":{"type":"policy","attributes":{"name":"valid-request"}}}`
 
 func TestPostResourcesOk(t *testing.T) {
 	mockService := mockService{
@@ -127,4 +135,108 @@ func TestPostResourceParentAbsentInDatabase(t *testing.T) {
 	defer cleanup()
 
 	testutil.ValidateResponse(t, response, views.GenerateErrorResponse(http.StatusNotFound, "Data not found", "/v1/resources/"), http.StatusNotFound)
+}
+
+func TestPost_AllParametersPresent_Returns200(t *testing.T) {
+	mockService := mockService{
+		AssociateResponse: policyTestData.OutputDetails,
+	}
+
+	router := setupRouter(mockService)
+	response, cleanup := testutil.PerformRequest(router, "POST", "/v1/resources/test-id/policies", associatePolicyNoErrors)
+	defer cleanup()
+
+	testutil.ValidateResponse(
+		t,
+		response,
+		policyTestData.OutputDetails,
+		http.StatusAccepted)
+}
+
+func TestPost_NameAttributeAbsent_Returns400(t *testing.T) {
+	mockService := mockService{
+		AssociateResponse: policyTestData.OutputDetails,
+	}
+
+	router := setupRouter(mockService)
+	response, cleanup := testutil.PerformRequest(router, "POST", "/v1/resources/test-id/policies", nameAbsentBadRequest)
+	defer cleanup()
+
+	testutil.ValidateResponse(
+		t,
+		response,
+		views.GenerateErrorResponse(
+			response.StatusCode,
+			"Key: 'Input.Data.Attributes.Name' Error:Field validation for 'Name' failed on the 'required' tag",
+			"/v1/resources/:id/policies"),
+		http.StatusBadRequest)
+}
+
+func TestPost_AttributeAbsent_Returns400(t *testing.T) {
+	mockService := mockService{
+		AssociateResponse: policyTestData.OutputDetails,
+	}
+
+	router := setupRouter(mockService)
+	response, cleanup := testutil.PerformRequest(router, "POST", "/v1/resources/test-id/policies", nameAbsentBadRequest)
+	defer cleanup()
+
+	testutil.ValidateResponse(
+		t,
+		response,
+		views.GenerateErrorResponse(
+			response.StatusCode,
+			"Key: 'Input.Data.Attributes.Name' Error:Field validation for 'Name' failed on the 'required' tag",
+			"/v1/resources/:id/policies"),
+		http.StatusBadRequest)
+}
+
+func TestPost_TypeAbsent_Returns400(t *testing.T) {
+	mockService := mockService{
+		AssociateResponse: policyTestData.OutputDetails,
+	}
+
+	router := setupRouter(mockService)
+	response, cleanup := testutil.PerformRequest(router, "POST", "/v1/resources/test-id/policies", typeAbsentBadRequest)
+	defer cleanup()
+
+	testutil.ValidateResponse(
+		t,
+		response,
+		views.GenerateErrorResponse(
+			response.StatusCode,
+			"Key: 'Input.Data.Type' Error:Field validation for 'Type' failed on the 'required' tag",
+			"/v1/resources/:id/policies"),
+		http.StatusBadRequest)
+}
+
+func TestPost_DataAbsent_Returns400(t *testing.T) {
+	mockService := mockService{
+		AssociateResponse: policyTestData.OutputDetails,
+	}
+
+	router := setupRouter(mockService)
+	response, cleanup := testutil.PerformRequest(router, "POST", "/v1/resources/test-id/policies", dataAbsentBadRequest)
+	defer cleanup()
+
+	testutil.ValidateResponse(
+		t,
+		response,
+		views.GenerateErrorResponse(
+			response.StatusCode,
+			"Key: 'Input.Data' Error:Field validation for 'Data' failed on the 'required' tag",
+			"/v1/resources/:id/policies"),
+		http.StatusBadRequest)
+}
+
+func TestPost_ServiceReturnsError_Returns500(t *testing.T) {
+	mockService := mockService{
+		AssociateErr: errors.ErrDatabase,
+	}
+
+	router := setupRouter(mockService)
+	response, cleanup := testutil.PerformRequest(router, "POST", "/v1/resources/test-id/policies", associatePolicyNoErrors)
+	defer cleanup()
+
+	testutil.ValidateResponse(t, response, views.GenerateErrorResponse(response.StatusCode, "Database Error", "/v1/resources/:id/policies"), http.StatusInternalServerError)
 }

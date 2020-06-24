@@ -15,8 +15,8 @@ type service struct {
 	repository repository.Repository
 }
 
-// NewService creates a service instance with the repository passed
-func NewService(repository repository.Repository) Service {
+// New creates a service instance with the repository passed
+func New(repository repository.Repository) Service {
 	return &service{repository: repository}
 }
 

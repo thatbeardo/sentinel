@@ -12,6 +12,7 @@ import (
 // Repository exposes wrapper methods around the underlying session
 type Repository interface {
 	GetAuthorizationForPrincipal(string, authorization.Input) (authorization.Output, error)
+	IsTargetOwnedByTenant(string, string) bool
 }
 
 type repository struct {
@@ -36,8 +37,22 @@ func (repo repository) GetAuthorizationForPrincipal(principalID string, input au
 		map[string]interface{}{
 			"principalID": principalID,
 		},
-		input,
 	)
+}
+
+func (repo repository) IsTargetOwnedByTenant(targetID string, tenantID string) bool {
+	results, err := repo.session.Execute(`
+		MATCH (target:Resource{id: $targetID})
+		-[OWNED_BY*0..]->(ancestors:Resource)
+		<-[permission:PERMISSION]-(policy:Policy)
+		-[:GRANTED_TO]->(tenant:Resource{source_id:$tenantID})
+		RETURN {target: target, permissions: COLLECT(permission)}`,
+		map[string]interface{}{
+			"targetID": targetID,
+			"tenantID": tenantID,
+		},
+	)
+	return err == nil && len(results.Data) > 0
 }
 
 // New is a factory method to generate repository instances

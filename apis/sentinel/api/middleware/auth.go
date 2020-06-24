@@ -87,11 +87,9 @@ func getPemCert(token *jwt.Token) (string, error) {
 }
 
 // VerifyToken function verifies the incoming jwt token
-func VerifyToken() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		jwtMid := *jwtMiddleware
-		if err := jwtMid.CheckJWT(c.Writer, c.Request); err != nil {
-			c.AbortWithStatus(401)
-		}
+func VerifyToken(c *gin.Context) {
+	jwtMid := *jwtMiddleware
+	if err := jwtMid.CheckJWT(c.Writer, c.Request); err != nil {
+		c.AbortWithStatus(401)
 	}
 }

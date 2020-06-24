@@ -38,7 +38,7 @@ func TestExecute_DBReturnsError_ReturnError(t *testing.T) {
 		t:                  t,
 	})
 
-	_, err := session.Execute("cypher-query", testParameters, authorization.Input{})
+	_, err := session.Execute("cypher-query", testParameters)
 	assert.Equal(t, err, models.ErrDatabase)
 }
 
@@ -50,7 +50,7 @@ func TestExecute_DBReturnsZeroLengthResults_ReturnError(t *testing.T) {
 		t:                  t,
 	})
 
-	_, err := session.Execute("cypher-query", testParameters, authorization.Input{})
+	_, err := session.Execute("cypher-query", testParameters)
 	assert.Equal(t, err, models.ErrNotFound)
 }
 
@@ -66,9 +66,7 @@ func TestExecute_DecodingTargetFails_ReturnError(t *testing.T) {
 	injection.NodeDecoder = func(map[string]interface{}, string, interface{}) error {
 		return errors.New("some-decoding-error")
 	}
-	_, err := session.Execute("cypher-query", testParameters, authorization.Input{
-		Permissions: []string{"test-permission-id"},
-	})
+	_, err := session.Execute("cypher-query", testParameters)
 	assert.Equal(t, err, models.ErrDatabase)
 }
 
@@ -83,7 +81,7 @@ func TestExecute_DecodingPermissionsFails_ReturnError(t *testing.T) {
 		t:                  t,
 	})
 
-	_, err := session.Execute("cypher-query", testParameters, authorization.Input{})
+	_, err := session.Execute("cypher-query", testParameters)
 	assert.Equal(t, models.ErrDatabase, err)
 }
 
@@ -95,8 +93,26 @@ func TestExecute_DBReturnsCleanData_ReturnOutput(t *testing.T) {
 		t:                  t,
 	})
 
-	output, err := session.Execute("cypher-query", testParameters, authorization.Input{})
+	output, err := session.Execute("cypher-query", testParameters)
 	assert.Equal(t, testdata.Output, output)
+	assert.Nil(t, err)
+}
+
+func TestExecute_DBReturnsCleanDataNoPermissions_ReturnOutput(t *testing.T) {
+	response := generateMockResponse()
+	expectedResponse := testdata.Output
+	expectedResponse.Data[0] = authorization.Details{}
+
+	response[0]["permissions"] = []interface{}{}
+	session := session.NewNeo4jSession(mockNeo4jSession{
+		ExpectedStatement:  testStatement,
+		ExpectedParameters: testParameters,
+		RunResponse:        response,
+		t:                  t,
+	})
+
+	output, err := session.Execute("cypher-query", testParameters)
+	assert.Equal(t, expectedResponse, output)
 	assert.Nil(t, err)
 }
 

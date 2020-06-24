@@ -11,10 +11,8 @@ import (
 
 const noErrors = `{"data":{"type":"policy","attributes":{"name":"valid-request"}}}`
 const nameAbsentBadRequest = `{"data":{"type":"policy","attributes":{}}}`
-const attributeAbsentBadRequest = `{"data":{"type":"policy"}}`
 
 const typeAbsentBadRequest = `{"data":{"attributes":{"name":"valid-request"}}}`
-const dataAbsentBadRequest = `{"dayta":{"type":"policy","attributes":{"name":"valid-request"}}}`
 
 type mockService struct {
 	GetResponse     policy.Output

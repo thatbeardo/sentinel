@@ -28,7 +28,7 @@ var errTest = errors.New("test-error")
 
 func TestCreate_RepositoryReturnsError_ReturnsError(t *testing.T) {
 	repository := mockRepository{Err: errTest}
-	service := service.NewService(repository)
+	service := service.New(repository)
 
 	_, err := service.Create(testdata.Input, "test-policy-id", "test-target-id")
 	assert.Equal(t, errTest, err)
@@ -36,7 +36,7 @@ func TestCreate_RepositoryReturnsError_ReturnsError(t *testing.T) {
 
 func TestCreate_RepositoryReturnsResponse_ResponseReturned(t *testing.T) {
 	repository := mockRepository{CreateResponse: testdata.OutputDetails}
-	service := service.NewService(repository)
+	service := service.New(repository)
 
 	grant, err := service.Create(testdata.Input, "test-policy-id", "test-target-id")
 	assert.Equal(t, testdata.OutputDetails, grant)
@@ -45,7 +45,7 @@ func TestCreate_RepositoryReturnsResponse_ResponseReturned(t *testing.T) {
 
 func TestGetAllPrincipalsAndPolicies_RepositoryReturnsError_ReturnsError(t *testing.T) {
 	repository := mockRepository{Err: errTest}
-	service := service.NewService(repository)
+	service := service.New(repository)
 
 	_, err := service.GetPrincipalAndPolicyForResource("test-policy-id")
 	assert.Equal(t, errTest, err)
@@ -53,7 +53,7 @@ func TestGetAllPrincipalsAndPolicies_RepositoryReturnsError_ReturnsError(t *test
 
 func TestGetAllPrincipalsAndPolicies_RepositoryReturnsResponse_ResponseReturned(t *testing.T) {
 	repository := mockRepository{GetPrincipalAndPolicyForResourceResponse: testdata.Output}
-	service := service.NewService(repository)
+	service := service.New(repository)
 
 	grant, err := service.GetPrincipalAndPolicyForResource("test-policy-id")
 	assert.Equal(t, testdata.Output, grant)

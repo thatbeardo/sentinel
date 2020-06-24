@@ -170,24 +170,23 @@ import (
 
 func main() {
 	shutdown, neo4jSession := server.Initialize()
-
 	runner := neo4j.New(neo4jSession)
-
-	resourceSession := resourceSession.NewNeo4jSession(runner)
-	resourceRepository := resourceRepository.New(resourceSession)
-	resourceService := resourceService.NewService(resourceRepository)
-
-	permissionSession := permissionSession.NewNeo4jSession(runner)
-	permissionRepository := permissionRepository.New(permissionSession)
-	permissionService := permissionService.New(permissionRepository)
 
 	policiesSession := policySession.NewNeo4jSession(runner)
 	policyRepository := policyRepository.New(policiesSession)
 	policyService := policyService.New(policyRepository)
 
+	resourceSession := resourceSession.NewNeo4jSession(runner)
+	resourceRepository := resourceRepository.New(resourceSession, policiesSession)
+	resourceService := resourceService.New(resourceRepository)
+
+	permissionSession := permissionSession.NewNeo4jSession(runner)
+	permissionRepository := permissionRepository.New(permissionSession)
+	permissionService := permissionService.New(permissionRepository)
+
 	grantSession := grantSession.NewNeo4jSession(runner)
 	grantRepository := grantRepository.New(grantSession)
-	grantService := grantService.NewService(grantRepository)
+	grantService := grantService.New(grantRepository)
 
 	authorizationSession := authorizationSession.NewNeo4jSession(runner)
 	authorizationRepository := authorizationRepository.New(authorizationSession)
@@ -196,7 +195,7 @@ func main() {
 	engine := gin.Default()
 
 	router := server.GenerateRouter(engine)
-	router.Use(middleware.VerifyToken())
+	router.Use(middleware.VerifyToken)
 
 	resources.Routes(router, resourceService)
 	permissions.Routes(router, permissionService)

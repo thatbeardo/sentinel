@@ -1,10 +1,14 @@
 package service_test
 
 import (
+	"context"
 	"testing"
 
+	"github.com/bithippie/guard-my-app/apis/sentinel/mocks"
 	models "github.com/bithippie/guard-my-app/apis/sentinel/models"
 
+	policy "github.com/bithippie/guard-my-app/apis/sentinel/models/policy/dto"
+	policyTestData "github.com/bithippie/guard-my-app/apis/sentinel/models/policy/testdata"
 	resource "github.com/bithippie/guard-my-app/apis/sentinel/models/resource/dto"
 	"github.com/bithippie/guard-my-app/apis/sentinel/models/resource/service"
 	"github.com/bithippie/guard-my-app/apis/sentinel/models/resource/testdata"
@@ -12,17 +16,20 @@ import (
 )
 
 type mockRepository struct {
-	GetByIDErrCandidate string
-	GetResponse         resource.Output
-	GetByIDResponse     resource.OutputDetails
-	CreateResponse      resource.OutputDetails
-	UpdateResponse      resource.OutputDetails
+	GetByIDErrCandidate              string
+	GetResponse                      resource.Output
+	GetByIDResponse                  resource.OutputDetails
+	CreateResponse                   resource.OutputDetails
+	UpdateResponse                   resource.OutputDetails
+	AssociatePolicyResponse          policy.OutputDetails
+	GetAllAssociatedPoliciesResponse policy.Output
 
-	GetErr     error
-	GetByIDErr error
-	CreateErr  error
-	UpdateErr  error
-	DeleteErr  error
+	GetErr       error
+	GetByIDErr   error
+	CreateErr    error
+	UpdateErr    error
+	AssociateErr error
+	DeleteErr    error
 }
 
 func (m mockRepository) Get() (resource.Output, error) {
@@ -36,12 +43,21 @@ func (m mockRepository) GetByID(id string) (resource.OutputDetails, error) {
 	return m.GetByIDResponse, m.GetByIDErr
 }
 
-func (m mockRepository) Create(*resource.Input) (resource.OutputDetails, error) {
+func (m mockRepository) Create(ctx context.Context, input *resource.Input) (resource.OutputDetails, error) {
+
 	return m.CreateResponse, m.CreateErr
+}
+
+func (m mockRepository) AssociatePolicy(string, *policy.Input) (policy.OutputDetails, error) {
+	return m.AssociatePolicyResponse, m.AssociateErr
 }
 
 func (m mockRepository) Update(resource.Details, *resource.Input) (resource.OutputDetails, error) {
 	return m.UpdateResponse, m.UpdateErr
+}
+
+func (m mockRepository) GetAllAssociatedPolicies(string) (policy.Output, error) {
+	return m.GetAllAssociatedPoliciesResponse, m.AssociateErr
 }
 
 func (m mockRepository) Delete(string) error {
@@ -53,7 +69,7 @@ func TestGetServiceDatabaseError(t *testing.T) {
 		GetErr: models.ErrDatabase,
 	}
 
-	service := service.NewService(repository)
+	service := service.New(repository)
 	_, err := service.Get()
 
 	assert.NotNil(t, err, "Should have thrown an error")
@@ -65,7 +81,7 @@ func TestGetServiceNoErrors(t *testing.T) {
 		GetResponse: testdata.Output,
 	}
 
-	service := service.NewService(repository)
+	service := service.New(repository)
 	response, err := service.Get()
 
 	assert.Nil(t, err, "Should not have thrown an error")
@@ -77,7 +93,7 @@ func TestGetByIdServiceNoErrors(t *testing.T) {
 		GetByIDResponse: testdata.ModificationResult,
 	}
 
-	service := service.NewService(repository)
+	service := service.New(repository)
 	response, err := service.GetByID("test-id")
 
 	assert.Nil(t, err, "Should not have thrown an error")
@@ -89,7 +105,7 @@ func TestGetByIdServiceNoErrorsNoResources(t *testing.T) {
 		GetByIDErr: models.ErrNotFound,
 	}
 
-	service := service.NewService(repository)
+	service := service.New(repository)
 	_, err := service.GetByID("test-id")
 
 	assert.NotNil(t, err, "Should not have thrown an error")
@@ -101,7 +117,7 @@ func TestGetByIdServiceRepositoryError(t *testing.T) {
 		GetByIDErr: models.ErrDatabase,
 	}
 
-	service := service.NewService(repository)
+	service := service.New(repository)
 	_, err := service.GetByID("test-id")
 
 	assert.NotNil(t, err, "Should not have thrown an error")
@@ -114,23 +130,11 @@ func TestCreateResourceRepositoryError(t *testing.T) {
 		CreateErr:       models.ErrDatabase,
 	}
 
-	service := service.NewService(repository)
-	_, err := service.Create(testdata.InputWithoutRelationship)
+	service := service.New(repository)
+	_, err := service.Create(mocks.Context{}, testdata.InputWithoutRelationship)
 
 	assert.NotNil(t, err, "Should have thrown an error")
 	assert.Equal(t, err, models.ErrDatabase, "Schemas don't match")
-}
-
-func TestCreateResourceParentAbsentInDatabase(t *testing.T) {
-	repository := mockRepository{
-		GetByIDErr: models.ErrNotFound,
-	}
-
-	service := service.NewService(repository)
-	_, err := service.Create(testdata.Input)
-
-	assert.NotNil(t, err, "Should have thrown an error")
-	assert.Equal(t, err, models.ErrNotFound, "Schemas don't match")
 }
 
 func TestCreateResourceNoRelationships(t *testing.T) {
@@ -138,8 +142,8 @@ func TestCreateResourceNoRelationships(t *testing.T) {
 		CreateResponse: testdata.ModificationResult,
 	}
 
-	service := service.NewService(repository)
-	response, err := service.Create(testdata.InputWithoutRelationship)
+	service := service.New(repository)
+	response, err := service.Create(mocks.Context{}, testdata.InputWithoutRelationship)
 
 	assert.Nil(t, err, "Should not have thrown an error")
 	assert.Equal(t, testdata.ModificationResult, response, "Schemas don't match")
@@ -151,8 +155,8 @@ func TestCreateResourceValidParent(t *testing.T) {
 		GetByIDResponse: testdata.ModificationResult,
 	}
 
-	service := service.NewService(repository)
-	response, err := service.Create(testdata.Input)
+	service := service.New(repository)
+	response, err := service.Create(mocks.Context{}, testdata.Input)
 
 	assert.Nil(t, err, "Should not have thrown an error")
 	assert.Equal(t, testdata.ModificationResult, response, "Schemas don't match")
@@ -164,8 +168,8 @@ func TestCreateResourceCreateFails(t *testing.T) {
 		GetByIDResponse: testdata.ModificationResult,
 	}
 
-	service := service.NewService(repository)
-	_, err := service.Create(testdata.Input)
+	service := service.New(repository)
+	_, err := service.Create(mocks.Context{}, testdata.Input)
 
 	assert.NotNil(t, err, "Should have thrown an error")
 	assert.Equal(t, models.ErrDatabase, err, "Schemas don't match")
@@ -176,7 +180,7 @@ func TestDeleteResourceRepositoryError(t *testing.T) {
 		DeleteErr: models.ErrDatabase,
 	}
 
-	service := service.NewService(repository)
+	service := service.New(repository)
 	err := service.Delete("test-id")
 
 	assert.NotNil(t, err, "Should have thrown an error")
@@ -186,7 +190,7 @@ func TestDeleteResourceRepositoryError(t *testing.T) {
 func TestDeleteResourceRepositoryNoError(t *testing.T) {
 	repository := mockRepository{}
 
-	service := service.NewService(repository)
+	service := service.New(repository)
 	err := service.Delete("test-id")
 
 	assert.Nil(t, err, "Should not have thrown an error")
@@ -198,7 +202,7 @@ func TestUpdateResourceInvalidParent(t *testing.T) {
 		GetByIDResponse:     testdata.ModificationResult,
 	}
 
-	service := service.NewService(repository)
+	service := service.New(repository)
 	_, err := service.Update("test-id", testdata.Input)
 
 	assert.NotNil(t, err, "Should not have thrown an error")
@@ -211,7 +215,7 @@ func TestUpdateNoErrors(t *testing.T) {
 		UpdateResponse:  testdata.ModificationResult,
 	}
 
-	service := service.NewService(repository)
+	service := service.New(repository)
 	response, err := service.Update("test-id", testdata.Input)
 
 	assert.Nil(t, err, "Should not have thrown an error")
@@ -223,11 +227,56 @@ func TestUpdate_ResourceNodeNotFound_ReturnsErrNotFound(t *testing.T) {
 		GetByIDErr: models.ErrNotFound,
 	}
 
-	service := service.NewService(repository)
+	service := service.New(repository)
 	_, err := service.Update("test-id", testdata.Input)
 
 	assert.NotNil(t, err, "Should not have thrown an error")
 	assert.Equal(t, err, models.ErrNotFound, "Schemas don't match")
+}
+
+func TestAssociatePolicy_RepositoryReturnsError_ReturnError(t *testing.T) {
+	repository := mockRepository{
+		AssociateErr: models.ErrNotFound,
+	}
+	service := service.New(repository)
+	_, err := service.AssociatePolicy("test-id", policyTestData.Input)
+
+	assert.NotNil(t, err, "Should not have thrown an error")
+	assert.Equal(t, err, models.ErrNotFound, "Schemas don't match")
+}
+
+func TestAssociatePolicy_RepositoryReturnsData_ReturnData(t *testing.T) {
+	repository := mockRepository{
+		AssociatePolicyResponse: policyTestData.OutputDetails,
+	}
+	service := service.New(repository)
+	results, err := service.AssociatePolicy("test-id", policyTestData.Input)
+
+	assert.Nil(t, err, "Should not have thrown an error")
+	assert.Equal(t, policyTestData.OutputDetails, results, "Schemas don't match")
+}
+
+func TestGetAllAssociatedPolicies_RepositoryReturnsData_ReturnData(t *testing.T) {
+	repository := mockRepository{
+		GetAllAssociatedPoliciesResponse: policyTestData.Output,
+	}
+
+	service := service.New(repository)
+	results, err := service.GetAllAssociatedPolicies("test-id")
+
+	assert.Nil(t, err, "Should not have thrown an error")
+	assert.Equal(t, policyTestData.Output, results, "Schemas don't match")
+}
+
+func TestGetAllAssociatedPolicies_RepositoryReturnsError_ReturnError(t *testing.T) {
+	repository := mockRepository{
+		AssociateErr: models.ErrDatabase,
+	}
+
+	service := service.New(repository)
+	_, err := service.GetAllAssociatedPolicies("test-id")
+
+	assert.Equal(t, models.ErrDatabase, err, "Schemas don't match")
 }
 
 // func TestUpdateResourceNoParentProvided(t *testing.T) {

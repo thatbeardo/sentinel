@@ -25,11 +25,11 @@ type Relationships struct {
 
 // Relationship consists of array of resources associated with this policy
 type Relationship struct {
-	Data []Resource `json:"data" binding:"required"`
+	Data []Resource `json:"data" binding:"required,dive"`
 }
 
 // Resource denotes either the Principal or Target resource
 type Resource struct {
-	Type string `json:"type" binding:"required"`
-	ID   string `json:"id" binding:"required"`
+	Type string `json:"type"`
+	ID   string `json:"id"`
 }

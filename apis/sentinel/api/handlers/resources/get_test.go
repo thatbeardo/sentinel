@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	models "github.com/bithippie/guard-my-app/apis/sentinel/models"
+	policyTestData "github.com/bithippie/guard-my-app/apis/sentinel/models/policy/testdata"
 	"github.com/bithippie/guard-my-app/apis/sentinel/models/resource/testdata"
 	"github.com/bithippie/guard-my-app/apis/sentinel/testutil"
 )
@@ -44,7 +45,6 @@ func TestGetResourcesDatabaseError(t *testing.T) {
 }
 
 func TestGetResourceByIDOk(t *testing.T) {
-
 	mockService := mockService{
 		GetByIDResponse: testdata.ModificationResult,
 	}
@@ -57,7 +57,6 @@ func TestGetResourceByIDOk(t *testing.T) {
 }
 
 func TestGetResourceByIDNoResourceFound(t *testing.T) {
-
 	mockService := mockService{
 		GetByIDErr: models.ErrNotFound,
 	}
@@ -67,4 +66,30 @@ func TestGetResourceByIDNoResourceFound(t *testing.T) {
 	defer cleanup()
 
 	testutil.ValidateResponse(t, response, testutil.GenerateError("/v1/resources/:id", "query-parameter-todo", "Data not found", http.StatusNotFound), http.StatusNotFound)
+}
+
+func TestGetAllAssociatedPolicies_ServiceReturnsError_ReportError(t *testing.T) {
+
+	mockService := mockService{
+		AssociateErr: models.ErrDatabase,
+	}
+
+	router := setupRouter(mockService)
+	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/resources/test-id/policies", "")
+	defer cleanup()
+
+	testutil.ValidateResponse(t, response, testutil.GenerateError("/v1/resources/:id/policies", "query-parameter-todo", "Database Error", http.StatusInternalServerError), response.StatusCode)
+}
+
+func TestGetAllAssociatedPolicies_ServiceReturnsData_ReportData(t *testing.T) {
+
+	mockService := mockService{
+		GetAllAssociatedPoliciesResponse: policyTestData.Output,
+	}
+
+	router := setupRouter(mockService)
+	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/resources/test-id/policies", "")
+	defer cleanup()
+
+	testutil.ValidateResponse(t, response, policyTestData.Output, response.StatusCode)
 }

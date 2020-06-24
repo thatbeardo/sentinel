@@ -4,6 +4,7 @@ import (
 	"errors"
 	"testing"
 
+	mocks "github.com/bithippie/guard-my-app/apis/sentinel/mocks/policy"
 	models "github.com/bithippie/guard-my-app/apis/sentinel/models"
 	policy "github.com/bithippie/guard-my-app/apis/sentinel/models/policy/dto"
 	"github.com/bithippie/guard-my-app/apis/sentinel/models/policy/repository"
@@ -41,53 +42,14 @@ var deleteStatement = `
 		WHERE policy.id = $id
 		DETACH DELETE policy`
 
-type mockSession struct {
-	ExecuteResponse   policy.Output
-	ExecuteErr        error
-	ExpectedStatement string
-	ExpectedParameter map[string]interface{}
-	t                 *testing.T
-}
-
-func (m mockSession) Execute(statement string, parameters map[string]interface{}) (policy.Output, error) {
-	assert.Equal(m.t, m.ExpectedStatement, statement)
-	assert.Equal(m.t, m.ExpectedParameter, parameters)
-	return m.ExecuteResponse, m.ExecuteErr
-}
-
-func TestGet_SessionReturnsError_ErrorReturned(t *testing.T) {
-	session := mockSession{
-		ExecuteErr:        errTest,
-		ExpectedStatement: getStatement,
-		ExpectedParameter: map[string]interface{}{},
-		t:                 t,
-	}
-	repository := repository.New(session)
-	_, err := repository.Get()
-	assert.Equal(t, errTest, err)
-}
-
-func TestGet_SessionReturnsResponse_NoErrorsReturned(t *testing.T) {
-	session := mockSession{
-		ExecuteResponse:   testdata.Output,
-		ExpectedStatement: getStatement,
-		ExpectedParameter: map[string]interface{}{},
-		t:                 t,
-	}
-	repository := repository.New(session)
-	response, err := repository.Get()
-	assert.Equal(t, testdata.Output, response)
-	assert.Nil(t, err)
-}
-
 func TestGetByID_SessionReturnsError_ErrorReturned(t *testing.T) {
-	session := mockSession{
+	session := mocks.Session{
 		ExecuteErr:        errTest,
 		ExpectedStatement: getByIDStatement,
 		ExpectedParameter: map[string]interface{}{
 			"id": "test-id",
 		},
-		t: t,
+		T: t,
 	}
 	repository := repository.New(session)
 	_, err := repository.GetByID("test-id")
@@ -95,13 +57,13 @@ func TestGetByID_SessionReturnsError_ErrorReturned(t *testing.T) {
 }
 
 func TestGetByID_SessionReturnsResponse_NoErrorsReturned(t *testing.T) {
-	session := mockSession{
+	session := mocks.Session{
 		ExecuteResponse:   testdata.Output,
 		ExpectedStatement: getByIDStatement,
 		ExpectedParameter: map[string]interface{}{
 			"id": "test-id",
 		},
-		t: t,
+		T: t,
 	}
 	repository := repository.New(session)
 	response, err := repository.GetByID("test-id")
@@ -109,59 +71,15 @@ func TestGetByID_SessionReturnsResponse_NoErrorsReturned(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestCreate_SessionReturnsError_ErrorReturned(t *testing.T) {
-	session := mockSession{
-		ExecuteErr:        errors.New("test-error"),
-		ExpectedStatement: createStatement,
-		ExpectedParameter: map[string]interface{}{
-			"name": "test-policy",
-		},
-		t: t,
-	}
-	repository := repository.New(session)
-	response, err := repository.Create(testdata.Input)
-	assert.Equal(t, policy.OutputDetails{}, response)
-	assert.NotNil(t, err)
-}
-
-func TestCreate_SessionReturnsEmptyResponse_DatabaseErrorReturned(t *testing.T) {
-	session := mockSession{
-		ExecuteResponse:   policy.Output{Data: []policy.Details{}},
-		ExpectedStatement: createStatement,
-		ExpectedParameter: map[string]interface{}{
-			"name": "test-policy",
-		},
-		t: t,
-	}
-	repository := repository.New(session)
-	_, err := repository.Create(testdata.Input)
-	assert.Equal(t, models.ErrDatabase, err)
-}
-
-func TestCreate_SessionReturnsResponse_NoErrorReturned(t *testing.T) {
-	session := mockSession{
-		ExecuteResponse:   testdata.Output,
-		ExpectedStatement: createStatement,
-		ExpectedParameter: map[string]interface{}{
-			"name": "test-policy",
-		},
-		t: t,
-	}
-	repository := repository.New(session)
-	response, err := repository.Create(testdata.Input)
-	assert.Nil(t, err)
-	assert.Equal(t, testdata.OutputDetails, response)
-}
-
 func TestUpdate_SessionReturnsError_ErrorReturned(t *testing.T) {
-	session := mockSession{
+	session := mocks.Session{
 		ExecuteErr:        errors.New("test-error"),
 		ExpectedStatement: updateStatement,
 		ExpectedParameter: map[string]interface{}{
 			"name": "test-policy",
 			"id":   "test-id",
 		},
-		t: t,
+		T: t,
 	}
 	repository := repository.New(session)
 	response, err := repository.Update("test-id", testdata.Input)
@@ -170,14 +88,14 @@ func TestUpdate_SessionReturnsError_ErrorReturned(t *testing.T) {
 }
 
 func TestUpdate_SessionReturnsEmptyResponse_DatabaseErrorReturned(t *testing.T) {
-	session := mockSession{
+	session := mocks.Session{
 		ExecuteResponse:   policy.Output{Data: []policy.Details{}},
 		ExpectedStatement: updateStatement,
 		ExpectedParameter: map[string]interface{}{
 			"name": "test-policy",
 			"id":   "test-id",
 		},
-		t: t,
+		T: t,
 	}
 	repository := repository.New(session)
 	_, err := repository.Update("test-id", testdata.Input)
@@ -185,14 +103,14 @@ func TestUpdate_SessionReturnsEmptyResponse_DatabaseErrorReturned(t *testing.T) 
 }
 
 func TestUpdate_SessionReturnsResponse_NoErrorReturned(t *testing.T) {
-	session := mockSession{
+	session := mocks.Session{
 		ExecuteResponse:   testdata.Output,
 		ExpectedStatement: updateStatement,
 		ExpectedParameter: map[string]interface{}{
 			"name": "test-policy",
 			"id":   "test-id",
 		},
-		t: t,
+		T: t,
 	}
 	repository := repository.New(session)
 	response, err := repository.Update("test-id", testdata.Input)
@@ -201,12 +119,12 @@ func TestUpdate_SessionReturnsResponse_NoErrorReturned(t *testing.T) {
 }
 
 func TestDelete_SessionReturnsResponse_ReturnsNoErrors(t *testing.T) {
-	session := mockSession{
+	session := mocks.Session{
 		ExpectedStatement: deleteStatement,
 		ExpectedParameter: map[string]interface{}{
 			"id": "test-id",
 		},
-		t: t,
+		T: t,
 	}
 	repository := repository.New(session)
 	err := repository.Delete("test-id")
@@ -215,13 +133,13 @@ func TestDelete_SessionReturnsResponse_ReturnsNoErrors(t *testing.T) {
 
 func TestDelete_SessionReturnsError_ReturnsNoErrors(t *testing.T) {
 	errTest := errors.New("test-error")
-	session := mockSession{
+	session := mocks.Session{
 		ExecuteErr:        errTest,
 		ExpectedStatement: deleteStatement,
 		ExpectedParameter: map[string]interface{}{
 			"id": "test-id",
 		},
-		t: t,
+		T: t,
 	}
 	repository := repository.New(session)
 	err := repository.Delete("test-id")

@@ -367,85 +367,13 @@ var doc = `{
                 }
             }
         },
-        "/v1/policies": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Get all the Policies stored",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Policies"
-                ],
-                "summary": "Get all the Policies",
-                "responses": {
-                    "200": {
-                        "description": "ok",
-                        "schema": {
-                            "$ref": "#/definitions/policy.Output"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/views.ErrView"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Add a new Policy to existing Policies",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Policies"
-                ],
-                "summary": "Create a new Policy",
-                "parameters": [
-                    {
-                        "description": "Policy to be created",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/policy.Input"
-                        }
-                    }
-                ],
-                "responses": {
-                    "202": {
-                        "description": "ok",
-                        "schema": {
-                            "$ref": "#/definitions/policy.OutputDetails"
-                        }
-                    },
-                    "500": {
-                        "description": "ok",
-                        "schema": {
-                            "$ref": "#/definitions/views.ErrView"
-                        }
-                    }
-                }
-            }
-        },
         "/v1/policies/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get a Policy by its ID",
                 "consumes": [
                     "application/json"
@@ -727,6 +655,11 @@ var doc = `{
         },
         "/v1/resources/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get a resource by its ID",
                 "consumes": [
                     "application/json"
@@ -769,6 +702,11 @@ var doc = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Delete a resource by its ID",
                 "consumes": [
                     "application/json"
@@ -842,6 +780,105 @@ var doc = `{
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/views.ErrView"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/resources/{id}/policies": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get all policy and details that are granted to this policy",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Resources"
+                ],
+                "summary": "Get all policies granted to this resource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Resource ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "$ref": "#/definitions/policy.Output"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/views.ErrView"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/views.ErrView"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Grant a new Policy to an existing principal resources",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Resources"
+                ],
+                "summary": "Associate a new Policy with an existing resource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Principal Resource ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Policy to be created",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/policy.Input"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "ok",
+                        "schema": {
+                            "$ref": "#/definitions/policy.OutputDetails"
+                        }
+                    },
+                    "500": {
+                        "description": "ok",
                         "schema": {
                             "$ref": "#/definitions/views.ErrView"
                         }
@@ -1207,10 +1244,6 @@ var doc = `{
         },
         "policy.Resource": {
             "type": "object",
-            "required": [
-                "id",
-                "type"
-            ],
             "properties": {
                 "id": {
                     "type": "string"

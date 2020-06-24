@@ -41,7 +41,6 @@ var detailsWithoutParent = resource.Details{
 	},
 }
 
-// detailsWithPolicies represents a resource which has policies attached it
 var detailsWithPolicies = resource.Details{
 	ID:         "test-id",
 	Type:       "resource",
@@ -80,6 +79,15 @@ var Input = &resource.Input{
 		Relationships: &resource.InputRelationships{
 			Parent: parent,
 		},
+	},
+}
+
+// InputWithoutParent is a mock for the data being sent by the user
+var InputWithoutParent = &resource.Input{
+	Data: &resource.InputDetails{
+		Type:          "resource",
+		Attributes:    attributes,
+		Relationships: nil,
 	},
 }
 

@@ -34,6 +34,13 @@ var depth4TargetsAbsentPermittedAbsentPermissionNamesAbsent = `
 			MATCH (principal:Resource{id: $principalID})<-[grant:GRANTED_TO]-(policy)
 			RETURN {target:target, permissions: COLLECT(permission)}`
 
+var ownershipStatement = `
+		MATCH (target:Resource{id: $targetID})
+		-[OWNED_BY*0..]->(ancestors:Resource)
+		<-[permission:PERMISSION]-(policy:Policy)
+		-[:GRANTED_TO]->(tenant:Resource{source_id:$tenantID})
+		RETURN {target: target, permissions: COLLECT(permission)}`
+
 type mockSession struct {
 	ExecuteResponse   authorization.Output
 	ExecuteErr        error
@@ -42,7 +49,7 @@ type mockSession struct {
 	t                 *testing.T
 }
 
-func (m mockSession) Execute(statement string, parameters map[string]interface{}, input authorization.Input) (authorization.Output, error) {
+func (m mockSession) Execute(statement string, parameters map[string]interface{}) (authorization.Output, error) {
 	assert.Equal(m.t, m.ExpectedStatement, statement)
 	assert.Equal(m.t, m.ExpectedParameter, parameters)
 	return m.ExecuteResponse, m.ExecuteErr
@@ -129,4 +136,57 @@ func TestGetAuthorizationForPrincipal_SessionReturnsError_ErrorReturned(t *testi
 	)
 
 	assert.Equal(t, errors.New("some-test-error"), err)
+}
+
+func TestIsTargetOwnedByTenant_RepositoryReturnsErr_ReturnFalse(t *testing.T) {
+	session := mockSession{
+		ExecuteErr:        errors.New("some-test-error"),
+		ExpectedStatement: ownershipStatement,
+		ExpectedParameter: map[string]interface{}{
+			"targetID": "target-id",
+			"tenantID": "tenant-id",
+		},
+		t: t,
+	}
+
+	repository := repository.New(session)
+	result := repository.IsTargetOwnedByTenant("target-id", "tenant-id")
+
+	assert.False(t, result)
+}
+
+func TestIsTargetOwnedByTenant_RepositoryReturnsEmptyData_ReturnFalse(t *testing.T) {
+	output := testdata.Output
+	output.Data = []authorization.Details{}
+	session := mockSession{
+		ExecuteResponse:   output,
+		ExpectedStatement: ownershipStatement,
+		ExpectedParameter: map[string]interface{}{
+			"targetID": "target-id",
+			"tenantID": "tenant-id",
+		},
+		t: t,
+	}
+
+	repository := repository.New(session)
+	result := repository.IsTargetOwnedByTenant("target-id", "tenant-id")
+
+	assert.False(t, result)
+}
+
+func TestIsTargetOwnedByTenant_RepositoryReturnsData_ReturnTrue(t *testing.T) {
+	session := mockSession{
+		ExecuteResponse:   testdata.Output,
+		ExpectedStatement: ownershipStatement,
+		ExpectedParameter: map[string]interface{}{
+			"targetID": "target-id",
+			"tenantID": "tenant-id",
+		},
+		t: t,
+	}
+
+	repository := repository.New(session)
+	result := repository.IsTargetOwnedByTenant("target-id", "tenant-id")
+
+	assert.True(t, result)
 }
