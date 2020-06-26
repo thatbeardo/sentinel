@@ -8,7 +8,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/bithippie/guard-my-app/apis/sentinel/api/handlers/injection"
 	"github.com/bithippie/guard-my-app/apis/sentinel/api/views"
+	authorizationService "github.com/bithippie/guard-my-app/apis/sentinel/models/authorization/service"
+	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -48,5 +51,26 @@ func GenerateError(pointer string, parameter string, detail string, code int) vi
 		Status: code,
 		Source: source,
 		Detail: detail,
+	}
+}
+
+var noMiddleware = func(c *gin.Context) {}
+
+// RemoveMiddleware injects middlewares that don't carry out any verification
+func RemoveMiddleware() {
+	injection.VerifyResourceOwnership = func(authorizationService.Service, string) gin.HandlerFunc {
+		return noMiddleware
+	}
+
+	injection.VerifyPolicyOwnership = func(authorizationService.Service, string) gin.HandlerFunc {
+		return noMiddleware
+	}
+
+	injection.ValidateNewResource = func(authorizationService.Service) gin.HandlerFunc {
+		return noMiddleware
+	}
+
+	injection.VerifyPermissionOwnership = func(s authorizationService.Service, identifier string) gin.HandlerFunc {
+		return noMiddleware
 	}
 }

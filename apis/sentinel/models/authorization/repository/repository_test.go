@@ -41,6 +41,21 @@ var ownershipStatement = `
 		-[:GRANTED_TO]->(tenant:Resource{source_id:$tenantID})
 		RETURN {target: target, permissions: COLLECT(permission)}`
 
+var policyOwnershipStatement = `
+		MATCH (policy:Policy{id: $policyID})
+		-[:GRANTED_TO]->(target:Resource)
+		-[:OWNED_BY*0..]->(ancestors:Resource)
+		<-[permission:PERMISSION]-(tenantPolicy:Policy)
+		-[:GRANTED_TO]->(tenant:Resource{source_id: $tenantID})
+		RETURN {target: target, permissions: COLLECT(permission)}`
+
+var permissionOwnershipStatement = `
+		MATCH (policy:Policy)-[:PERMISSION{id: $permissionID}]->(target:Resource)
+		-[:OWNED_BY*0..]->(ancestors:Resource)
+		<-[permission:PERMISSION]-(tenantPolicy:Policy)
+		-[:GRANTED_TO]->(tenant:Resource{source_id: $tenantID})
+		RETURN {target: target, permissions: COLLECT(permission)}`
+
 type mockSession struct {
 	ExecuteResponse   authorization.Output
 	ExecuteErr        error
@@ -190,3 +205,107 @@ func TestIsTargetOwnedByTenant_RepositoryReturnsData_ReturnTrue(t *testing.T) {
 
 	assert.True(t, result)
 }
+
+
+func TestIsPolicyOwnedByTenant_SessionReturnsEmptyResponse_ReturnFalse(t *testing.T) {
+	session := mockSession{
+		ExecuteResponse:   authorization.Output{Data: []authorization.Details{}},
+		ExpectedStatement: policyOwnershipStatement,
+		ExpectedParameter: map[string]interface{}{
+			"policyID": "policy-id",
+			"tenantID": "tenant-id",
+		},
+		t: t,
+	}
+
+	repository := repository.New(session)
+	result := repository.IsPolicyOwnedByTenant("policy-id", "tenant-id")
+
+	assert.False(t, result)
+}
+
+func TestIsPolicyOwnedByTenant_SessionReturnsError_ReturnFalse(t *testing.T) {
+	session := mockSession{
+		ExecuteErr:        errors.New("some-test-error"),
+		ExpectedStatement: policyOwnershipStatement,
+		ExpectedParameter: map[string]interface{}{
+			"policyID": "policy-id",
+			"tenantID": "tenant-id",
+		},
+		t: t,
+	}
+
+	repository := repository.New(session)
+	result := repository.IsPolicyOwnedByTenant("policy-id", "tenant-id")
+
+	assert.False(t, result)
+}
+
+func TestIsPolicyOwnedByTenant_SessionReturnsData_ReturnTrue(t *testing.T) {
+	session := mockSession{
+		ExecuteResponse:   testdata.Output,
+		ExpectedStatement: policyOwnershipStatement,
+		ExpectedParameter: map[string]interface{}{
+			"policyID": "policy-id",
+			"tenantID": "tenant-id",
+		},
+		t: t,
+	}
+
+	repository := repository.New(session)
+	result := repository.IsPolicyOwnedByTenant("policy-id", "tenant-id")
+
+	assert.True(t, result)
+}
+
+func TestIsPermissionOwnedByTenant_SessionReturnsEmptyResponse_ReturnFalse(t *testing.T) {
+	session := mockSession{
+		ExecuteResponse:   authorization.Output{Data: []authorization.Details{}},
+		ExpectedStatement: permissionOwnershipStatement,
+		ExpectedParameter: map[string]interface{}{
+			"permissionID": "permission-id",
+			"tenantID":     "tenant-id",
+		},
+		t: t,
+	}
+
+	repository := repository.New(session)
+	result := repository.IsPermissionOwnedByTenant("permission-id", "tenant-id")
+
+	assert.False(t, result)
+}
+
+func TestIsPermissionOwnedByTenant_SessionReturnsError_ReturnFalse(t *testing.T) {
+	session := mockSession{
+		ExecuteErr:        errors.New("some-test-error"),
+		ExpectedStatement: permissionOwnershipStatement,
+		ExpectedParameter: map[string]interface{}{
+			"permissionID": "permission-id",
+			"tenantID":     "tenant-id",
+		},
+		t: t,
+	}
+
+	repository := repository.New(session)
+	result := repository.IsPermissionOwnedByTenant("permission-id", "tenant-id")
+
+	assert.False(t, result)
+}
+
+func TestIsPermissionOwnedByTenant_SessionReturnsData_ReturnTrue(t *testing.T) {
+	session := mockSession{
+		ExecuteResponse:   testdata.Output,
+		ExpectedStatement: permissionOwnershipStatement,
+		ExpectedParameter: map[string]interface{}{
+			"tenantID":     "tenant-id",
+			"permissionID": "permission-id",
+		},
+		t: t,
+	}
+
+	repository := repository.New(session)
+	result := repository.IsPermissionOwnedByTenant("permission-id", "tenant-id")
+
+	assert.True(t, result)
+}
+

@@ -5,11 +5,14 @@ import (
 
 	handler "github.com/bithippie/guard-my-app/apis/sentinel/api/handlers"
 	"github.com/bithippie/guard-my-app/apis/sentinel/api/handlers/resources"
-	"github.com/bithippie/guard-my-app/apis/sentinel/api/handlers/resources/injection"
+
+	mocks "github.com/bithippie/guard-my-app/apis/sentinel/mocks/authorization"
+
 	models "github.com/bithippie/guard-my-app/apis/sentinel/models"
 	policy "github.com/bithippie/guard-my-app/apis/sentinel/models/policy/dto"
 	resource "github.com/bithippie/guard-my-app/apis/sentinel/models/resource/dto"
 	"github.com/bithippie/guard-my-app/apis/sentinel/models/resource/service"
+	"github.com/bithippie/guard-my-app/apis/sentinel/testutil"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -33,7 +36,7 @@ type mockService struct {
 	AssociateErr error
 }
 
-func (m mockService) Get() (resource.Output, error) {
+func (m mockService) Get(context.Context) (resource.Output, error) {
 	return m.GetResponse, m.GetErr
 }
 
@@ -65,12 +68,12 @@ func (m mockService) Delete(string) error {
 }
 
 func setupRouter(s service.Service) *gin.Engine {
-	injection.VerifyResourceOwnership = noMiddleware
-	injection.ValidateNewResource = noMiddleware
+
+	testutil.RemoveMiddleware()
 	r := gin.Default()
 	r.Use(cors.Default())
 	r.NoRoute(handler.NoRoute)
 	group := r.Group("/v1")
-	resources.Routes(group, s)
+	resources.Routes(group, s, mocks.AuthorizationService{})
 	return r
 }

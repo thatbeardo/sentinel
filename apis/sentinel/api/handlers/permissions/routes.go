@@ -1,17 +1,30 @@
 package permissions
 
 import (
+	"github.com/bithippie/guard-my-app/apis/sentinel/api/handlers/injection"
+	authorizationService "github.com/bithippie/guard-my-app/apis/sentinel/models/authorization/service"
 	"github.com/bithippie/guard-my-app/apis/sentinel/models/permission/service"
 	"github.com/gin-gonic/gin"
 )
 
 // Routes sets up policy specific routes on the engine instance
 // Unexpected routes thanks to - https://github.com/gin-gonic/gin/issues/1681
-func Routes(r *gin.RouterGroup, service service.Service) {
+func Routes(r *gin.RouterGroup, service service.Service, authorizationService authorizationService.Service) {
 	router := r.Group("/permissions")
-	router.PUT("/:policy_id/resources/:resource_id", put(service))
-	router.GET("/:policy_id/resources", getAllPermissionsForAPolicy(service))
-	router.GET("/:policy_id/resources/:resource_id", getAllPermissionsForAPolicyWithResource(service))
-	router.PATCH("/:permission_id", patch(service))
-	router.DELETE("/:permission_id", delete(service))
+	router.PUT("/:policy_id/resources/:resource_id",
+		injection.VerifyPolicyOwnership(authorizationService, "policy_id"),
+		injection.VerifyResourceOwnership(authorizationService, "resource_id"),
+		put(service))
+
+	router.GET("/:policy_id/resources",
+		injection.VerifyPolicyOwnership(authorizationService, "policy_id"),
+		getAllPermissionsForAPolicy(service))
+
+	router.GET("/:policy_id/resources/:resource_id",
+		injection.VerifyPolicyOwnership(authorizationService, "policy_id"),
+		injection.VerifyResourceOwnership(authorizationService, "resource_id"),
+		getAllPermissionsForAPolicyWithResource(service))
+
+	router.PATCH("/:permission_id", injection.VerifyPermissionOwnership(authorizationService, "permission_id"), patch(service))
+	router.DELETE("/:permission_id", injection.VerifyPermissionOwnership(authorizationService, "permission_id"), delete(service))
 }

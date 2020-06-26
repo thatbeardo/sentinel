@@ -1,8 +1,6 @@
 package service
 
 import (
-	"sync"
-
 	authorization "github.com/bithippie/guard-my-app/apis/sentinel/models/authorization/dto"
 	"github.com/bithippie/guard-my-app/apis/sentinel/models/authorization/repository"
 )
@@ -10,7 +8,9 @@ import (
 // Service interface to expose methods that an authorization endpoint can expect
 type Service interface {
 	GetAuthorizationForPrincipal(string, authorization.Input) (output authorization.Output, err error)
-	IsTargetOwnedByTenant(targetID string, tenantID string) bool
+	IsTargetOwnedByTenant(string, string) bool
+	IsPolicyOwnedByTenant(string, string) bool
+	IsPermissionOwnedByTenant(string, string) bool
 }
 
 type service struct {
@@ -25,25 +25,17 @@ func (s service) IsTargetOwnedByTenant(targetID string, tenantID string) bool {
 	return s.repository.IsTargetOwnedByTenant(targetID, tenantID)
 }
 
-var instance service
-var once sync.Once
+func (s service) IsPolicyOwnedByTenant(policyID string, tenantID string) bool {
+	return s.repository.IsPolicyOwnedByTenant(policyID, tenantID)
+}
+
+func (s service) IsPermissionOwnedByTenant(permissionID, tenantID string) bool {
+	return s.repository.IsPermissionOwnedByTenant(permissionID, tenantID)
+}
 
 // New is a singleton factory method to return service instances
 func New(repository repository.Repository) Service {
-	once.Do(func() {
-		instance = service{
-			repository: repository,
-		}
-	})
-	return instance
-}
-
-// NewWithoutRepository is a method to access the already populated instance field
-func NewWithoutRepository() Service {
-	return instance
-}
-
-// SetRepository is a helper method to inject the repository that needs to be assigned
-func SetRepository(repository repository.Repository) {
-	instance.repository = repository
+	return service{
+		repository: repository,
+	}
 }

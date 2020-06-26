@@ -3,8 +3,10 @@ package grants_test
 import (
 	handler "github.com/bithippie/guard-my-app/apis/sentinel/api/handlers"
 	"github.com/bithippie/guard-my-app/apis/sentinel/api/handlers/grants"
+	mocks "github.com/bithippie/guard-my-app/apis/sentinel/mocks/authorization"
 	grant "github.com/bithippie/guard-my-app/apis/sentinel/models/grant/dto"
 	"github.com/bithippie/guard-my-app/apis/sentinel/models/grant/service"
+	"github.com/bithippie/guard-my-app/apis/sentinel/testutil"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -28,10 +30,11 @@ func (m mockService) GetPrincipalAndPolicyForResource(id string) (grant.Output, 
 }
 
 func setupRouter(s service.Service) *gin.Engine {
+	testutil.RemoveMiddleware()
 	r := gin.Default()
 	r.Use(cors.Default())
 	r.NoRoute(handler.NoRoute)
 	group := r.Group("/v1")
-	grants.Routes(group, s)
+	grants.Routes(group, s, mocks.AuthorizationService{})
 	return r
 }

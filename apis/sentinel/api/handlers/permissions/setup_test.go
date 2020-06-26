@@ -3,8 +3,10 @@ package permissions_test
 import (
 	handler "github.com/bithippie/guard-my-app/apis/sentinel/api/handlers"
 	"github.com/bithippie/guard-my-app/apis/sentinel/api/handlers/permissions"
+	mocks "github.com/bithippie/guard-my-app/apis/sentinel/mocks/authorization"
 	permission "github.com/bithippie/guard-my-app/apis/sentinel/models/permission/dto"
 	"github.com/bithippie/guard-my-app/apis/sentinel/models/permission/service"
+	"github.com/bithippie/guard-my-app/apis/sentinel/testutil"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -43,10 +45,11 @@ func (m mockService) Delete(string) error {
 }
 
 func setupRouter(s service.Service) *gin.Engine {
+	testutil.RemoveMiddleware()
 	r := gin.Default()
 	r.Use(cors.Default())
 	r.NoRoute(handler.NoRoute)
 	group := r.Group("/v1")
-	permissions.Routes(group, s)
+	permissions.Routes(group, s, mocks.AuthorizationService{})
 	return r
 }

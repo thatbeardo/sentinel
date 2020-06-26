@@ -19,7 +19,7 @@ import (
 // @Router /v1/resources [get]
 func get(service service.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		resources, err := service.Get()
+		resources, err := service.Get(c.Request.Context())
 		if err != nil {
 			views.Wrap(err, c)
 			return

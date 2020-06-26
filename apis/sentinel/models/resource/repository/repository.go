@@ -1,21 +1,22 @@
 package repository
 
 import (
-	"context"
-
 	models "github.com/bithippie/guard-my-app/apis/sentinel/models"
 	policy "github.com/bithippie/guard-my-app/apis/sentinel/models/policy/dto"
 	policies "github.com/bithippie/guard-my-app/apis/sentinel/models/policy/session"
 	resource "github.com/bithippie/guard-my-app/apis/sentinel/models/resource/dto"
-	"github.com/bithippie/guard-my-app/apis/sentinel/models/resource/injection"
 	"github.com/bithippie/guard-my-app/apis/sentinel/models/resource/session"
 )
 
 // Repository is used by the service to communicate with the underlying database
 type Repository interface {
-	Get() (resource.Output, error)
+	Get(string) (resource.Output, error)
 	GetByID(string) (resource.OutputDetails, error)
-	Create(context.Context, *resource.Input) (resource.OutputDetails, error)
+
+	AttachResourceToExistingParent(*resource.Input) (resource.OutputDetails, error)
+	AttachResourceToTenantPolicy(string, *resource.Input) (resource.OutputDetails, error)
+	CreateTenantResource(*resource.Input) (resource.OutputDetails, error)
+
 	AssociatePolicy(string, *policy.Input) (policy.OutputDetails, error)
 	GetAllAssociatedPolicies(string) (policy.Output, error)
 	Update(resource.Details, *resource.Input) (resource.OutputDetails, error)
@@ -28,22 +29,23 @@ type repository struct {
 }
 
 // Get retrieves all the resources present in the graph
-func (repo *repository) Get() (resource.Output, error) {
+func (repo *repository) Get(tenantID string) (resource.Output, error) {
 	return repo.session.Execute(`
-		MATCH(child:Resource)
-		OPTIONAL MATCH (child: Resource)-[:OWNED_BY]->(parent: Resource)
-		OPTIONAL MATCH (policy: Policy)-[:GRANTED_TO]->(child: Resource)
+		MATCH(n:Resource{source_id:$tenant_id})<-[:GRANTED_TO]-(:Policy)-[:PERMISSION]->(root:Resource)<-[:OWNED_BY*0..]-(child:Resource)
+		OPTIONAL MATCH (child)-[:OWNED_BY]->(parent: Resource)
+		OPTIONAL MATCH (policy: Policy)-[:GRANTED_TO]->(child)
 		RETURN {child: child, parent: parent, policy: COLLECT(policy)}`,
-		map[string]interface{}{})
+		map[string]interface{}{
+			"tenant_id": tenantID,
+		})
 }
 
 // GetByID function adds a resource node
 func (repo *repository) GetByID(id string) (resource.OutputDetails, error) {
 	results, err := repo.session.Execute(`
-		MATCH(child:Resource)
-		WHERE child.id = $id
+		MATCH(child:Resource{id: $id})
 		OPTIONAL MATCH (child: Resource)-[:OWNED_BY]->(parent: Resource)
-		OPTIONAL MATCH (policy: Policy)-[:GRANTED_TO]->(child: Resource)
+		OPTIONAL MATCH (policy: Policy)-[:GRANTED_TO]->(child)
 		RETURN {child: child, parent: parent, policy: COLLECT(policy)}`,
 		map[string]interface{}{
 			"id": id,
@@ -55,22 +57,50 @@ func (repo *repository) GetByID(id string) (resource.OutputDetails, error) {
 }
 
 // Create function adds a node to the graph
-func (repo *repository) Create(ctx context.Context, input *resource.Input) (resource.OutputDetails, error) {
-	var statement string
-	var parentID string
-	var parentExists = input.Data.Relationships != nil
 
-	if parentExists {
-		parentID = input.Data.Relationships.Parent.Data.ID
-	}
-
-	statement = generateCreateStatement(parentExists)
-	results, err := repo.session.Execute(statement,
+func (repo *repository) AttachResourceToExistingParent(input *resource.Input) (resource.OutputDetails, error) {
+	results, err := repo.session.Execute(`
+		MATCH (parent:Resource{id:$parent_id})
+		WITH parent
+		CREATE (child:Resource{name:$name, source_id:$source_id, id:randomUUID()})-[:OWNED_BY]->(parent)
+		RETURN {child:child, parent:parent}`,
 		map[string]interface{}{
 			"name":      input.Data.Attributes.Name,
 			"source_id": input.Data.Attributes.SourceID,
-			"parent_id": parentID,
-			"tenant_id": injection.ExtractClaims(ctx, "azp"),
+			"parent_id": input.Data.Relationships.Parent.Data.ID,
+		})
+	if len(results.Data) == 0 {
+		return resource.OutputDetails{}, models.ErrNotFound
+	}
+	return resource.OutputDetails{Data: results.Data[0]}, err
+}
+
+// Create function adds a node to the graph
+func (repo *repository) AttachResourceToTenantPolicy(tenantPolicy string, input *resource.Input) (resource.OutputDetails, error) {
+	results, err := repo.session.Execute(`
+		MATCH(tenant:Resource{source_id: $tenant_id})<-[:GRANTED_TO]-(policy:Policy)
+		WITH policy
+		CREATE (policy)-[:PERMISSION]->(child:Resource{name:$name, source_id:$source_id, id:randomUUID()})
+		RETURN {child:child}`,
+		map[string]interface{}{
+			"name":      input.Data.Attributes.Name,
+			"source_id": input.Data.Attributes.SourceID,
+			"tenant_id": tenantPolicy,
+		})
+	if len(results.Data) == 0 {
+		return resource.OutputDetails{}, models.ErrNotFound
+	}
+	return resource.OutputDetails{Data: results.Data[0]}, err
+}
+
+// CreateTenantResource is called only when guard my app is requesting to create a resource.
+func (repo *repository) CreateTenantResource(input *resource.Input) (resource.OutputDetails, error) {
+	results, err := repo.session.Execute(`
+		CREATE (child:Resource{name:$name, source_id:$source_id, id: randomUUID()})
+		RETURN {child:child}`,
+		map[string]interface{}{
+			"name":      input.Data.Attributes.Name,
+			"source_id": input.Data.Attributes.SourceID,
 		})
 	if len(results.Data) == 0 {
 		return resource.OutputDetails{}, models.ErrNotFound
@@ -171,19 +201,4 @@ func generateUpdateStatement(newParentID string) (statement string) {
 		RETURN {child: child, parent: new_parent}`
 	}
 	return
-}
-
-func generateCreateStatement(withParent bool) string {
-	if withParent {
-		return `
-			MATCH (parent:Resource{id:$parent_id})
-			WITH parent
-			CREATE (child:Resource{name:$name, source_id:$source_id, id:randomUUID()})-[:OWNED_BY]->(parent)
-			RETURN {child:child, parent:parent}`
-	}
-	return `
-		MATCH(tenant:Resource{source_id: $tenant_id})<-[:GRANTED_TO]-(policy:Policy)
-		WITH policy
-		CREATE (policy)-[:PERMISSION]->(child:Resource{name:$name, source_id:$source_id, id:randomUUID()})
-		RETURN {child:child}`
 }

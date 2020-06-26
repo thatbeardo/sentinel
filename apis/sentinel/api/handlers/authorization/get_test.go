@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"testing"
 
+	mocks "github.com/bithippie/guard-my-app/apis/sentinel/mocks/authorization"
 	models "github.com/bithippie/guard-my-app/apis/sentinel/models"
 	authorization "github.com/bithippie/guard-my-app/apis/sentinel/models/authorization/dto"
 	"github.com/bithippie/guard-my-app/apis/sentinel/models/authorization/testdata"
@@ -11,7 +12,7 @@ import (
 )
 
 func TestInvalidPath(t *testing.T) {
-	mockService := mockService{}
+	mockService := mocks.AuthorizationService{}
 
 	router := setupRouter(mockService)
 	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/invalid-path/", "")
@@ -26,10 +27,10 @@ func TestGetAllTargets_MultiplePermissions_ReturnsStatusOK(t *testing.T) {
 		Depth:       4,
 	}
 
-	mockService := mockService{
+	mockService := mocks.AuthorizationService{
 		GetAuthorizationForPrincipalResponse: testdata.Output,
 		ExpectedInput:                        expectedInput,
-		t:                                    t,
+		T:                                    t,
 	}
 
 	router := setupRouter(mockService)
@@ -44,10 +45,10 @@ func TestGetAllTargets_MultipleTarget_ReturnsStatusOK(t *testing.T) {
 		Targets: []string{"one", "two"},
 	}
 
-	mockService := mockService{
+	mockService := mocks.AuthorizationService{
 		GetAuthorizationForPrincipalResponse: testdata.Output,
 		ExpectedInput:                        expectedInput,
-		t:                                    t,
+		T:                                    t,
 	}
 
 	router := setupRouter(mockService)
@@ -62,10 +63,10 @@ func TestGetAllTargets_IncludeDeniedAndDepthNotProvided_ReturnsStatusOK(t *testi
 		Targets: []string{"one", "two"},
 	}
 
-	mockService := mockService{
+	mockService := mocks.AuthorizationService{
 		GetAuthorizationForPrincipalResponse: testdata.Output,
 		ExpectedInput:                        expectedInput,
-		t:                                    t,
+		T:                                    t,
 	}
 
 	router := setupRouter(mockService)
@@ -80,10 +81,10 @@ func TestGetAllTargets_ServiceReturnsError_ReturnsStatusOK(t *testing.T) {
 		Targets: []string{"one", "two"},
 	}
 
-	mockService := mockService{
+	mockService := mocks.AuthorizationService{
 		Err:           models.ErrDatabase,
 		ExpectedInput: expectedInput,
-		t:             t,
+		T:             t,
 	}
 
 	router := setupRouter(mockService)

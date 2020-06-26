@@ -197,10 +197,10 @@ func main() {
 	router := server.GenerateRouter(engine)
 	router.Use(middleware.VerifyToken)
 
-	resources.Routes(router, resourceService)
-	permissions.Routes(router, permissionService)
-	policies.Routes(router, policyService)
-	grants.Routes(router, grantService)
+	resources.Routes(router, resourceService, authorizationService)
+	permissions.Routes(router, permissionService, authorizationService)
+	policies.Routes(router, policyService, authorizationService)
+	grants.Routes(router, grantService, authorizationService)
 	authorizations.Routes(router, authorizationService)
 
 	server.Orchestrate(engine, shutdown)

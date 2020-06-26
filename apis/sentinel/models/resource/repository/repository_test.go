@@ -1,11 +1,9 @@
 package repository_test
 
 import (
-	"context"
 	"errors"
 	"testing"
 
-	"github.com/bithippie/guard-my-app/apis/sentinel/mocks"
 	policy "github.com/bithippie/guard-my-app/apis/sentinel/mocks/policy"
 	models "github.com/bithippie/guard-my-app/apis/sentinel/models"
 	policyTestData "github.com/bithippie/guard-my-app/apis/sentinel/models/policy/testdata"
@@ -20,16 +18,15 @@ var errTest = errors.New("test-error")
 var errNotFound = errors.New("Data not found")
 
 var getStatement = `
-		MATCH(child:Resource)
-		OPTIONAL MATCH (child: Resource)-[:OWNED_BY]->(parent: Resource)
-		OPTIONAL MATCH (policy: Policy)-[:GRANTED_TO]->(child: Resource)
+		MATCH(n:Resource{source_id:$tenant_id})<-[:GRANTED_TO]-(:Policy)-[:PERMISSION]->(root:Resource)<-[:OWNED_BY*0..]-(child:Resource)
+		OPTIONAL MATCH (child)-[:OWNED_BY]->(parent: Resource)
+		OPTIONAL MATCH (policy: Policy)-[:GRANTED_TO]->(child)
 		RETURN {child: child, parent: parent, policy: COLLECT(policy)}`
 
 var getByIDStatement = `
-		MATCH(child:Resource)
-		WHERE child.id = $id
+		MATCH(child:Resource{id: $id})
 		OPTIONAL MATCH (child: Resource)-[:OWNED_BY]->(parent: Resource)
-		OPTIONAL MATCH (policy: Policy)-[:GRANTED_TO]->(child: Resource)
+		OPTIONAL MATCH (policy: Policy)-[:GRANTED_TO]->(child)
 		RETURN {child: child, parent: parent, policy: COLLECT(policy)}`
 
 var createWithoutParentStatement = `
@@ -39,10 +36,14 @@ var createWithoutParentStatement = `
 		RETURN {child:child}`
 
 var createWithParentStatement = `
-			MATCH (parent:Resource{id:$parent_id})
-			WITH parent
-			CREATE (child:Resource{name:$name, source_id:$source_id, id:randomUUID()})-[:OWNED_BY]->(parent)
-			RETURN {child:child, parent:parent}`
+		MATCH (parent:Resource{id:$parent_id})
+		WITH parent
+		CREATE (child:Resource{name:$name, source_id:$source_id, id:randomUUID()})-[:OWNED_BY]->(parent)
+		RETURN {child:child, parent:parent}`
+
+var createTenantStatement = `
+		CREATE (child:Resource{name:$name, source_id:$source_id, id: randomUUID()})
+		RETURN {child:child}`
 
 var updateStatementNewParent = `
 		MATCH(child:Resource{id:$child_id})
@@ -99,24 +100,31 @@ func TestGet_SessionReturnsResponse_NoErrors(t *testing.T) {
 	session := mockSession{
 		ExecuteResponse:   testdata.Output,
 		ExpectedStatement: getStatement,
-		ExpectedParameter: map[string]interface{}{},
-		t:                 t,
+		ExpectedParameter: map[string]interface{}{
+			"tenant_id": "test-tenant",
+		},
+		t: t,
 	}
 	repository := repository.New(session, policy.Session{})
-	response, err := repository.Get()
+	response, err := repository.Get("test-tenant")
+
 	assert.Equal(t, testdata.Output, response)
 	assert.Nil(t, err)
 }
 
 func TestGet_SessionReturnsError_ReturnsError(t *testing.T) {
+
 	session := mockSession{
 		ExecuteErr:        errTest,
 		ExpectedStatement: getStatement,
-		ExpectedParameter: map[string]interface{}{},
-		t:                 t,
+		ExpectedParameter: map[string]interface{}{
+			"tenant_id": "test-tenant",
+		},
+		t: t,
 	}
 	repository := repository.New(session, policy.Session{})
-	_, err := repository.Get()
+
+	_, err := repository.Get("test-tenant")
 	assert.Equal(t, errTest, err)
 }
 
@@ -149,29 +157,6 @@ func TestGetByID_SessionReturnsError_ReturnsError(t *testing.T) {
 	assert.Equal(t, errNotFound, err)
 }
 
-func TestCreate_PayloadWithParentSessionReturnsResponse_NoErrors(t *testing.T) {
-	defer injection.Reset()
-	session := mockSession{
-		ExecuteResponse:   testdata.Output,
-		ExpectedStatement: createWithParentStatement,
-		ExpectedParameter: map[string]interface{}{
-			"name":      "test-resource",
-			"source_id": "test-source-id",
-			"parent_id": "parent-id",
-			"tenant_id": "test-tenant",
-		},
-		t: t,
-	}
-	injection.ExtractClaims = func(ctx context.Context, claim string) string {
-		return "test-tenant"
-	}
-
-	repository := repository.New(session, policy.Session{})
-	response, err := repository.Create(mocks.Context{}, testdata.Input)
-	assert.Equal(t, testdata.ModificationResult, response)
-	assert.Nil(t, err)
-}
-
 func TestCreate_PayloadWithoutParentSessionReturnsResponse_NoErrors(t *testing.T) {
 	defer injection.Reset()
 
@@ -181,26 +166,87 @@ func TestCreate_PayloadWithoutParentSessionReturnsResponse_NoErrors(t *testing.T
 		ExpectedParameter: map[string]interface{}{
 			"name":      "test-resource",
 			"source_id": "test-source-id",
-			"parent_id": "",
 			"tenant_id": "test-tenant",
 		},
 		t: t,
 	}
-	injection.ExtractClaims = func(ctx context.Context, claim string) string {
-		return "test-tenant"
-	}
 
 	repository := repository.New(session, policy.Session{})
-	response, err := repository.Create(mocks.Context{}, testdata.InputWithoutParent)
+	response, err := repository.AttachResourceToTenantPolicy("test-tenant", testdata.Input)
+
 	assert.Equal(t, testdata.ModificationResult, response)
 	assert.Nil(t, err)
 }
 
-func TestCreate_SessionReturnsError_ReturnsError(t *testing.T) {
-	defer injection.Reset()
-	injection.ExtractClaims = func(ctx context.Context, claim string) string {
-		return "test-tenant"
+func TestCreateTeanant_SessionReturnsResponse_NoErrors(t *testing.T) {
+	session := mockSession{
+		ExecuteResponse:   testdata.Output,
+		ExpectedStatement: createWithoutParentStatement,
+		ExpectedParameter: map[string]interface{}{
+			"name":      "test-resource",
+			"source_id": "test-source-id",
+			"tenant_id": "test-tenant",
+		},
+		t: t,
 	}
+
+	repository := repository.New(session, policy.Session{})
+	response, err := repository.AttachResourceToTenantPolicy("test-tenant", testdata.InputWithoutParent)
+	assert.Equal(t, testdata.ModificationResult, response)
+	assert.Nil(t, err)
+}
+
+func TestCreate_PayloadWithoutParentSessionReturnsEmptyResponse_ReturnNotFoundError(t *testing.T) {
+	session := mockSession{
+		ExecuteResponse:   resource.Output{Data: []resource.Details{}},
+		ExpectedStatement: createWithoutParentStatement,
+		ExpectedParameter: map[string]interface{}{
+			"name":      "test-resource",
+			"source_id": "test-source-id",
+			"tenant_id": "test-tenant",
+		},
+		t: t,
+	}
+
+	repository := repository.New(session, policy.Session{})
+	_, err := repository.AttachResourceToTenantPolicy("test-tenant", testdata.InputWithoutParent)
+	assert.Equal(t, models.ErrNotFound, err)
+}
+
+func TestCreate_CreateTenantResourceEmptyResponse_NoErrors(t *testing.T) {
+	session := mockSession{
+		ExecuteResponse:   resource.Output{Data: []resource.Details{}},
+		ExpectedStatement: createTenantStatement,
+		ExpectedParameter: map[string]interface{}{
+			"name":      "test-resource",
+			"source_id": "test-source-id",
+		},
+		t: t,
+	}
+
+	repository := repository.New(session, policy.Session{})
+	_, err := repository.CreateTenantResource(testdata.InputWithoutParent)
+	assert.Equal(t, models.ErrNotFound, err)
+}
+
+func TestCreateTenant_SessionReturnsResponse_NoErrors(t *testing.T) {
+	session := mockSession{
+		ExecuteResponse:   testdata.Output,
+		ExpectedStatement: createTenantStatement,
+		ExpectedParameter: map[string]interface{}{
+			"name":      "test-resource",
+			"source_id": "test-source-id",
+		},
+		t: t,
+	}
+
+	repository := repository.New(session, policy.Session{})
+	response, err := repository.CreateTenantResource(testdata.InputWithoutParent)
+	assert.Equal(t, testdata.ModificationResult, response)
+	assert.Nil(t, err)
+}
+
+func TestAttachResourceToExistingParent_SessionReturnsError_ReturnsError(t *testing.T) {
 	session := mockSession{
 		ExecuteErr:        errNotFound,
 		ExpectedStatement: createWithParentStatement,
@@ -208,13 +254,30 @@ func TestCreate_SessionReturnsError_ReturnsError(t *testing.T) {
 			"name":      "test-resource",
 			"source_id": "test-source-id",
 			"parent_id": "parent-id",
-			"tenant_id": "test-tenant",
 		},
 		t: t,
 	}
 	repository := repository.New(session, policy.Session{})
-	_, err := repository.Create(mocks.Context{}, testdata.Input)
+
+	_, err := repository.AttachResourceToExistingParent(testdata.Input)
 	assert.Equal(t, errNotFound, err)
+}
+
+func TestAttachResourceToExistingParent_SessionReturnsData_ReturnsError(t *testing.T) {
+	session := mockSession{
+		ExecuteResponse:   testdata.Output,
+		ExpectedStatement: createWithParentStatement,
+		ExpectedParameter: map[string]interface{}{
+			"name":      "test-resource",
+			"source_id": "test-source-id",
+			"parent_id": "parent-id",
+		},
+		t: t,
+	}
+	repository := repository.New(session, policy.Session{})
+
+	response, _ := repository.AttachResourceToExistingParent(testdata.Input)
+	assert.Equal(t, testdata.ModificationResult, response)
 }
 
 func TestUpdate_NewParentProvidedSessionReturnsResponse_NoErrors(t *testing.T) {

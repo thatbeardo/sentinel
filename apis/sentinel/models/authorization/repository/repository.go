@@ -13,6 +13,8 @@ import (
 type Repository interface {
 	GetAuthorizationForPrincipal(string, authorization.Input) (authorization.Output, error)
 	IsTargetOwnedByTenant(string, string) bool
+  IsPolicyOwnedByTenant(string, string) bool
+	IsPermissionOwnedByTenant(string, string) bool
 }
 
 type repository struct {
@@ -40,7 +42,8 @@ func (repo repository) GetAuthorizationForPrincipal(principalID string, input au
 	)
 }
 
-func (repo repository) IsTargetOwnedByTenant(targetID string, tenantID string) bool {
+
+func (repo repository) IsTargetOwnedByTenant(targetID, tenantID string) bool {
 	results, err := repo.session.Execute(`
 		MATCH (target:Resource{id: $targetID})
 		-[OWNED_BY*0..]->(ancestors:Resource)
@@ -50,6 +53,38 @@ func (repo repository) IsTargetOwnedByTenant(targetID string, tenantID string) b
 		map[string]interface{}{
 			"targetID": targetID,
 			"tenantID": tenantID,
+		},
+	)
+	return err == nil && len(results.Data) > 0
+}
+
+
+func (repo repository) IsPolicyOwnedByTenant(policyID, tenantID string) bool {
+	results, err := repo.session.Execute(`
+		MATCH (policy:Policy{id: $policyID})
+		-[:GRANTED_TO]->(target:Resource)
+		-[:OWNED_BY*0..]->(ancestors:Resource)
+		<-[permission:PERMISSION]-(tenantPolicy:Policy)
+		-[:GRANTED_TO]->(tenant:Resource{source_id: $tenantID})
+		RETURN {target: target, permissions: COLLECT(permission)}`,
+		map[string]interface{}{
+			"policyID": policyID,
+			"tenantID": tenantID,
+		},
+	)
+	return err == nil && len(results.Data) > 0
+}
+
+func (repo repository) IsPermissionOwnedByTenant(permissionID, tenantID string) bool {
+	results, err := repo.session.Execute(`
+		MATCH (policy:Policy)-[:PERMISSION{id: $permissionID}]->(target:Resource)
+		-[:OWNED_BY*0..]->(ancestors:Resource)
+		<-[permission:PERMISSION]-(tenantPolicy:Policy)
+		-[:GRANTED_TO]->(tenant:Resource{source_id: $tenantID})
+		RETURN {target: target, permissions: COLLECT(permission)}`,
+		map[string]interface{}{
+			"permissionID": permissionID,
+			"tenantID":     tenantID,
 		},
 	)
 	return err == nil && len(results.Data) > 0
