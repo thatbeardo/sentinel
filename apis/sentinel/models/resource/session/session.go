@@ -24,12 +24,13 @@ func NewNeo4jSession(neo4jsession neo4j.Runner) Session {
 }
 
 type resourceNode struct {
-	Name     string `mapstructure:"name"`
-	SourceID string `mapstructure:"source_id"`
-	ID       string `mapstructure:"id"`
+	Name      string `mapstructure:"name"`
+	SourceID  string `mapstructure:"source_id"`
+	ID        string `mapstructure:"id"`
+	ContextID string `mapstructure:"context_id"`
 }
 
-type policyNode struct {
+type contextNode struct {
 	ID   string `mapstructure:"id"`
 	Name string `mapstructure:"name"`
 }
@@ -60,21 +61,21 @@ func (n session) Execute(statement string, parameters map[string]interface{}) (r
 			return
 		}
 
-		var policies *resource.Policies
-		policies, err = decodePolicies(result, "policy")
+		var contexts *resource.Contexts
+		contexts, err = decodeContexts(result, "context")
 		if err != nil {
 			return
 		}
 
 		parent := generateParentResource(parentResource.ID)
-		resources = append(resources, generateDetails(childResource, parent, policies))
+		resources = append(resources, generateDetails(childResource, parent, contexts))
 	}
 
 	response = resource.Output{Data: resources}
 	return
 }
 
-func decodePolicies(results map[string]interface{}, field string) (policies *resource.Policies, err error) {
+func decodeContexts(results map[string]interface{}, field string) (contexts *resource.Contexts, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = models.ErrDatabase
@@ -84,11 +85,11 @@ func decodePolicies(results map[string]interface{}, field string) (policies *res
 	var data = []resource.Data{}
 	if results[field] != nil {
 		for _, node := range results[field].([]interface{}) {
-			var policyNode = policyNode{}
-			injection.MapDecoder(node.(neo4j.Node).Props(), &policyNode)
-			data = append(data, resource.Data{Type: "policy", ID: policyNode.ID})
+			var contextNode = contextNode{}
+			injection.MapDecoder(node.(neo4j.Node).Props(), &contextNode)
+			data = append(data, resource.Data{Type: "context", ID: contextNode.ID})
 		}
-		policies = &resource.Policies{Data: data}
+		contexts = &resource.Contexts{Data: data}
 	}
 	return
 }
@@ -105,17 +106,18 @@ func generateParentResource(parentResourceID string) (parent *resource.Parent) {
 	return
 }
 
-func generateDetails(childResource resourceNode, parent *resource.Parent, policies *resource.Policies) resource.Details {
+func generateDetails(childResource resourceNode, parent *resource.Parent, contexts *resource.Contexts) resource.Details {
 	return resource.Details{
 		Type: "resource",
 		ID:   childResource.ID,
 		Attributes: &resource.Attributes{
-			Name:     childResource.Name,
-			SourceID: childResource.SourceID,
+			Name:      childResource.Name,
+			SourceID:  childResource.SourceID,
+			ContextID: childResource.ContextID,
 		},
 		Relationships: &resource.Relationships{
 			Parent:   parent,
-			Policies: policies,
+			Contexts: contexts,
 		},
 	}
 }

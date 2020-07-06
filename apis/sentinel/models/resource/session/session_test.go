@@ -43,9 +43,9 @@ func TestExecute_DecodeFails_ReturnDatabaseError(t *testing.T) {
 	assert.Equal(t, errDecoding, err)
 }
 
-func TestExecute_PolicyDecodeFails_ReturnDatabaseError(t *testing.T) {
+func TestExecute_contextDecodeFails_ReturnDatabaseError(t *testing.T) {
 	result := generateValidResultMap()
-	result[0]["policy"] = "invalid-policy"
+	result[0]["context"] = "invalid-context"
 	session := session.NewNeo4jSession(mockNeo4jSession{
 		RunResponse: result,
 	})
@@ -92,9 +92,10 @@ func generateValidResultMap() []map[string]interface{} {
 		"child": mocks.NewNode(1,
 			[]string{"Resource"},
 			map[string]interface{}{
-				"id":        "test-id",
-				"name":      "test-resource",
-				"source_id": "test-source-id",
+				"id":         "test-id",
+				"name":       "test-resource",
+				"source_id":  "test-source-id",
+				"context_id": "test-context-id",
 			}),
 		"parent": mocks.NewNode(
 			2,
@@ -104,11 +105,11 @@ func generateValidResultMap() []map[string]interface{} {
 				"name":      "parent",
 				"source_id": "parent-source-id",
 			}),
-		"policy": []interface{}{mocks.NewNode(2,
+		"context": []interface{}{mocks.NewNode(2,
 			[]string{"Resource"},
 			map[string]interface{}{
-				"id":   "policy-id",
-				"name": "policy",
+				"id":   "context-id",
+				"name": "context",
 			}),
 		},
 	}

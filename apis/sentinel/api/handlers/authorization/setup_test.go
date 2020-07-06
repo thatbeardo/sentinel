@@ -7,6 +7,7 @@ import (
 	authorizations "github.com/bithippie/guard-my-app/apis/sentinel/api/handlers/authorization"
 	authorization "github.com/bithippie/guard-my-app/apis/sentinel/models/authorization/dto"
 	"github.com/bithippie/guard-my-app/apis/sentinel/models/authorization/service"
+	"github.com/bithippie/guard-my-app/apis/sentinel/testutil"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -18,7 +19,7 @@ const withGrantFieldAbsent = `{"data":{"type":"grant","attributes":{}}}`
 
 type mockService struct {
 	GetAuthorizationForPrincipalResponse authorization.Output
-	IsTargetOwnedByTenantResponse        bool
+	IsTargetOwnedByClientResponse        bool
 	ExpectedInput                        authorization.Input
 	Err                                  error
 	t                                    *testing.T
@@ -29,12 +30,13 @@ func (m mockService) GetAuthorizationForPrincipal(principalID string, input auth
 	return m.GetAuthorizationForPrincipalResponse, m.Err
 }
 
-func (m mockService) IsTargetOwnedByTenant(string, string) bool {
-	return m.IsTargetOwnedByTenantResponse
+func (m mockService) IsTargetOwnedByClient(string, string) bool {
+	return m.IsTargetOwnedByClientResponse
 }
 
 func setupRouter(s service.Service) *gin.Engine {
 	r := gin.Default()
+	testutil.RemoveMiddleware()
 	r.Use(cors.Default())
 	r.NoRoute(handler.NoRoute)
 	group := r.Group("/v1")

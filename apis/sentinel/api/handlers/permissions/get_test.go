@@ -21,7 +21,7 @@ func TestInvalidPath(t *testing.T) {
 
 func TestGetResourcesOk(t *testing.T) {
 	mockService := mockService{
-		GetAllPermissionsForPolicyResponse: testdata.Output,
+		GetAllPermissionsForcontextResponse: testdata.Output,
 	}
 
 	router := setupRouter(mockService)
@@ -31,7 +31,7 @@ func TestGetResourcesOk(t *testing.T) {
 	testutil.ValidateResponse(t, response, testdata.Output, http.StatusOK)
 }
 
-func TestGetPoliciesDatabaseError(t *testing.T) {
+func TestGetContextsDatabaseError(t *testing.T) {
 	mockService := mockService{
 		Err: models.ErrDatabase,
 	}
@@ -39,13 +39,13 @@ func TestGetPoliciesDatabaseError(t *testing.T) {
 	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/permissions/test-id/resources", "")
 	defer cleanup()
 
-	testutil.ValidateResponse(t, response, testutil.GenerateError("/v1/permissions/:policy_id/resources", "query-parameter-todo", "Database Error", http.StatusInternalServerError),
+	testutil.ValidateResponse(t, response, testutil.GenerateError("/v1/permissions/:context_id/resources", "query-parameter-todo", "Database Error", http.StatusInternalServerError),
 		http.StatusInternalServerError)
 }
 
 func TestGetAllPermissions_ServiceReturnsPermissions_Return200(t *testing.T) {
 	mockService := mockService{
-		GetAllPermissionsForPolicyResponse: testdata.Output,
+		GetAllPermissionsForcontextResponse: testdata.Output,
 	}
 
 	router := setupRouter(mockService)
@@ -63,17 +63,17 @@ func TestGetAllPermissions_ServiceReturnsDatabaseError_Returns500(t *testing.T) 
 	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/permissions/test-id/resources", "")
 	defer cleanup()
 
-	testutil.ValidateResponse(t, response, testutil.GenerateError("/v1/permissions/:policy_id/resources", "query-parameter-todo", "Database Error", http.StatusInternalServerError),
+	testutil.ValidateResponse(t, response, testutil.GenerateError("/v1/permissions/:context_id/resources", "query-parameter-todo", "Database Error", http.StatusInternalServerError),
 		http.StatusInternalServerError)
 }
 
 func TestAllPermissionsForResource_ServiceReturnsPermissions_Return200(t *testing.T) {
 	mockService := mockService{
-		GetAllPermissionsForPolicyWithResourceResponse: testdata.Output,
+		GetAllPermissionsForcontextWithResourceResponse: testdata.Output,
 	}
 
 	router := setupRouter(mockService)
-	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/permissions/policy-id/resources/test-id", "")
+	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/permissions/context-id/resources/test-id", "")
 	defer cleanup()
 
 	testutil.ValidateResponse(t, response, testdata.Output, http.StatusOK)
@@ -84,9 +84,9 @@ func TestAllPermissionsForResource_ServiceReturnsDatabaseError_Returns500(t *tes
 		Err: models.ErrDatabase,
 	}
 	router := setupRouter(mockService)
-	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/permissions/policy-id/resources/test-id", "")
+	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/permissions/context-id/resources/test-id", "")
 	defer cleanup()
 
-	testutil.ValidateResponse(t, response, testutil.GenerateError("/v1/permissions/:policy_id/resources/:resource_id", "query-parameter-todo", "Database Error", http.StatusInternalServerError),
+	testutil.ValidateResponse(t, response, testutil.GenerateError("/v1/permissions/:context_id/resources/:resource_id", "query-parameter-todo", "Database Error", http.StatusInternalServerError),
 		http.StatusInternalServerError)
 }

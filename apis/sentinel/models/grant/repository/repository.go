@@ -9,7 +9,7 @@ import (
 // Repository exposes wrapper methods around the underlying session
 type Repository interface {
 	Create(*grant.Input, string, string) (grant.OutputDetails, error)
-	GetPrincipalAndPolicyForResource(string) (grant.Output, error)
+	GetPrincipalAndcontextForResource(string) (grant.Output, error)
 }
 
 type repository struct {
@@ -23,25 +23,25 @@ func New(session session.Session) Repository {
 	}
 }
 
-func (repo *repository) GetPrincipalAndPolicyForResource(principal string) (output grant.Output, err error) {
+func (repo *repository) GetPrincipalAndcontextForResource(principal string) (output grant.Output, err error) {
 	return repo.session.Execute(`
-		MATCH (policy:Policy)-[:PERMISSION]->(principal: Resource {id: $principalID})
-		OPTIONAL MATCH (policy)-[grant:GRANTED_TO]->(principal:Resource)
-		RETURN {grant: grant, policy:policy, principal:principal}`,
+		MATCH (context:Context)-[:PERMISSION]->(principal: Resource {id: $principalID})
+		OPTIONAL MATCH (context)-[grant:GRANTED_TO]->(principal:Resource)
+		RETURN {grant: grant, context:Context, principal:principal}`,
 		map[string]interface{}{
 			"principalID": principal,
 		})
 }
 
-func (repo *repository) Create(input *grant.Input, policyID string, principalID string) (output grant.OutputDetails, err error) {
+func (repo *repository) Create(input *grant.Input, contextID string, principalID string) (output grant.OutputDetails, err error) {
 	result, err := repo.session.Execute(`
-		MATCH (policy: Policy), (principal: Resource)
-		WHERE policy.id = $policyID AND principal.id = $principalID
-		CREATE (policy)-[grant:GRANTED_TO {with_grant: $withGrant, id: randomUUID()}]->(principal)
-		RETURN {grant: grant, policy: policy, principal: principal}`,
+		MATCH (context:Context), (principal: Resource)
+		WHERE context.id = $contextID AND principal.id = $principalID
+		CREATE (context)-[grant:GRANTED_TO {with_grant: $withGrant, id: randomUUID()}]->(principal)
+		RETURN {grant: grant, context:Context, principal: principal}`,
 		map[string]interface{}{
 			"withGrant":   input.Data.Attributes.WithGrant,
-			"policyID":    policyID,
+			"contextID":   contextID,
 			"principalID": principalID,
 		})
 

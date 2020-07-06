@@ -21,7 +21,7 @@ func TestInvalidPath(t *testing.T) {
 
 func TestGet_ServiceReturnsGrants_ReturnStatusOK(t *testing.T) {
 	mockService := mockService{
-		GetPrincipalAndPolicyForResourceResponse: testdata.Output,
+		GetPrincipalAndcontextForResourceResponse: testdata.Output,
 	}
 
 	router := setupRouter(mockService)

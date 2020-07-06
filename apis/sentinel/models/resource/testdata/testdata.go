@@ -3,13 +3,18 @@ package testdata
 import resource "github.com/bithippie/guard-my-app/apis/sentinel/models/resource/dto"
 
 var attributes = &resource.Attributes{
-	Name:     "test-resource",
+	Name:      "test-resource",
+	SourceID:  "test-source-id",
+	ContextID: "test-context-id",
+}
+
+var attributesWithoutContext = &resource.Attributes{
 	SourceID: "test-source-id",
 }
 
-var policy = resource.Data{
-	Type: "policy",
-	ID:   "policy-id",
+var context = resource.Data{
+	Type: "context",
+	ID:   "context-id",
 }
 
 var parent = &resource.Parent{
@@ -19,11 +24,11 @@ var parent = &resource.Parent{
 	},
 }
 
-var policies = &resource.Policies{
-	Data: []resource.Data{policy},
+var contexts = &resource.Contexts{
+	Data: []resource.Data{context},
 }
 
-var detailsWithoutPolicies = resource.Details{
+var detailsWithoutContexts = resource.Details{
 	ID:         "test-id",
 	Type:       "resource",
 	Attributes: attributes,
@@ -37,28 +42,28 @@ var detailsWithoutParent = resource.Details{
 	Type:       "resource",
 	Attributes: attributes,
 	Relationships: &resource.Relationships{
-		Policies: policies,
+		Contexts: contexts,
 	},
 }
 
-var detailsWithPolicies = resource.Details{
+var detailsWithContexts = resource.Details{
 	ID:         "test-id",
 	Type:       "resource",
 	Attributes: attributes,
 	Relationships: &resource.Relationships{
 		Parent:   parent,
-		Policies: policies,
+		Contexts: contexts,
 	},
 }
 
 // Output represent a condition when all fields are present in the payload being sent back
 var Output = resource.Output{
-	Data: []resource.Details{detailsWithPolicies},
+	Data: []resource.Details{detailsWithContexts},
 }
 
-// OutputWithoutPolicies represents mock data for a response without policies
-var OutputWithoutPolicies = resource.Output{
-	Data: []resource.Details{detailsWithoutPolicies},
+// OutputWithoutContexts represents mock data for a response without contexts
+var OutputWithoutContexts = resource.Output{
+	Data: []resource.Details{detailsWithoutContexts},
 }
 
 // OutputWithoutParent represents mock data for a response without parent
@@ -99,7 +104,33 @@ var InputWithoutRelationship = &resource.Input{
 	},
 }
 
+// InputWithoutContext is a payload where context is absent
+var InputWithoutContext = &resource.Input{
+	Data: &resource.InputDetails{
+		Type:       "resource",
+		Attributes: attributesWithoutContext,
+	},
+}
+
 // ModificationResult represents the response sent when a resource is Updated/Created
 var ModificationResult = resource.OutputDetails{
-	Data: detailsWithPolicies,
+	Data: detailsWithContexts,
+}
+
+// OutputDetails is the same as ModificationResult just with a different name
+var OutputDetails = resource.OutputDetails{
+	Data: detailsWithContexts,
+}
+
+// OutputDetailsWithoutContexts is used when testing create function of resource service
+var OutputDetailsWithoutContexts = resource.OutputDetails{
+	Data: detailsWithoutContexts,
+}
+
+// ResourcesHubOutputDetails is the ancestor of all resources
+var ResourcesHubOutputDetails = resource.OutputDetails{
+	Data: resource.Details{
+		ID:   "parent-id",
+		Type: "resource",
+	},
 }

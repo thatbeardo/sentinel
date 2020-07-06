@@ -13,6 +13,7 @@ import (
 // @Description Get all the resources stored
 // @Accept  json
 // @Produce  json
+// @Param x-sentinel-tenant header string true "Desired tenant - environment"
 // @Success 200 {object} resource.Output	"ok"
 // @Success 500 {object} views.ErrView
 // @Security ApiKeyAuth
@@ -33,6 +34,7 @@ func get(service service.Service) gin.HandlerFunc {
 // @Description Get a resource by its ID
 // @Accept  json
 // @Produce  json
+// @Param x-sentinel-tenant header string true "Desired tenant - environment"
 // @Param id path string true "Resource ID"
 // @Success 200 {object} resource.OutputDetails	"ok"
 // @Success 404 {object} views.ErrView
@@ -51,25 +53,25 @@ func getByID(service service.Service) gin.HandlerFunc {
 	}
 }
 
-// @Summary Get all policies granted to this resource
+// @Summary Get all contexts granted to this resource
 // @Tags Resources
-// @Description Get all policy and details that are granted to this policy
+// @Description Get all context and details that are granted to this context
 // @Accept  json
 // @Produce  json
 // @Param id path string true "Resource ID"
-// @Success 200 {object} policy.Output	"ok"
+// @Success 200 {object} context.Output	"ok"
 // @Success 404 {object} views.ErrView
 // @Success 500 {object} views.ErrView
 // @Security ApiKeyAuth
-// @Router /v1/resources/{id}/policies [get]
-func getAllAssociatedPolicies(service service.Service) gin.HandlerFunc {
+// @Router /v1/resources/{id}/contexts [get]
+func getAllAssociatedContexts(service service.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id := c.Param("id")
-		policies, err := service.GetAllAssociatedPolicies(id)
+		contexts, err := service.GetAllAssociatedContexts(id)
 		if err != nil {
 			views.Wrap(err, c)
 			return
 		}
-		c.JSON(http.StatusOK, policies)
+		c.JSON(http.StatusOK, contexts)
 	}
 }

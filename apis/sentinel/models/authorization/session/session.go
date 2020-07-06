@@ -1,6 +1,8 @@
 package session
 
 import (
+	"fmt"
+
 	models "github.com/bithippie/guard-my-app/apis/sentinel/models"
 	authorization "github.com/bithippie/guard-my-app/apis/sentinel/models/authorization/dto"
 	"github.com/bithippie/guard-my-app/apis/sentinel/models/injection"
@@ -27,9 +29,8 @@ func NewNeo4jSession(neo4jsession neo4j.Runner) Session {
 
 // Execute runs the statement passed as a query and populates the data parameter with result
 func (n session) Execute(statement string, parameters map[string]interface{}) (output authorization.Output, err error) {
-
+	fmt.Println(statement)
 	results, err := n.session.Run(statement, parameters)
-
 	if err != nil {
 		return
 	}

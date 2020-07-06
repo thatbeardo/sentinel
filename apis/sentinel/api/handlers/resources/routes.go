@@ -1,7 +1,6 @@
 package resources
 
 import (
-
 	"github.com/bithippie/guard-my-app/apis/sentinel/api/handlers/injection"
 	authorizationService "github.com/bithippie/guard-my-app/apis/sentinel/models/authorization/service"
 	"github.com/bithippie/guard-my-app/apis/sentinel/models/resource/service"
@@ -15,10 +14,10 @@ func Routes(r *gin.RouterGroup, service service.Service, authorizationService au
 
 	router.GET("/", get(service))
 	router.GET("/:id", injection.VerifyResourceOwnership(authorizationService, identifier), getByID(service))
-	router.GET("/:id/policies", injection.VerifyResourceOwnership(authorizationService, identifier), getAllAssociatedPolicies(service))
+	router.GET("/:id/contexts", injection.VerifyResourceOwnership(authorizationService, identifier), getAllAssociatedContexts(service))
 
 	router.POST("/", injection.ValidateNewResource(authorizationService), post(service))
-	router.POST("/:id/policies", injection.VerifyResourceOwnership(authorizationService, identifier), associatePolicy(service))
+	router.POST("/:id/contexts", injection.VerifyResourceOwnership(authorizationService, identifier), associatecontext(service))
 
 	router.PATCH("/:id", injection.VerifyResourceOwnership(authorizationService, identifier), injection.ValidateNewResource(authorizationService), patch(service))
 

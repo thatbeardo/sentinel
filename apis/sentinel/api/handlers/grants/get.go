@@ -8,20 +8,21 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// @Summary Shows all Principal access to Target Resources managed through a Policy
+// @Summary Shows all Principal access to Target Resources managed through a context
 // @Tags Grants
-// @Description Shows all Principal access to Target Resources managed through a Policy
+// @Description Shows all Principal access to Target Resources managed through a context
 // @Accept  json
 // @Produce  json
 // @Param resource_id path string true "Resource ID"
+// @Param x-sentinel-tenant header string true "Desired environment"
 // @Success 200 {object} grant.Output	"ok"
 // @Success 500 {object} views.ErrView
 // @Security ApiKeyAuth
 // @Router /v1/grants/resources/{resource_id} [get]
-func getPrincipalsAndPoliciesForResource(service service.Service) gin.HandlerFunc {
+func getPrincipalsAndContextsForResource(service service.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id := c.Param("resource_id")
-		grants, err := service.GetPrincipalAndPolicyForResource(id)
+		grants, err := service.GetPrincipalAndcontextForResource(id)
 		if err != nil {
 			views.Wrap(err, c)
 			return

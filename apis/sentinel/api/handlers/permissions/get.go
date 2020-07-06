@@ -8,20 +8,21 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// @Summary List all Permissions for all Target Resources in Policy.
+// @Summary List all Permissions for all Target Resources in context.
 // @Tags Permissions
-// @Description List all Permissions for all Target Resources in Policy.
+// @Description List all Permissions for all Target Resources in context.
 // @Accept  json
 // @Produce  json
-// @Param policy_id path string true "Policy ID"
+// @Param context_id path string true "context ID"
+// @Param x-sentinel-tenant header string true "Desired environment"
 // @Success 200 {object} permission.Output	"ok"
 // @Success 500 {object} views.ErrView
 // @Security ApiKeyAuth
-// @Router /v1/permissions/{policy_id}/resources [get]
-func getAllPermissionsForAPolicy(service service.Service) gin.HandlerFunc {
+// @Router /v1/permissions/{context_id}/resources [get]
+func getAllPermissionsForAcontext(service service.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		id := c.Param("policy_id")
-		permissions, err := service.GetAllPermissionsForPolicy(id)
+		id := c.Param("context_id")
+		permissions, err := service.GetAllPermissionsForcontext(id)
 		if err != nil {
 			views.Wrap(err, c)
 			return
@@ -30,22 +31,22 @@ func getAllPermissionsForAPolicy(service service.Service) gin.HandlerFunc {
 	}
 }
 
-// @Summary List all permissions for a policy for a given target
+// @Summary List all permissions for a context for a given target
 // @Tags Permissions
-// @Description List all permissions for a policy for a given target
+// @Description List all permissions for a context for a given target
 // @Accept  json
 // @Produce  json
-// @Param policy_id path string true "Policy ID"
+// @Param context_id path string true "context ID"
 // @Param resource_id path string true "Resource ID"
 // @Success 200 {object} permission.Output	"ok"
 // @Success 500 {object} views.ErrView
 // @Security ApiKeyAuth
-// @Router /v1/permissions/{policy_id}/resources/{resource_id} [get]
-func getAllPermissionsForAPolicyWithResource(service service.Service) gin.HandlerFunc {
+// @Router /v1/permissions/{context_id}/resources/{resource_id} [get]
+func getAllPermissionsForAcontextWithResource(service service.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		policyID := c.Param("policy_id")
+		contextID := c.Param("context_id")
 		resourceID := c.Param("resource_id")
-		permissions, err := service.GetAllPermissionsForPolicyWithResource(policyID, resourceID)
+		permissions, err := service.GetAllPermissionsForcontextWithResource(contextID, resourceID)
 		if err != nil {
 			views.Wrap(err, c)
 			return

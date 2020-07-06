@@ -17,19 +17,19 @@ const nameFieldAbsent = `{"data":{"type":"permission","attributes":{"permitted":
 const permittedFieldAbsent = `{"data":{"type":"permission","attributes":{"name":"resource:read"}}}`
 
 type mockService struct {
-	GetAllPermissionsForPolicyResponse             permission.Output
-	GetAllPermissionsForPolicyWithResourceResponse permission.Output
-	CreateResponse                                 permission.OutputDetails
-	UpdateResponse                                 permission.OutputDetails
-	Err                                            error
+	GetAllPermissionsForcontextResponse             permission.Output
+	GetAllPermissionsForcontextWithResourceResponse permission.Output
+	CreateResponse                                  permission.OutputDetails
+	UpdateResponse                                  permission.OutputDetails
+	Err                                             error
 }
 
-func (m mockService) GetAllPermissionsForPolicy(policyID string) (permission.Output, error) {
-	return m.GetAllPermissionsForPolicyResponse, m.Err
+func (m mockService) GetAllPermissionsForcontext(contextID string) (permission.Output, error) {
+	return m.GetAllPermissionsForcontextResponse, m.Err
 }
 
-func (m mockService) GetAllPermissionsForPolicyWithResource(policyID string, resourceID string) (permission.Output, error) {
-	return m.GetAllPermissionsForPolicyWithResourceResponse, m.Err
+func (m mockService) GetAllPermissionsForcontextWithResource(contextID string, resourceID string) (permission.Output, error) {
+	return m.GetAllPermissionsForcontextWithResourceResponse, m.Err
 }
 
 func (m mockService) Create(*permission.Input, string, string) (permission.OutputDetails, error) {

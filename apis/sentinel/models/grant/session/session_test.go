@@ -76,9 +76,9 @@ func TestExecute_NoErrorsFromDB_ReturnResponse(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestExecute_DecodePolicyNodeFails_ReturnInternalServerError(t *testing.T) {
+func TestExecute_DecodecontextNodeFails_ReturnInternalServerError(t *testing.T) {
 	result := generateValidResultMap()
-	result[0]["policy"] = "invalid-data"
+	result[0]["context"] = "invalid-data"
 	session := session.NewNeo4jSession(mockNeo4jSession{
 		RunResponse: result,
 	})
@@ -106,8 +106,8 @@ func generateValidResultMap() []map[string]interface{} {
 			"id":         "test-grant-id",
 			"with_grant": true,
 		}),
-		"policy": mocks.NewNode(1, []string{"Policy"}, map[string]interface{}{
-			"id": "policy-id",
+		"context": mocks.NewNode(1, []string{"context"}, map[string]interface{}{
+			"id": "context-id",
 		}),
 		"principal": mocks.NewNode(1, []string{"Resource"}, map[string]interface{}{
 			"id": "resource-id",

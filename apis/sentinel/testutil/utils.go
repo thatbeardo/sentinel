@@ -16,7 +16,7 @@ import (
 )
 
 // PerformRequest creates and returns an initialized ResponseRecorder
-func PerformRequest(r http.Handler, method, path string, body string) (*http.Response, func() error) {
+func PerformRequest(r http.Handler, method, path, body string) (*http.Response, func() error) {
 	req, _ := http.NewRequest(method, path, strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	recorder := httptest.NewRecorder()
@@ -29,7 +29,7 @@ func PerformRequest(r http.Handler, method, path string, body string) (*http.Res
 // ValidateResponse reads and asserts the response body content
 func ValidateResponse(t *testing.T, response *http.Response, expected interface{}, code int) {
 	assert.Equal(t, code, response.StatusCode)
-	body, err := ioutil.ReadAll(response.Body)
+	b, err := ioutil.ReadAll(response.Body)
 	assert.NoError(t, err)
 
 	out, err := json.Marshal(expected)
@@ -37,7 +37,7 @@ func ValidateResponse(t *testing.T, response *http.Response, expected interface{
 		panic(err)
 	}
 
-	assert.Equal(t, string(out), string(body))
+	assert.Equal(t, string(out), string(b))
 }
 
 // GenerateError creates an error response instance
@@ -62,7 +62,7 @@ func RemoveMiddleware() {
 		return noMiddleware
 	}
 
-	injection.VerifyPolicyOwnership = func(authorizationService.Service, string) gin.HandlerFunc {
+	injection.VerifyContextOwnership = func(authorizationService.Service, string) gin.HandlerFunc {
 		return noMiddleware
 	}
 

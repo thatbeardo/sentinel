@@ -1,42 +1,49 @@
 package repository
 
 import (
+	"fmt"
+
 	models "github.com/bithippie/guard-my-app/apis/sentinel/models"
-	policy "github.com/bithippie/guard-my-app/apis/sentinel/models/policy/dto"
-	policies "github.com/bithippie/guard-my-app/apis/sentinel/models/policy/session"
+	context "github.com/bithippie/guard-my-app/apis/sentinel/models/context/dto"
+	contexts "github.com/bithippie/guard-my-app/apis/sentinel/models/context/session"
 	resource "github.com/bithippie/guard-my-app/apis/sentinel/models/resource/dto"
 	"github.com/bithippie/guard-my-app/apis/sentinel/models/resource/session"
 )
 
 // Repository is used by the service to communicate with the underlying database
 type Repository interface {
-	Get(string) (resource.Output, error)
+	Get(clientID, tenant string) (resource.Output, error)
+	GetResourcesHub(clientID, tenant string) (resource.OutputDetails, error)
 	GetByID(string) (resource.OutputDetails, error)
 
-	AttachResourceToExistingParent(*resource.Input) (resource.OutputDetails, error)
-	AttachResourceToTenantPolicy(string, *resource.Input) (resource.OutputDetails, error)
-	CreateTenantResource(*resource.Input) (resource.OutputDetails, error)
+	Create(*resource.Input) (resource.OutputDetails, error)
+	CreateMetaResource(*resource.Input) (resource.OutputDetails, error)
 
-	AssociatePolicy(string, *policy.Input) (policy.OutputDetails, error)
-	GetAllAssociatedPolicies(string) (policy.Output, error)
+	AddContext(string, *context.Input) (context.OutputDetails, error)
+	GetAllContexts(string) (context.Output, error)
+
 	Update(resource.Details, *resource.Input) (resource.OutputDetails, error)
 	Delete(string) error
 }
 
 type repository struct {
-	session       session.Session
-	policySession policies.Session
+	session        session.Session
+	contextSession contexts.Session
 }
 
 // Get retrieves all the resources present in the graph
-func (repo *repository) Get(tenantID string) (resource.Output, error) {
+func (repo *repository) Get(clientID, tenant string) (resource.Output, error) {
 	return repo.session.Execute(`
-		MATCH(n:Resource{source_id:$tenant_id})<-[:GRANTED_TO]-(:Policy)-[:PERMISSION]->(root:Resource)<-[:OWNED_BY*0..]-(child:Resource)
+		MATCH(client:Resource{source_id:$client_id})
+		<-[:GRANTED_TO]-(:Context)-[:PERMISSION{name:"sentinel:read"}]->
+		(tenant:Resource{source_id: $tenant})<-[:GRANTED_TO]-(:Context)-[:PERMISSION{name:"sentinel:read"}]->(hub:Resource)
+		<-[:OWNED_BY*0..]-(child:Resource)
 		OPTIONAL MATCH (child)-[:OWNED_BY]->(parent: Resource)
-		OPTIONAL MATCH (policy: Policy)-[:GRANTED_TO]->(child)
-		RETURN {child: child, parent: parent, policy: COLLECT(policy)}`,
+		OPTIONAL MATCH (context:Context)-[:GRANTED_TO]->(child)
+		RETURN {child: child, parent: parent, context: COLLECT(context)}`,
 		map[string]interface{}{
-			"tenant_id": tenantID,
+			"client_id": clientID,
+			"tenant":    tenant,
 		})
 }
 
@@ -44,9 +51,9 @@ func (repo *repository) Get(tenantID string) (resource.Output, error) {
 func (repo *repository) GetByID(id string) (resource.OutputDetails, error) {
 	results, err := repo.session.Execute(`
 		MATCH(child:Resource{id: $id})
-		OPTIONAL MATCH (child: Resource)-[:OWNED_BY]->(parent: Resource)
-		OPTIONAL MATCH (policy: Policy)-[:GRANTED_TO]->(child)
-		RETURN {child: child, parent: parent, policy: COLLECT(policy)}`,
+		OPTIONAL MATCH (child)-[:OWNED_BY]->(parent: Resource)
+		OPTIONAL MATCH (context:Context)-[:GRANTED_TO]->(child)
+		RETURN {child: child, parent: parent, context: COLLECT(context)}`,
 		map[string]interface{}{
 			"id": id,
 		})
@@ -56,18 +63,17 @@ func (repo *repository) GetByID(id string) (resource.OutputDetails, error) {
 	return resource.OutputDetails{Data: results.Data[0]}, err
 }
 
-// Create function adds a node to the graph
-
-func (repo *repository) AttachResourceToExistingParent(input *resource.Input) (resource.OutputDetails, error) {
+// GetResourcesHub returns the resource to which all other nodes hang off of
+func (repo *repository) GetResourcesHub(clientID, tenant string) (resource.OutputDetails, error) {
 	results, err := repo.session.Execute(`
-		MATCH (parent:Resource{id:$parent_id})
-		WITH parent
-		CREATE (child:Resource{name:$name, source_id:$source_id, id:randomUUID()})-[:OWNED_BY]->(parent)
-		RETURN {child:child, parent:parent}`,
+		MATCH(client:Resource{source_id: $client_id})<-[:GRANTED_TO]-(:Context)
+		-[:PERMISSION{name:"sentinel:read", permitted: "allow"}]->
+		(tenant:Resource{source_id: $tenant})<-[:GRANTED_TO]-(:Context)
+		-[:PERMISSION{name:"sentinel:read", permitted: "allow"}]->(hub:Resource)
+		RETURN {child: hub}`,
 		map[string]interface{}{
-			"name":      input.Data.Attributes.Name,
-			"source_id": input.Data.Attributes.SourceID,
-			"parent_id": input.Data.Relationships.Parent.Data.ID,
+			"client_id": clientID,
+			"tenant":    tenant,
 		})
 	if len(results.Data) == 0 {
 		return resource.OutputDetails{}, models.ErrNotFound
@@ -75,17 +81,18 @@ func (repo *repository) AttachResourceToExistingParent(input *resource.Input) (r
 	return resource.OutputDetails{Data: results.Data[0]}, err
 }
 
-// Create function adds a node to the graph
-func (repo *repository) AttachResourceToTenantPolicy(tenantPolicy string, input *resource.Input) (resource.OutputDetails, error) {
+// Create function adds a node to the graph - typically invoked by customer API not guard-my-app
+func (repo *repository) Create(input *resource.Input) (resource.OutputDetails, error) {
 	results, err := repo.session.Execute(`
-		MATCH(tenant:Resource{source_id: $tenant_id})<-[:GRANTED_TO]-(policy:Policy)
-		WITH policy
-		CREATE (policy)-[:PERMISSION]->(child:Resource{name:$name, source_id:$source_id, id:randomUUID()})
-		RETURN {child:child}`,
+		MATCH (parent:Resource{id:$parent_id})
+		WITH parent
+		CREATE (child:Resource{name:$name, source_id:$source_id, context_id:$context_id, id:randomUUID()})-[:OWNED_BY]->(parent)
+		RETURN {child:child, parent:parent}`,
 		map[string]interface{}{
-			"name":      input.Data.Attributes.Name,
-			"source_id": input.Data.Attributes.SourceID,
-			"tenant_id": tenantPolicy,
+			"name":       input.Data.Attributes.Name,
+			"source_id":  input.Data.Attributes.SourceID,
+			"parent_id":  input.Data.Relationships.Parent.Data.ID,
+			"context_id": input.Data.Attributes.ContextID,
 		})
 	if len(results.Data) == 0 {
 		return resource.OutputDetails{}, models.ErrNotFound
@@ -94,13 +101,14 @@ func (repo *repository) AttachResourceToTenantPolicy(tenantPolicy string, input 
 }
 
 // CreateTenantResource is called only when guard my app is requesting to create a resource.
-func (repo *repository) CreateTenantResource(input *resource.Input) (resource.OutputDetails, error) {
+func (repo *repository) CreateMetaResource(input *resource.Input) (resource.OutputDetails, error) {
 	results, err := repo.session.Execute(`
-		CREATE (child:Resource{name:$name, source_id:$source_id, id: randomUUID()})
+		CREATE (child:Resource{name:$name, source_id:$source_id, context_id:$context_id, id: randomUUID()})
 		RETURN {child:child}`,
 		map[string]interface{}{
-			"name":      input.Data.Attributes.Name,
-			"source_id": input.Data.Attributes.SourceID,
+			"name":       input.Data.Attributes.Name,
+			"source_id":  input.Data.Attributes.SourceID,
+			"context_id": input.Data.Attributes.ContextID,
 		})
 	if len(results.Data) == 0 {
 		return resource.OutputDetails{}, models.ErrNotFound
@@ -108,31 +116,32 @@ func (repo *repository) CreateTenantResource(input *resource.Input) (resource.Ou
 	return resource.OutputDetails{Data: results.Data[0]}, err
 }
 
-func (repo *repository) AssociatePolicy(id string, input *policy.Input) (policy.OutputDetails, error) {
-	result, err := repo.policySession.Execute(`
+func (repo *repository) AddContext(id string, input *context.Input) (context.OutputDetails, error) {
+	result, err := repo.contextSession.Execute(`
 		MATCH(principal:Resource{id: $principalID})
-		CREATE (principal)<-[:GRANTED_TO]-(policy:Policy{ name:$name, id:randomUUID() })
-		RETURN {policy: policy, principals: COLLECT(principal)}`,
+		CREATE (principal)<-[:GRANTED_TO]-(context:Context{ name:$name, id:randomUUID() })
+		RETURN {context:context, principals: COLLECT(principal)}`,
 		map[string]interface{}{
 			"principalID": id,
 			"name":        input.Data.Attributes.Name,
 		},
 	)
 	if len(result.Data) == 0 {
-		return policy.OutputDetails{}, models.ErrDatabase
+		return context.OutputDetails{}, models.ErrDatabase
 	}
-	return policy.OutputDetails{Data: result.Data[0]}, err
+	return context.OutputDetails{Data: result.Data[0]}, err
 }
 
 // Update function Edits the contents of a node
 func (repo *repository) Update(oldResource resource.Details, newResource *resource.Input) (resource.OutputDetails, error) {
 	newParentID := extractParentID(newResource)
-	statement := generateUpdateStatement(newParentID)
+	statement := generateUpdateStatement(newParentID, newResource)
 	results, err := repo.session.Execute(statement,
 		map[string]interface{}{
 			"child_id":      oldResource.ID,
 			"name":          newResource.Data.Attributes.Name,
 			"source_id":     newResource.Data.Attributes.SourceID,
+			"context_id":    newResource.Data.Attributes.ContextID,
 			"new_parent_id": newParentID,
 		})
 	if len(results.Data) == 0 {
@@ -151,25 +160,25 @@ func (repo *repository) Delete(id string) error {
 	return err
 }
 
-func (repo *repository) GetAllAssociatedPolicies(id string) (policy.Output, error) {
-	return repo.policySession.Execute(`
+func (repo *repository) GetAllContexts(id string) (context.Output, error) {
+	return repo.contextSession.Execute(`
 		MATCH (resource:Resource{id: $id}) 
 		WITH resource
-		MATCH(policy)-[:GRANTED_TO]->(resource)
-		WITH policy
-		OPTIONAL MATCH(policy)-[:PERMISSION]->(target:Resource)
-		OPTIONAL MATCH(policy)-[:GRANTED_TO]->(principal:Resource)
-		RETURN {policy:policy, principals:COLLECT(principal), targets:COLLECT(target)}`,
+		MATCH(context)-[:GRANTED_TO]->(resource)
+		WITH context
+		OPTIONAL MATCH(context)-[:PERMISSION]->(target:Resource)
+		OPTIONAL MATCH(context)-[:GRANTED_TO]->(principal:Resource)
+		RETURN {context:Context, principals:COLLECT(principal), targets:COLLECT(target)}`,
 		map[string]interface{}{
 			"id": id,
 		})
 }
 
 // New is a factory method to generate repository instances
-func New(session session.Session, policySession policies.Session) Repository {
+func New(session session.Session, contextSession contexts.Session) Repository {
 	return &repository{
-		session:       session,
-		policySession: policySession,
+		session:        session,
+		contextSession: contextSession,
 	}
 }
 
@@ -181,13 +190,26 @@ func extractParentID(newResource *resource.Input) string {
 	return parentID
 }
 
-func generateUpdateStatement(newParentID string) (statement string) {
-	statement = `
+func generateUpdateStatement(newParentID string, input *resource.Input) (statement string) {
+	var updatedFields string
+
+	if input.Data.Attributes.Name != "" {
+		updatedFields += `SET child.name=$name `
+	}
+
+	if input.Data.Attributes.ContextID != "" {
+		updatedFields += `SET child.context_id=$context_id `
+	}
+
+	if input.Data.Attributes.SourceID != "" {
+		updatedFields += `SET child.source_id=$source_id `
+	}
+
+	statement = fmt.Sprintf(`
 		MATCH(child:Resource{id:$child_id})
-		SET child.name=$name
-		SET child.source_id=$source_id
+		%s
 		WITH child
-		OPTIONAL MATCH (child)-[old_relationship:OWNED_BY]->(old_parent:Resource)`
+		OPTIONAL MATCH (child)-[old_relationship:OWNED_BY]->(old_parent:Resource)`, updatedFields)
 
 	if newParentID == "" {
 		statement += `RETURN {child: child, parent: old_parent}`

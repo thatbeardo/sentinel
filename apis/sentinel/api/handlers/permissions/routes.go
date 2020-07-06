@@ -7,23 +7,23 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Routes sets up policy specific routes on the engine instance
+// Routes sets up context specific routes on the engine instance
 // Unexpected routes thanks to - https://github.com/gin-gonic/gin/issues/1681
 func Routes(r *gin.RouterGroup, service service.Service, authorizationService authorizationService.Service) {
 	router := r.Group("/permissions")
-	router.PUT("/:policy_id/resources/:resource_id",
-		injection.VerifyPolicyOwnership(authorizationService, "policy_id"),
+	router.PUT("/:context_id/resources/:resource_id",
+		injection.VerifyContextOwnership(authorizationService, "context_id"),
 		injection.VerifyResourceOwnership(authorizationService, "resource_id"),
 		put(service))
 
-	router.GET("/:policy_id/resources",
-		injection.VerifyPolicyOwnership(authorizationService, "policy_id"),
-		getAllPermissionsForAPolicy(service))
+	router.GET("/:context_id/resources",
+		injection.VerifyContextOwnership(authorizationService, "context_id"),
+		getAllPermissionsForAcontext(service))
 
-	router.GET("/:policy_id/resources/:resource_id",
-		injection.VerifyPolicyOwnership(authorizationService, "policy_id"),
+	router.GET("/:context_id/resources/:resource_id",
+		injection.VerifyContextOwnership(authorizationService, "context_id"),
 		injection.VerifyResourceOwnership(authorizationService, "resource_id"),
-		getAllPermissionsForAPolicyWithResource(service))
+		getAllPermissionsForAcontextWithResource(service))
 
 	router.PATCH("/:permission_id", injection.VerifyPermissionOwnership(authorizationService, "permission_id"), patch(service))
 	router.DELETE("/:permission_id", injection.VerifyPermissionOwnership(authorizationService, "permission_id"), delete(service))

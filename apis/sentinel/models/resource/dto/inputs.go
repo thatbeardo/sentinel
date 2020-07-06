@@ -2,11 +2,12 @@ package resource
 
 // Attributes defines data about the resource being created
 type Attributes struct {
-	Name     string `json:"name" mapstructure:"name"`
-	SourceID string `json:"source_id" binding:"required" mapstructure:"source_id"`
+	Name      string `json:"name" mapstructure:"name"`
+	SourceID  string `json:"source_id" binding:"required" mapstructure:"source_id"`
+	ContextID string `json:"context_id" mapstructure:"context_id"`
 }
 
-// Data represents a resource/policy this resource refers to
+// Data represents a resource/context this resource refers to
 type Data struct {
 	Type string `json:"type,omitempty" enums:"resource" binding:"required"`
 	ID   string `json:"id,omitempty" binding:"required"`

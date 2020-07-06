@@ -18,13 +18,13 @@ type OutputDetails struct {
 	Data Details `json:"data"`
 }
 
-// Policies represents all the policies that have a grant to this resource
-type Policies struct {
+// Contexts represents all the contexts that have a grant to this resource
+type Contexts struct {
 	Data []Data `json:"data"`
 }
 
-// Relationships provides details about a given resource like policies and parent
+// Relationships provides details about a given resource like contexts and parent
 type Relationships struct {
 	Parent   *Parent   `json:"parent,omitempty"`
-	Policies *Policies `json:"policies,omitempty"`
+	Contexts *Contexts `json:"contexts,omitempty"`
 }

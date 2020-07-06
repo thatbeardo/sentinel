@@ -7,8 +7,8 @@ import (
 	"github.com/bithippie/guard-my-app/apis/sentinel/mocks"
 	models "github.com/bithippie/guard-my-app/apis/sentinel/models"
 
-	policy "github.com/bithippie/guard-my-app/apis/sentinel/models/policy/dto"
-	policyTestData "github.com/bithippie/guard-my-app/apis/sentinel/models/policy/testdata"
+	contextDto "github.com/bithippie/guard-my-app/apis/sentinel/models/context/dto"
+	contextTestData "github.com/bithippie/guard-my-app/apis/sentinel/models/context/testdata"
 	resource "github.com/bithippie/guard-my-app/apis/sentinel/models/resource/dto"
 	"github.com/bithippie/guard-my-app/apis/sentinel/models/resource/injection"
 	"github.com/bithippie/guard-my-app/apis/sentinel/models/resource/service"
@@ -17,25 +17,29 @@ import (
 )
 
 type mockRepository struct {
-	GetByIDErrCandidate                    string
-	GetResponse                            resource.Output
-	GetByIDResponse                        resource.OutputDetails
-	CreateResponse                         resource.OutputDetails
-	AttachResourceToExistingParentResponse resource.OutputDetails
-	AttachResourceToTenantPolicyResponse   resource.OutputDetails
-	UpdateResponse                         resource.OutputDetails
-	AssociatePolicyResponse                policy.OutputDetails
-	GetAllAssociatedPoliciesResponse       policy.Output
+	GetByIDErrCandidate              string
+	GetResponse                      resource.Output
+	GetByIDResponse                  resource.OutputDetails
+	GetResourcesHubResponse          resource.OutputDetails
+	CreateTenantResponse             resource.OutputDetails
+	CreateResourceResponse           resource.OutputDetails
+	UpdateResponse                   resource.OutputDetails
+	UpdateDefaultResponse            resource.OutputDetails
+	AssociatecontextResponse         contextDto.OutputDetails
+	GetAllAssociatedContextsResponse contextDto.Output
 
-	GetErr       error
-	GetByIDErr   error
-	CreateErr    error
-	UpdateErr    error
-	AssociateErr error
-	DeleteErr    error
+	GetErr             error
+	GetByIDErr         error
+	GetResourcesHubErr error
+	CreateErr          error
+	UpdateErr          error
+	AssociateErr       error
+	DeleteErr          error
+
+	T *testing.T
 }
 
-func (m mockRepository) Get(string) (resource.Output, error) {
+func (m mockRepository) Get(string, string) (resource.Output, error) {
 	return m.GetResponse, m.GetErr
 }
 
@@ -46,28 +50,33 @@ func (m mockRepository) GetByID(id string) (resource.OutputDetails, error) {
 	return m.GetByIDResponse, m.GetByIDErr
 }
 
-func (m mockRepository) AttachResourceToExistingParent(input *resource.Input) (resource.OutputDetails, error) {
-	return m.AttachResourceToExistingParentResponse, m.CreateErr
+func (m mockRepository) GetResourcesHub(clientID, tenant string) (resource.OutputDetails, error) {
+	return m.GetResourcesHubResponse, m.GetResourcesHubErr
 }
 
-func (m mockRepository) AttachResourceToTenantPolicy(string, *resource.Input) (resource.OutputDetails, error) {
-	return m.AttachResourceToTenantPolicyResponse, m.CreateErr
+func (m mockRepository) Create(input *resource.Input) (resource.OutputDetails, error) {
+	assert.Equal(m.T, testdata.Input, input)
+	return m.CreateResourceResponse, m.CreateErr
 }
 
-func (m mockRepository) CreateTenantResource(*resource.Input) (resource.OutputDetails, error) {
-	return m.CreateResponse, m.CreateErr
+func (m mockRepository) CreateMetaResource(*resource.Input) (resource.OutputDetails, error) {
+	return m.CreateTenantResponse, m.CreateErr
 }
 
-func (m mockRepository) AssociatePolicy(string, *policy.Input) (policy.OutputDetails, error) {
-	return m.AssociatePolicyResponse, m.AssociateErr
+func (m mockRepository) AddContext(string, *contextDto.Input) (contextDto.OutputDetails, error) {
+	return m.AssociatecontextResponse, m.AssociateErr
 }
 
 func (m mockRepository) Update(resource.Details, *resource.Input) (resource.OutputDetails, error) {
 	return m.UpdateResponse, m.UpdateErr
 }
 
-func (m mockRepository) GetAllAssociatedPolicies(string) (policy.Output, error) {
-	return m.GetAllAssociatedPoliciesResponse, m.AssociateErr
+func (m mockRepository) UpdateDefaultContext(string, string) (resource.OutputDetails, error) {
+	return m.UpdateDefaultResponse, m.UpdateErr
+}
+
+func (m mockRepository) GetAllContexts(string) (contextDto.Output, error) {
+	return m.GetAllAssociatedContextsResponse, m.AssociateErr
 }
 
 func (m mockRepository) Delete(string) error {
@@ -75,8 +84,12 @@ func (m mockRepository) Delete(string) error {
 }
 
 func TestGetServiceDatabaseError(t *testing.T) {
+	defer injection.Reset()
 	injection.ExtractClaims = func(ctx context.Context, claim string) string {
 		return "test-tenant"
+	}
+	injection.ExtractTenant = func(ctx context.Context) string {
+		return "tenant"
 	}
 	repository := mockRepository{
 		GetErr: models.ErrDatabase,
@@ -146,7 +159,8 @@ func TestCreateTenantResource_RepositoryReturnsData_ParseAndReturnData(t *testin
 		return "create:resource"
 	}
 	repository := mockRepository{
-		CreateResponse: testdata.ModificationResult,
+		CreateTenantResponse: testdata.ModificationResult,
+		T:                    t,
 	}
 	service := service.New(repository)
 	response, err := service.Create(mocks.Context{}, testdata.InputWithoutRelationship)
@@ -155,51 +169,26 @@ func TestCreateTenantResource_RepositoryReturnsData_ParseAndReturnData(t *testin
 	assert.Equal(t, testdata.ModificationResult, response)
 }
 
-func TestCreateResourceNoRelationships(t *testing.T) {
+func TestCreate_RelationshipsAbsent_ShouldCallRepositoryWithResourceHub(t *testing.T) {
+	defer injection.Reset()
 	injection.ExtractClaims = func(ctx context.Context, claim string) string {
-		return "create:resource"
+		return ""
+	}
+
+	injection.ExtractTenant = func(ctx context.Context) string {
+		return "dev"
 	}
 	repository := mockRepository{
-		CreateResponse: testdata.ModificationResult,
+		GetResourcesHubResponse: testdata.ResourcesHubOutputDetails,
+		CreateResourceResponse:  testdata.OutputDetails,
+		T:                       t,
 	}
 
 	service := service.New(repository)
 	response, err := service.Create(mocks.Context{}, testdata.InputWithoutRelationship)
 
 	assert.Nil(t, err, "Should have thrown an error")
-	assert.Equal(t, testdata.ModificationResult, response, "Schemas don't match")
-}
-
-func TestAttachResourceToParent_RepositoryReturnsData_ParseAndReturnData(t *testing.T) {
-	defer injection.Reset()
-	injection.ExtractClaims = func(ctx context.Context, claim string) string {
-		return "test-tenant"
-	}
-	repository := mockRepository{
-		AttachResourceToExistingParentResponse: testdata.ModificationResult,
-	}
-
-	service := service.New(repository)
-	response, err := service.Create(mocks.Context{}, testdata.Input)
-
-	assert.Nil(t, err, "Should have thrown an error")
-	assert.Equal(t, testdata.ModificationResult, response, "Schemas don't match")
-}
-
-func TestAttachResourceToTenantPolicy_RepositoryReturnsData_ParseAndReturnData(t *testing.T) {
-	defer injection.Reset()
-	injection.ExtractClaims = func(ctx context.Context, claim string) string {
-		return "test-tenant"
-	}
-	repository := mockRepository{
-		AttachResourceToTenantPolicyResponse: testdata.ModificationResult,
-	}
-
-	service := service.New(repository)
-	response, err := service.Create(mocks.Context{}, testdata.InputWithoutParent)
-
-	assert.Nil(t, err, "Should have thrown an error")
-	assert.Equal(t, testdata.ModificationResult, response, "Schemas don't match")
+	assert.Equal(t, testdata.OutputDetails, response, "Schemas don't match")
 }
 
 func TestDeleteResourceRepositoryError(t *testing.T) {
@@ -248,47 +237,47 @@ func TestUpdate_ResourceNodeNotFound_ReturnsErrNotFound(t *testing.T) {
 	assert.Equal(t, err, models.ErrNotFound, "Schemas don't match")
 }
 
-func TestAssociatePolicy_RepositoryReturnsError_ReturnError(t *testing.T) {
+func TestAssociatecontext_RepositoryReturnsError_ReturnError(t *testing.T) {
 	repository := mockRepository{
 		AssociateErr: models.ErrNotFound,
 	}
 	service := service.New(repository)
-	_, err := service.AssociatePolicy("test-id", policyTestData.Input)
+	_, err := service.Associatecontext("test-id", contextTestData.Input)
 
 	assert.NotNil(t, err, "Should not have thrown an error")
 	assert.Equal(t, err, models.ErrNotFound, "Schemas don't match")
 }
 
-func TestAssociatePolicy_RepositoryReturnsData_ReturnData(t *testing.T) {
+func TestAssociatecontext_RepositoryReturnsData_ReturnData(t *testing.T) {
 	repository := mockRepository{
-		AssociatePolicyResponse: policyTestData.OutputDetails,
+		AssociatecontextResponse: contextTestData.OutputDetails,
 	}
 	service := service.New(repository)
-	results, err := service.AssociatePolicy("test-id", policyTestData.Input)
+	results, err := service.Associatecontext("test-id", contextTestData.Input)
 
 	assert.Nil(t, err, "Should not have thrown an error")
-	assert.Equal(t, policyTestData.OutputDetails, results, "Schemas don't match")
+	assert.Equal(t, contextTestData.OutputDetails, results, "Schemas don't match")
 }
 
-func TestGetAllAssociatedPolicies_RepositoryReturnsData_ReturnData(t *testing.T) {
+func TestGetAllAssociatedContexts_RepositoryReturnsData_ReturnData(t *testing.T) {
 	repository := mockRepository{
-		GetAllAssociatedPoliciesResponse: policyTestData.Output,
+		GetAllAssociatedContextsResponse: contextTestData.Output,
 	}
 
 	service := service.New(repository)
-	results, err := service.GetAllAssociatedPolicies("test-id")
+	results, err := service.GetAllAssociatedContexts("test-id")
 
 	assert.Nil(t, err, "Should not have thrown an error")
-	assert.Equal(t, policyTestData.Output, results, "Schemas don't match")
+	assert.Equal(t, contextTestData.Output, results, "Schemas don't match")
 }
 
-func TestGetAllAssociatedPolicies_RepositoryReturnsError_ReturnError(t *testing.T) {
+func TestGetAllAssociatedContexts_RepositoryReturnsError_ReturnError(t *testing.T) {
 	repository := mockRepository{
 		AssociateErr: models.ErrDatabase,
 	}
 
 	service := service.New(repository)
-	_, err := service.GetAllAssociatedPolicies("test-id")
+	_, err := service.GetAllAssociatedContexts("test-id")
 
 	assert.Equal(t, models.ErrDatabase, err, "Schemas don't match")
 }

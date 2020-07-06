@@ -4,10 +4,16 @@ import (
 	"net/http"
 
 	"github.com/bithippie/guard-my-app/apis/sentinel/api/views"
-	policy "github.com/bithippie/guard-my-app/apis/sentinel/models/policy/dto"
+	contextDto "github.com/bithippie/guard-my-app/apis/sentinel/models/context/dto"
 	resource "github.com/bithippie/guard-my-app/apis/sentinel/models/resource/dto"
 	"github.com/bithippie/guard-my-app/apis/sentinel/models/resource/service"
 	"github.com/gin-gonic/gin"
+)
+
+type key string
+
+const (
+	tenant key = "tenant"
 )
 
 // @Summary Create a new Resource
@@ -16,6 +22,7 @@ import (
 // @Accept  json
 // @Produce  json
 // @Param input body resource.Input true "Resource to be created"
+// @Param x-sentinel-tenant header string true "Desired tenant - environment"
 // @Success 202 {object} resource.OutputDetails	"ok"
 // @Failure 500 {object} views.ErrView	"ok"
 // @Security ApiKeyAuth
@@ -36,26 +43,27 @@ func post(service service.Service) gin.HandlerFunc {
 	}
 }
 
-// @Summary Associate a new Policy with an existing resource
-// @Description Grant a new Policy to an existing principal resources
+// @Summary Associate a new context with an existing resource
+// @Description Grant a new context to an existing principal resources
 // @Tags Resources
 // @Accept  json
 // @Produce  json
+// @Param x-sentinel-tenant header string true "Desired tenant - environment"
 // @Param id path string true "Principal Resource ID"
-// @Param input body policy.Input true "Policy to be created"
-// @Success 202 {object} policy.OutputDetails	"ok"
+// @Param input body context.Input true "context to be created"
+// @Success 202 {object} context.OutputDetails	"ok"
 // @Failure 500 {object} views.ErrView	"ok"
 // @Security ApiKeyAuth
-// @Router /v1/resources/{id}/policies [post]
-func associatePolicy(service service.Service) gin.HandlerFunc {
+// @Router /v1/resources/{id}/contexts [post]
+func associatecontext(service service.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var input policy.Input
+		var input contextDto.Input
 		principalID := c.Param("id")
 		if err := c.ShouldBind(&input); err != nil {
 			views.Wrap(err, c)
 			return
 		}
-		response, err := service.AssociatePolicy(principalID, &input)
+		response, err := service.Associatecontext(principalID, &input)
 		if err != nil {
 			views.Wrap(err, c)
 			return

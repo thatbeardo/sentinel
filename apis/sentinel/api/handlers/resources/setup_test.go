@@ -9,7 +9,7 @@ import (
 	mocks "github.com/bithippie/guard-my-app/apis/sentinel/mocks/authorization"
 
 	models "github.com/bithippie/guard-my-app/apis/sentinel/models"
-	policy "github.com/bithippie/guard-my-app/apis/sentinel/models/policy/dto"
+	contextDto "github.com/bithippie/guard-my-app/apis/sentinel/models/context/dto"
 	resource "github.com/bithippie/guard-my-app/apis/sentinel/models/resource/dto"
 	"github.com/bithippie/guard-my-app/apis/sentinel/models/resource/service"
 	"github.com/bithippie/guard-my-app/apis/sentinel/testutil"
@@ -25,8 +25,8 @@ type mockService struct {
 	GetByIDResponse                  resource.OutputDetails
 	CreateResponse                   resource.OutputDetails
 	UpdateResponse                   resource.OutputDetails
-	AssociateResponse                policy.OutputDetails
-	GetAllAssociatedPoliciesResponse policy.Output
+	AssociateResponse                contextDto.OutputDetails
+	GetAllAssociatedContextsResponse contextDto.Output
 
 	GetErr       error
 	GetByIDErr   error
@@ -55,12 +55,12 @@ func (m mockService) Update(string, *resource.Input) (resource.OutputDetails, er
 	return m.UpdateResponse, m.UpdateErr
 }
 
-func (m mockService) AssociatePolicy(string, *policy.Input) (policy.OutputDetails, error) {
+func (m mockService) Associatecontext(string, *contextDto.Input) (contextDto.OutputDetails, error) {
 	return m.AssociateResponse, m.AssociateErr
 }
 
-func (m mockService) GetAllAssociatedPolicies(string) (policy.Output, error) {
-	return m.GetAllAssociatedPoliciesResponse, m.AssociateErr
+func (m mockService) GetAllAssociatedContexts(string) (contextDto.Output, error) {
+	return m.GetAllAssociatedContextsResponse, m.AssociateErr
 }
 
 func (m mockService) Delete(string) error {

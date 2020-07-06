@@ -13,29 +13,29 @@ import (
 
 var errTest = errors.New("some-test-error")
 
-var getAllPermissionsForPolicyStatement = `
-		MATCH (policy:Policy { id: $policyID } )-[permission:PERMISSION]->(resource:Resource)
+var getAllPermissionsForcontextStatement = `
+		MATCH (context:Context { id: $contextID } )-[permission:PERMISSION]->(resource:Resource)
 		RETURN {permission: permission}`
 
-var getAllPermissionsForPolicyWithResourceStatement = `
-		MATCH (policy:Policy { id: $policyID } )-[permission:PERMISSION]->(resource:Resource { id: $resourceID })
+var getAllPermissionsForcontextWithResourceStatement = `
+		MATCH (context:Context { id: $contextID } )-[permission:PERMISSION]->(resource:Resource { id: $resourceID })
 		RETURN {permission: permission}`
 
 var createStatement = `
-		MATCH (policy: Policy), (target: Resource)
-		WHERE policy.id = $policyID AND target.id = $targetID
-		CREATE (policy)-[r:PERMISSION {name: $name, permitted: $permitted, id: randomUUID()}]->(target)
+		MATCH (context:Context), (target: Resource)
+		WHERE context.id = $contextID AND target.id = $targetID
+		CREATE (context)-[r:PERMISSION {name: $name, permitted: $permitted, id: randomUUID()}]->(target)
 		RETURN {permission: r}`
 
 var updateStatement = `
-		MATCH(policy:Policy)-[permission:PERMISSION]->(resource:Resource)
+		MATCH(context:Context)-[permission:PERMISSION]->(resource:Resource)
 		WHERE permission.id = $id
 		SET permission.name = $name
 		SET permission.permitted = $permitted
 		RETURN {permission: permission}`
 
 var deleteStatement = `
-		MATCH(policy:Policy)-[permission:PERMISSION]->(resource:Resource)
+		MATCH(context:Context)-[permission:PERMISSION]->(resource:Resource)
 		WHERE permission.id = $id
 		DELETE permission`
 
@@ -53,63 +53,63 @@ func (m mockSession) Execute(statement string, parameters map[string]interface{}
 	return m.ExecuteResponse, m.ExecuteErr
 }
 
-func TestGetAllPermissionsForPolicy_SessionReturnsResponse_ReturnDatabaseErr(t *testing.T) {
+func TestGetAllPermissionsForcontext_SessionReturnsResponse_ReturnDatabaseErr(t *testing.T) {
 	session := mockSession{
 		ExecuteResponse:   testdata.Output,
-		ExpectedStatement: getAllPermissionsForPolicyStatement,
+		ExpectedStatement: getAllPermissionsForcontextStatement,
 		ExpectedParameter: map[string]interface{}{
-			"policyID": "test-policy-id",
+			"contextID": "test-context-id",
 		},
 		t: t,
 	}
 	repository := repository.New(session)
-	response, err := repository.GetAllPermissionsForPolicy("test-policy-id")
+	response, err := repository.GetAllPermissionsForcontext("test-context-id")
 	assert.Equal(t, testdata.Output, response)
 	assert.Nil(t, err)
 }
 
-func TestGetAllPermissionsForPolicy_SessionReturnsEmptyResponse_DatabaseErrorReturned(t *testing.T) {
+func TestGetAllPermissionsForcontext_SessionReturnsEmptyResponse_DatabaseErrorReturned(t *testing.T) {
 	session := mockSession{
 		ExecuteErr:        errTest,
-		ExpectedStatement: getAllPermissionsForPolicyStatement,
+		ExpectedStatement: getAllPermissionsForcontextStatement,
 		ExpectedParameter: map[string]interface{}{
-			"policyID": "test-policy-id",
+			"contextID": "test-context-id",
 		},
 		t: t,
 	}
 	repository := repository.New(session)
-	_, err := repository.GetAllPermissionsForPolicy("test-policy-id")
+	_, err := repository.GetAllPermissionsForcontext("test-context-id")
 	assert.Equal(t, errTest, err)
 }
 
-func TestGetAllPermissionsForPolicyWithResource_SessionReturnsResponse_ReturnDatabaseErr(t *testing.T) {
+func TestGetAllPermissionsForcontextWithResource_SessionReturnsResponse_ReturnDatabaseErr(t *testing.T) {
 	session := mockSession{
 		ExecuteResponse:   testdata.Output,
-		ExpectedStatement: getAllPermissionsForPolicyWithResourceStatement,
+		ExpectedStatement: getAllPermissionsForcontextWithResourceStatement,
 		ExpectedParameter: map[string]interface{}{
-			"policyID":   "test-policy-id",
+			"contextID":  "test-context-id",
 			"resourceID": "test-resource-id",
 		},
 		t: t,
 	}
 	repository := repository.New(session)
-	response, err := repository.GetAllPermissionsForPolicyWithResource("test-policy-id", "test-resource-id")
+	response, err := repository.GetAllPermissionsForcontextWithResource("test-context-id", "test-resource-id")
 	assert.Equal(t, testdata.Output, response)
 	assert.Nil(t, err)
 }
 
-func TestGetAllPermissionsForPolicyWithResource_SessionReturnsEmptyResponse_DatabaseErrorReturned(t *testing.T) {
+func TestGetAllPermissionsForcontextWithResource_SessionReturnsEmptyResponse_DatabaseErrorReturned(t *testing.T) {
 	session := mockSession{
 		ExecuteErr:        errTest,
-		ExpectedStatement: getAllPermissionsForPolicyWithResourceStatement,
+		ExpectedStatement: getAllPermissionsForcontextWithResourceStatement,
 		ExpectedParameter: map[string]interface{}{
-			"policyID":   "test-policy-id",
+			"contextID":  "test-context-id",
 			"resourceID": "test-resource-id",
 		},
 		t: t,
 	}
 	repository := repository.New(session)
-	_, err := repository.GetAllPermissionsForPolicyWithResource("test-policy-id", "test-resource-id")
+	_, err := repository.GetAllPermissionsForcontextWithResource("test-context-id", "test-resource-id")
 	assert.Equal(t, errTest, err)
 }
 
@@ -120,13 +120,13 @@ func TestCreate_SessionReturnsResponse_ReturnDatabaseErr(t *testing.T) {
 		ExpectedParameter: map[string]interface{}{
 			"name":      "test-permission",
 			"permitted": "allow",
-			"policyID":  "test-policy-id",
+			"contextID": "test-context-id",
 			"targetID":  "test-target-id",
 		},
 		t: t,
 	}
 	repository := repository.New(session)
-	response, err := repository.Create(testdata.Input, "test-policy-id", "test-target-id")
+	response, err := repository.Create(testdata.Input, "test-context-id", "test-target-id")
 	assert.Equal(t, testdata.OutputDetails, response)
 	assert.Nil(t, err)
 }
@@ -138,13 +138,13 @@ func TestCreate_SessionReturnsEmptyResponse_DatabaseErrorReturned(t *testing.T) 
 		ExpectedParameter: map[string]interface{}{
 			"name":      "test-permission",
 			"permitted": "allow",
-			"policyID":  "test-policy-id",
+			"contextID": "test-context-id",
 			"targetID":  "test-target-id",
 		},
 		t: t,
 	}
 	repository := repository.New(session)
-	_, err := repository.Create(testdata.Input, "test-policy-id", "test-target-id")
+	_, err := repository.Create(testdata.Input, "test-context-id", "test-target-id")
 	assert.Equal(t, models.ErrNotFound, err)
 }
 

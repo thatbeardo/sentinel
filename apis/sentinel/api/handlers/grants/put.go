@@ -9,28 +9,29 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// @Summary Update a grant that permits a policy on a resource
+// @Summary Update a grant that permits a context on a resource
 // @Tags Grants
-// @Description Create a grant for a policy on a resource
+// @Description Create a grant for a context on a resource
 // @Accept  json
 // @Produce  json
-// @Param policy_id path string true "Policy ID"
+// @Param context_id path string true "context ID"
 // @Param resource_id path string true "Resource ID"
 // @Param input body grant.Input true "Details about the Grant to be added"
+// @Param x-sentinel-tenant header string true "Desired environment"
 // @Success 204 {object} grant.Output	"ok"
 // @Success 404 {object} views.ErrView
 // @Security ApiKeyAuth
-// @Router /v1/grants/resources/{resource_id}/policies/{policy_id} [put]
+// @Router /v1/grants/resources/{resource_id}/contexts/{context_id} [put]
 func put(service service.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		policyID := c.Param("policy_id")
+		contextID := c.Param("context_id")
 		resourceID := c.Param("resource_id")
 		var input grant.Input
 		if err := c.ShouldBind(&input); err != nil {
 			views.Wrap(err, c)
 			return
 		}
-		resourceResponse, err := service.Create(&input, policyID, resourceID)
+		resourceResponse, err := service.Create(&input, contextID, resourceID)
 		if err != nil {
 			views.Wrap(err, c)
 			return

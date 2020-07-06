@@ -13,48 +13,56 @@ import (
 var depth4TargetsPresentPermittedAbsentPermissionsPresent = `
 			MATCH(target:Resource)-[:OWNED_BY*0..4]->(ancestors:Resource)
 			WHERE target.id IN ["ghi","jkl"]
-			MATCH (policy:Policy)-[permission:PERMISSION{permitted:"allow"}]->(target)
+			MATCH (principal:Resource{id: $principal_id})
+			MATCH (context:Context{id:principal.context_id})-[permission:PERMISSION{permitted:"allow"}]->(target)
 			WHERE permission.name IN ["abc","def"]
-			MATCH (principal:Resource{id: $principalID})<-[grant:GRANTED_TO]-(policy)
+			MATCH (principal)<-[grant:GRANTED_TO]-(context)
 			RETURN {target:target, permissions: COLLECT(permission)}`
 
 var depth4TargetsAbsentPermittedAbsentPermissionsPresent = `
 			MATCH(target:Resource)-[:OWNED_BY*0..4]->(ancestors:Resource)
 			
-			MATCH (policy:Policy)-[permission:PERMISSION{permitted:"allow"}]->(target)
+			MATCH (principal:Resource{id: $principal_id})
+			MATCH (context:Context{id:principal.context_id})-[permission:PERMISSION{permitted:"allow"}]->(target)
 			WHERE permission.name IN ["abc","def"]
-			MATCH (principal:Resource{id: $principalID})<-[grant:GRANTED_TO]-(policy)
+			MATCH (principal)<-[grant:GRANTED_TO]-(context)
 			RETURN {target:target, permissions: COLLECT(permission)}`
 
 var depth4TargetsAbsentPermittedAbsentPermissionNamesAbsent = `
 			MATCH(target:Resource)-[:OWNED_BY*0..4]->(ancestors:Resource)
 			
-			MATCH (policy:Policy)-[permission:PERMISSION{}]->(target)
+			MATCH (principal:Resource{id: $principal_id})
+			MATCH (context:Context{id:$context_id})-[permission:PERMISSION{}]->(target)
 			
-			MATCH (principal:Resource{id: $principalID})<-[grant:GRANTED_TO]-(policy)
+			MATCH (principal)<-[grant:GRANTED_TO]-(context)
 			RETURN {target:target, permissions: COLLECT(permission)}`
 
-var ownershipStatement = `
-		MATCH (target:Resource{id: $targetID})
-		-[OWNED_BY*0..]->(ancestors:Resource)
-		<-[permission:PERMISSION]-(policy:Policy)
-		-[:GRANTED_TO]->(tenant:Resource{source_id:$tenantID})
-		RETURN {target: target, permissions: COLLECT(permission)}`
+var resourceOwnershipStatement = `
+		MATCH (target:Resource{id: $target_id})
+		-[:OWNED_BY*0..]->(hub:Resource)
+		<-[tenantPermission:PERMISSION {name:"sentinel:read", permitted:"allow"}]-(tenantContext:Context)
+		-[:GRANTED_TO]->(tenant:Resource {source_id:$tenant})
+		<-[clientPermission:PERMISSION {name:"sentinel:read", permitted:"allow"}]-(clientContext:Context)
+		-[:GRANTED_TO]->(client:Resource {source_id:$client_id})
+		RETURN {target: target, permissions: COLLECT(clientPermission)}`
 
-var policyOwnershipStatement = `
-		MATCH (policy:Policy{id: $policyID})
-		-[:GRANTED_TO]->(target:Resource)
-		-[:OWNED_BY*0..]->(ancestors:Resource)
-		<-[permission:PERMISSION]-(tenantPolicy:Policy)
-		-[:GRANTED_TO]->(tenant:Resource{source_id: $tenantID})
-		RETURN {target: target, permissions: COLLECT(permission)}`
+var contextOwnershipStatement = `
+		MATCH (context:Context{id: $context_id})-[:GRANTED_TO]->(target:Resource)
+		-[:OWNED_BY*0..]->(hub:Resource)
+		<-[tenantPermission:PERMISSION {name:"sentinel:read", permitted:"allow"}]-(tenantContext:Context)
+		-[:GRANTED_TO]->(tenant:Resource {source_id:$tenant})
+		<-[clientPermission:PERMISSION {name:"sentinel:read", permitted:"allow"}]-(clientContext:Context)
+		-[:GRANTED_TO]->(client:Resource {source_id:$client_id})
+		RETURN {target: target, permissions: COLLECT(clientPermission)}`
 
 var permissionOwnershipStatement = `
-		MATCH (policy:Policy)-[:PERMISSION{id: $permissionID}]->(target:Resource)
-		-[:OWNED_BY*0..]->(ancestors:Resource)
-		<-[permission:PERMISSION]-(tenantPolicy:Policy)
-		-[:GRANTED_TO]->(tenant:Resource{source_id: $tenantID})
-		RETURN {target: target, permissions: COLLECT(permission)}`
+		MATCH (context:Context)-[:PERMISSION{id: $permission_id}]->(target:Resource)
+		-[:OWNED_BY*0..]->(hub:Resource)
+		<-[tenantPermission:PERMISSION {name:"sentinel:read", permitted:"allow"}]-(tenantContext:Context)
+		-[:GRANTED_TO]->(tenant:Resource {source_id:$tenant})
+		<-[clientPermission:PERMISSION {name:"sentinel:read", permitted:"allow"}]-(clientContext:Context)
+		-[:GRANTED_TO]->(client:Resource {source_id:$client_id})
+		RETURN {target: target, permissions: COLLECT(clientPermission)}`
 
 type mockSession struct {
 	ExecuteResponse   authorization.Output
@@ -75,7 +83,8 @@ func TestGetAuthorizationTargetsMentioned_SessionReturnsData_ReturnData(t *testi
 		ExecuteResponse:   testdata.Output,
 		ExpectedStatement: depth4TargetsPresentPermittedAbsentPermissionsPresent,
 		ExpectedParameter: map[string]interface{}{
-			"principalID": "test-principal-id",
+			"principal_id": "test-principal-id",
+			"context_id":   "",
 		},
 		t: t,
 	}
@@ -83,6 +92,7 @@ func TestGetAuthorizationTargetsMentioned_SessionReturnsData_ReturnData(t *testi
 	repository := repository.New(session)
 	response, err := repository.GetAuthorizationForPrincipal(
 		"test-principal-id",
+		"",
 		authorization.Input{Depth: 4,
 			IncludeDenied: false,
 			Permissions:   []string{"abc", "def"},
@@ -99,7 +109,8 @@ func TestGetAuthorizationFor_SessionReturnsData_ReturnData(t *testing.T) {
 		ExecuteResponse:   testdata.Output,
 		ExpectedStatement: depth4TargetsAbsentPermittedAbsentPermissionsPresent,
 		ExpectedParameter: map[string]interface{}{
-			"principalID": "test-principal-id",
+			"principal_id": "test-principal-id",
+			"context_id":   "",
 		},
 		t: t,
 	}
@@ -107,6 +118,7 @@ func TestGetAuthorizationFor_SessionReturnsData_ReturnData(t *testing.T) {
 	repository := repository.New(session)
 	response, err := repository.GetAuthorizationForPrincipal(
 		"test-principal-id",
+		"",
 		authorization.Input{Depth: 4, IncludeDenied: false, Permissions: []string{"abc", "def"}},
 	)
 
@@ -119,7 +131,8 @@ func TestGetAuthorizationForNonPermittedPrincipals_SessionReturnsData_ReturnData
 		ExecuteResponse:   testdata.Output,
 		ExpectedStatement: depth4TargetsAbsentPermittedAbsentPermissionNamesAbsent,
 		ExpectedParameter: map[string]interface{}{
-			"principalID": "test-principal-id",
+			"principal_id": "test-principal-id",
+			"context_id":   "test-context-id",
 		},
 		t: t,
 	}
@@ -127,6 +140,7 @@ func TestGetAuthorizationForNonPermittedPrincipals_SessionReturnsData_ReturnData
 	repository := repository.New(session)
 	response, err := repository.GetAuthorizationForPrincipal(
 		"test-principal-id",
+		"test-context-id",
 		authorization.Input{Depth: 4, IncludeDenied: true},
 	)
 
@@ -139,7 +153,8 @@ func TestGetAuthorizationForPrincipal_SessionReturnsError_ErrorReturned(t *testi
 		ExecuteErr:        errors.New("some-test-error"),
 		ExpectedStatement: depth4TargetsAbsentPermittedAbsentPermissionNamesAbsent,
 		ExpectedParameter: map[string]interface{}{
-			"principalID": "test-principal-id",
+			"principal_id": "test-principal-id",
+			"context_id":   "test-context-id",
 		},
 		t: t,
 	}
@@ -147,113 +162,119 @@ func TestGetAuthorizationForPrincipal_SessionReturnsError_ErrorReturned(t *testi
 	repository := repository.New(session)
 	_, err := repository.GetAuthorizationForPrincipal(
 		"test-principal-id",
+		"test-context-id",
 		authorization.Input{Depth: 4, IncludeDenied: true},
 	)
 
 	assert.Equal(t, errors.New("some-test-error"), err)
 }
 
-func TestIsTargetOwnedByTenant_RepositoryReturnsErr_ReturnFalse(t *testing.T) {
+func TestIsTargetOwnedByClient_RepositoryReturnsErr_ReturnFalse(t *testing.T) {
 	session := mockSession{
 		ExecuteErr:        errors.New("some-test-error"),
-		ExpectedStatement: ownershipStatement,
+		ExpectedStatement: resourceOwnershipStatement,
 		ExpectedParameter: map[string]interface{}{
-			"targetID": "target-id",
-			"tenantID": "tenant-id",
+			"client_id": "client-id",
+			"tenant":    "tenant",
+			"target_id": "target-id",
 		},
 		t: t,
 	}
 
 	repository := repository.New(session)
-	result := repository.IsTargetOwnedByTenant("target-id", "tenant-id")
+	result := repository.IsTargetOwnedByClient("client-id", "tenant", "target-id")
 
 	assert.False(t, result)
 }
 
-func TestIsTargetOwnedByTenant_RepositoryReturnsEmptyData_ReturnFalse(t *testing.T) {
+func TestIsTargetOwnedByClient_RepositoryReturnsEmptyData_ReturnFalse(t *testing.T) {
 	output := testdata.Output
 	output.Data = []authorization.Details{}
 	session := mockSession{
 		ExecuteResponse:   output,
-		ExpectedStatement: ownershipStatement,
+		ExpectedStatement: resourceOwnershipStatement,
 		ExpectedParameter: map[string]interface{}{
-			"targetID": "target-id",
-			"tenantID": "tenant-id",
+			"client_id": "client-id",
+			"tenant":    "tenant",
+			"target_id": "target-id",
 		},
 		t: t,
 	}
 
 	repository := repository.New(session)
-	result := repository.IsTargetOwnedByTenant("target-id", "tenant-id")
+	result := repository.IsTargetOwnedByClient("client-id", "tenant", "target-id")
 
 	assert.False(t, result)
 }
 
-func TestIsTargetOwnedByTenant_RepositoryReturnsData_ReturnTrue(t *testing.T) {
+func TestIsTargetOwnedByClient_RepositoryReturnsData_ReturnTrue(t *testing.T) {
 	session := mockSession{
 		ExecuteResponse:   testdata.Output,
-		ExpectedStatement: ownershipStatement,
+		ExpectedStatement: resourceOwnershipStatement,
 		ExpectedParameter: map[string]interface{}{
-			"targetID": "target-id",
-			"tenantID": "tenant-id",
+			"client_id": "client-id",
+			"tenant":    "tenant",
+			"target_id": "target-id",
 		},
 		t: t,
 	}
 
 	repository := repository.New(session)
-	result := repository.IsTargetOwnedByTenant("target-id", "tenant-id")
+	result := repository.IsTargetOwnedByClient("client-id", "tenant", "target-id")
 
 	assert.True(t, result)
 }
 
-
-func TestIsPolicyOwnedByTenant_SessionReturnsEmptyResponse_ReturnFalse(t *testing.T) {
+func TestIsContextOwnedByTenant_SessionReturnsEmptyResponse_ReturnFalse(t *testing.T) {
 	session := mockSession{
 		ExecuteResponse:   authorization.Output{Data: []authorization.Details{}},
-		ExpectedStatement: policyOwnershipStatement,
+		ExpectedStatement: contextOwnershipStatement,
 		ExpectedParameter: map[string]interface{}{
-			"policyID": "policy-id",
-			"tenantID": "tenant-id",
+			"client_id":  "client-id",
+			"tenant":     "tenant",
+			"context_id": "context-id",
 		},
 		t: t,
 	}
 
 	repository := repository.New(session)
-	result := repository.IsPolicyOwnedByTenant("policy-id", "tenant-id")
+	result := repository.IsContextOwnedByClient("client-id", "tenant", "context-id")
 
 	assert.False(t, result)
 }
 
-func TestIsPolicyOwnedByTenant_SessionReturnsError_ReturnFalse(t *testing.T) {
+func TestIscontextOwnedByTenant_SessionReturnsError_ReturnFalse(t *testing.T) {
 	session := mockSession{
 		ExecuteErr:        errors.New("some-test-error"),
-		ExpectedStatement: policyOwnershipStatement,
+		ExpectedStatement: contextOwnershipStatement,
 		ExpectedParameter: map[string]interface{}{
-			"policyID": "policy-id",
-			"tenantID": "tenant-id",
+			"client_id":  "client-id",
+			"tenant":     "tenant",
+			"context_id": "context-id",
 		},
 		t: t,
 	}
 
 	repository := repository.New(session)
-	result := repository.IsPolicyOwnedByTenant("policy-id", "tenant-id")
+	result := repository.IsContextOwnedByClient("client-id", "tenant", "context-id")
 
 	assert.False(t, result)
 }
 
-func TestIsPolicyOwnedByTenant_SessionReturnsData_ReturnTrue(t *testing.T) {
+func TestIsContextOwnedByTenant_SessionReturnsData_ReturnTrue(t *testing.T) {
 	session := mockSession{
 		ExecuteResponse:   testdata.Output,
-		ExpectedStatement: policyOwnershipStatement,
+		ExpectedStatement: contextOwnershipStatement,
 		ExpectedParameter: map[string]interface{}{
-			"policyID": "policy-id",
-			"tenantID": "tenant-id",
+			"client_id":  "client-id",
+			"tenant":     "tenant",
+			"context_id": "context-id",
 		},
 		t: t,
 	}
 
 	repository := repository.New(session)
-	result := repository.IsPolicyOwnedByTenant("policy-id", "tenant-id")
+	result := repository.IsContextOwnedByClient("client-id", "tenant", "context-id")
 
 	assert.True(t, result)
 }
@@ -263,8 +284,8 @@ func TestIsPermissionOwnedByTenant_SessionReturnsEmptyResponse_ReturnFalse(t *te
 		ExecuteResponse:   authorization.Output{Data: []authorization.Details{}},
 		ExpectedStatement: permissionOwnershipStatement,
 		ExpectedParameter: map[string]interface{}{
-			"permissionID": "permission-id",
-			"tenantID":     "tenant-id",
+			"permission_id": "permission-id",
+			"tenant_id":     "tenant-id",
 		},
 		t: t,
 	}
@@ -280,8 +301,8 @@ func TestIsPermissionOwnedByTenant_SessionReturnsError_ReturnFalse(t *testing.T)
 		ExecuteErr:        errors.New("some-test-error"),
 		ExpectedStatement: permissionOwnershipStatement,
 		ExpectedParameter: map[string]interface{}{
-			"permissionID": "permission-id",
-			"tenantID":     "tenant-id",
+			"permission_id": "permission-id",
+			"tenant_id":     "tenant-id",
 		},
 		t: t,
 	}
@@ -297,8 +318,8 @@ func TestIsPermissionOwnedByTenant_SessionReturnsData_ReturnTrue(t *testing.T) {
 		ExecuteResponse:   testdata.Output,
 		ExpectedStatement: permissionOwnershipStatement,
 		ExpectedParameter: map[string]interface{}{
-			"tenantID":     "tenant-id",
-			"permissionID": "permission-id",
+			"tenant_id":     "tenant-id",
+			"permission_id": "permission-id",
 		},
 		t: t,
 	}
@@ -308,4 +329,3 @@ func TestIsPermissionOwnedByTenant_SessionReturnsData_ReturnTrue(t *testing.T) {
 
 	assert.True(t, result)
 }
-

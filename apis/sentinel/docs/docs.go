@@ -28,6 +28,161 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/v1/contexts/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get a context by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Contexts"
+                ],
+                "summary": "Get context by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "context ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Desired environment",
+                        "name": "x-sentinel-tenant",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "$ref": "#/definitions/context.OutputDetails"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/views.ErrView"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/views.ErrView"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Delete a context by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Contexts"
+                ],
+                "summary": "Delete a context by its ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "context ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Desired environment",
+                        "name": "x-sentinel-tenant",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/views.ErrView"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Update Polciy name.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Contexts"
+                ],
+                "summary": "Update a context by it's ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "context ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "New name to be assigned to an existing context",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/context.Input"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Desired environment",
+                        "name": "x-sentinel-tenant",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "ok",
+                        "schema": {
+                            "$ref": "#/definitions/context.OutputDetails"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/views.ErrView"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/grants/resources/{resource_id}": {
             "get": {
                 "security": [
@@ -35,7 +190,7 @@ var doc = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Shows all Principal access to Target Resources managed through a Policy",
+                "description": "Shows all Principal access to Target Resources managed through a context",
                 "consumes": [
                     "application/json"
                 ],
@@ -45,13 +200,20 @@ var doc = `{
                 "tags": [
                     "Grants"
                 ],
-                "summary": "Shows all Principal access to Target Resources managed through a Policy",
+                "summary": "Shows all Principal access to Target Resources managed through a context",
                 "parameters": [
                     {
                         "type": "string",
                         "description": "Resource ID",
                         "name": "resource_id",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Desired environment",
+                        "name": "x-sentinel-tenant",
+                        "in": "header",
                         "required": true
                     }
                 ],
@@ -71,14 +233,14 @@ var doc = `{
                 }
             }
         },
-        "/v1/grants/resources/{resource_id}/policies/{policy_id}": {
+        "/v1/grants/resources/{resource_id}/contexts/{context_id}": {
             "put": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Create a grant for a policy on a resource",
+                "description": "Create a grant for a context on a resource",
                 "consumes": [
                     "application/json"
                 ],
@@ -88,12 +250,12 @@ var doc = `{
                 "tags": [
                     "Grants"
                 ],
-                "summary": "Update a grant that permits a policy on a resource",
+                "summary": "Update a grant that permits a context on a resource",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Policy ID",
-                        "name": "policy_id",
+                        "description": "context ID",
+                        "name": "context_id",
                         "in": "path",
                         "required": true
                     },
@@ -112,6 +274,13 @@ var doc = `{
                         "schema": {
                             "$ref": "#/definitions/grant.Input"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Desired environment",
+                        "name": "x-sentinel-tenant",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -119,6 +288,170 @@ var doc = `{
                         "description": "ok",
                         "schema": {
                             "$ref": "#/definitions/grant.Output"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/views.ErrView"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/permissions/{context_id}/resources": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "List all Permissions for all Target Resources in context.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Permissions"
+                ],
+                "summary": "List all Permissions for all Target Resources in context.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "context ID",
+                        "name": "context_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Desired environment",
+                        "name": "x-sentinel-tenant",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "$ref": "#/definitions/permission.Output"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/views.ErrView"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/permissions/{context_id}/resources/{resource_id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "List all permissions for a context for a given target",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Permissions"
+                ],
+                "summary": "List all permissions for a context for a given target",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "context ID",
+                        "name": "context_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Resource ID",
+                        "name": "resource_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "$ref": "#/definitions/permission.Output"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/views.ErrView"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Create a permission for a context on a resource",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Permissions"
+                ],
+                "summary": "Update a permission that permits acontext on a resource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "context ID",
+                        "name": "context_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Resource ID",
+                        "name": "resource_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Details about the permission to be added",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/permission.Input"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Desired environment",
+                        "name": "x-sentinel-tenant",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "ok",
+                        "schema": {
+                            "$ref": "#/definitions/permission.OutputDetails"
                         }
                     },
                     "404": {
@@ -154,6 +487,13 @@ var doc = `{
                         "description": "Permission ID",
                         "name": "id",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Desired environment",
+                        "name": "x-sentinel-tenant",
+                        "in": "header",
                         "required": true
                     }
                 ],
@@ -199,6 +539,13 @@ var doc = `{
                         "schema": {
                             "$ref": "#/definitions/permission.Input"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Desired environment",
+                        "name": "x-sentinel-tenant",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -206,290 +553,6 @@ var doc = `{
                         "description": "ok",
                         "schema": {
                             "$ref": "#/definitions/permission.OutputDetails"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/views.ErrView"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/permissions/{policy_id}/resources": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "List all Permissions for all Target Resources in Policy.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Permissions"
-                ],
-                "summary": "List all Permissions for all Target Resources in Policy.",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Policy ID",
-                        "name": "policy_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "ok",
-                        "schema": {
-                            "$ref": "#/definitions/permission.Output"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/views.ErrView"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/permissions/{policy_id}/resources/{resource_id}": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "List all permissions for a policy for a given target",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Permissions"
-                ],
-                "summary": "List all permissions for a policy for a given target",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Policy ID",
-                        "name": "policy_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Resource ID",
-                        "name": "resource_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "ok",
-                        "schema": {
-                            "$ref": "#/definitions/permission.Output"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/views.ErrView"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Create a permission for a policy on a resource",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Permissions"
-                ],
-                "summary": "Update a permission that permits apolicy on a resource",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Policy ID",
-                        "name": "policy_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Resource ID",
-                        "name": "resource_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Details about the permission to be added",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/permission.Input"
-                        }
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "ok",
-                        "schema": {
-                            "$ref": "#/definitions/permission.OutputDetails"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/views.ErrView"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/policies/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Get a Policy by its ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Policies"
-                ],
-                "summary": "Get Policy by ID",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Policy ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "ok",
-                        "schema": {
-                            "$ref": "#/definitions/policy.OutputDetails"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/views.ErrView"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/views.ErrView"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Delete a policy by its ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Policies"
-                ],
-                "summary": "Delete a policy by its ID",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Policy ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/views.ErrView"
-                        }
-                    }
-                }
-            },
-            "patch": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Update Polciy name.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Policies"
-                ],
-                "summary": "Update a Policy by it's ID",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Policy ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "New name to be assigned to an existing policy",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/policy.Input"
-                        }
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "ok",
-                        "schema": {
-                            "$ref": "#/definitions/policy.OutputDetails"
                         }
                     },
                     "404": {
@@ -553,11 +616,24 @@ var doc = `{
                         "in": "query"
                     },
                     {
+                        "type": "string",
+                        "description": "Context through which authorization is determined",
+                        "name": "context_id",
+                        "in": "query"
+                    },
+                    {
                         "type": "boolean",
                         "default": false,
                         "description": "Include permissions that have deny permit fields set",
                         "name": "include_denied",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Desired environment",
+                        "name": "x-sentinel-tenant",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -594,6 +670,15 @@ var doc = `{
                     "Resources"
                 ],
                 "summary": "Get all the resources",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Desired tenant - environment",
+                        "name": "x-sentinel-tenant",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "ok",
@@ -608,7 +693,9 @@ var doc = `{
                         }
                     }
                 }
-            },
+            }
+        },
+        "/v1/resources/": {
             "post": {
                 "security": [
                     {
@@ -635,6 +722,13 @@ var doc = `{
                         "schema": {
                             "$ref": "#/definitions/resource.Input"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Desired tenant - environment",
+                        "name": "x-sentinel-tenant",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -672,6 +766,13 @@ var doc = `{
                 ],
                 "summary": "Get resource by ID",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Desired tenant - environment",
+                        "name": "x-sentinel-tenant",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "Resource ID",
@@ -725,6 +826,13 @@ var doc = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Desired environment",
+                        "name": "x-sentinel-tenant",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -769,6 +877,13 @@ var doc = `{
                         "schema": {
                             "$ref": "#/definitions/resource.Input"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Desired environment",
+                        "name": "x-sentinel-tenant",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -787,14 +902,14 @@ var doc = `{
                 }
             }
         },
-        "/v1/resources/{id}/policies": {
+        "/v1/resources/{id}/contexts": {
             "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Get all policy and details that are granted to this policy",
+                "description": "Get all context and details that are granted to this context",
                 "consumes": [
                     "application/json"
                 ],
@@ -804,7 +919,7 @@ var doc = `{
                 "tags": [
                     "Resources"
                 ],
-                "summary": "Get all policies granted to this resource",
+                "summary": "Get all contexts granted to this resource",
                 "parameters": [
                     {
                         "type": "string",
@@ -818,7 +933,7 @@ var doc = `{
                     "200": {
                         "description": "ok",
                         "schema": {
-                            "$ref": "#/definitions/policy.Output"
+                            "$ref": "#/definitions/context.Output"
                         }
                     },
                     "404": {
@@ -841,7 +956,7 @@ var doc = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Grant a new Policy to an existing principal resources",
+                "description": "Grant a new context to an existing principal resources",
                 "consumes": [
                     "application/json"
                 ],
@@ -851,8 +966,15 @@ var doc = `{
                 "tags": [
                     "Resources"
                 ],
-                "summary": "Associate a new Policy with an existing resource",
+                "summary": "Associate a new context with an existing resource",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Desired tenant - environment",
+                        "name": "x-sentinel-tenant",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "Principal Resource ID",
@@ -861,12 +983,12 @@ var doc = `{
                         "required": true
                     },
                     {
-                        "description": "Policy to be created",
+                        "description": "context to be created",
                         "name": "input",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/policy.Input"
+                            "$ref": "#/definitions/context.Input"
                         }
                     }
                 ],
@@ -874,7 +996,7 @@ var doc = `{
                     "202": {
                         "description": "ok",
                         "schema": {
-                            "$ref": "#/definitions/policy.OutputDetails"
+                            "$ref": "#/definitions/context.OutputDetails"
                         }
                     },
                     "500": {
@@ -944,6 +1066,130 @@ var doc = `{
                 }
             }
         },
+        "context.Attributes": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "context.Details": {
+            "type": "object",
+            "required": [
+                "attributes",
+                "type"
+            ],
+            "properties": {
+                "attributes": {
+                    "type": "object",
+                    "$ref": "#/definitions/context.Attributes"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "relationships": {
+                    "type": "object",
+                    "$ref": "#/definitions/context.Relationships"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "context.Input": {
+            "type": "object",
+            "required": [
+                "data"
+            ],
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "$ref": "#/definitions/context.InputDetails"
+                }
+            }
+        },
+        "context.InputDetails": {
+            "type": "object",
+            "required": [
+                "attributes",
+                "type"
+            ],
+            "properties": {
+                "attributes": {
+                    "type": "object",
+                    "$ref": "#/definitions/context.Attributes"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "context.Output": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/context.Details"
+                    }
+                }
+            }
+        },
+        "context.OutputDetails": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "$ref": "#/definitions/context.Details"
+                }
+            }
+        },
+        "context.Relationship": {
+            "type": "object",
+            "required": [
+                "data"
+            ],
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/context.Resource"
+                    }
+                }
+            }
+        },
+        "context.Relationships": {
+            "type": "object",
+            "required": [
+                "principals",
+                "target_resources"
+            ],
+            "properties": {
+                "principals": {
+                    "type": "object",
+                    "$ref": "#/definitions/context.Relationship"
+                },
+                "target_resources": {
+                    "type": "object",
+                    "$ref": "#/definitions/context.Relationship"
+                }
+            }
+        },
+        "context.Resource": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
         "grant.Attributes": {
             "type": "object",
             "required": [
@@ -974,7 +1220,7 @@ var doc = `{
             "type": "object",
             "required": [
                 "attributes",
-                "policy",
+                "context",
                 "principal",
                 "type"
             ],
@@ -983,12 +1229,12 @@ var doc = `{
                     "type": "object",
                     "$ref": "#/definitions/grant.Attributes"
                 },
-                "id": {
-                    "type": "string"
-                },
-                "policy": {
+                "context": {
                     "type": "object",
                     "$ref": "#/definitions/grant.Relationship"
+                },
+                "id": {
+                    "type": "string"
                 },
                 "principal": {
                     "type": "object",
@@ -1129,141 +1375,31 @@ var doc = `{
                 }
             }
         },
-        "policy.Attributes": {
-            "type": "object",
-            "required": [
-                "name"
-            ],
-            "properties": {
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "policy.Details": {
-            "type": "object",
-            "required": [
-                "attributes",
-                "type"
-            ],
-            "properties": {
-                "attributes": {
-                    "type": "object",
-                    "$ref": "#/definitions/policy.Attributes"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "relationships": {
-                    "type": "object",
-                    "$ref": "#/definitions/policy.Relationships"
-                },
-                "type": {
-                    "type": "string"
-                }
-            }
-        },
-        "policy.Input": {
-            "type": "object",
-            "required": [
-                "data"
-            ],
-            "properties": {
-                "data": {
-                    "type": "object",
-                    "$ref": "#/definitions/policy.InputDetails"
-                }
-            }
-        },
-        "policy.InputDetails": {
-            "type": "object",
-            "required": [
-                "attributes",
-                "type"
-            ],
-            "properties": {
-                "attributes": {
-                    "type": "object",
-                    "$ref": "#/definitions/policy.Attributes"
-                },
-                "type": {
-                    "type": "string"
-                }
-            }
-        },
-        "policy.Output": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/policy.Details"
-                    }
-                }
-            }
-        },
-        "policy.OutputDetails": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "type": "object",
-                    "$ref": "#/definitions/policy.Details"
-                }
-            }
-        },
-        "policy.Relationship": {
-            "type": "object",
-            "required": [
-                "data"
-            ],
-            "properties": {
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/policy.Resource"
-                    }
-                }
-            }
-        },
-        "policy.Relationships": {
-            "type": "object",
-            "required": [
-                "principals",
-                "target_resources"
-            ],
-            "properties": {
-                "principals": {
-                    "type": "object",
-                    "$ref": "#/definitions/policy.Relationship"
-                },
-                "target_resources": {
-                    "type": "object",
-                    "$ref": "#/definitions/policy.Relationship"
-                }
-            }
-        },
-        "policy.Resource": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                }
-            }
-        },
         "resource.Attributes": {
             "type": "object",
             "required": [
                 "source_id"
             ],
             "properties": {
+                "context_id": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
                 },
                 "source_id": {
                     "type": "string"
+                }
+            }
+        },
+        "resource.Contexts": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/resource.Data"
+                    }
                 }
             }
         },
@@ -1386,27 +1522,16 @@ var doc = `{
                 }
             }
         },
-        "resource.Policies": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/resource.Data"
-                    }
-                }
-            }
-        },
         "resource.Relationships": {
             "type": "object",
             "properties": {
+                "contexts": {
+                    "type": "object",
+                    "$ref": "#/definitions/resource.Contexts"
+                },
                 "parent": {
                     "type": "object",
                     "$ref": "#/definitions/resource.Parent"
-                },
-                "policies": {
-                    "type": "object",
-                    "$ref": "#/definitions/resource.Policies"
                 }
             }
         },
@@ -1465,7 +1590,7 @@ var SwaggerInfo = swaggerInfo{
 	BasePath:    "/",
 	Schemes:     []string{},
 	Title:       "Sentinel API",
-	Description: "### A domain agnostic permission management and querying API. to manage\n\nAt the most basic level the Sentinel API offers a way for consumers to manage access of application resources to other application resources through the use of policies.\n\nA simple example demonstrating this flexibility of this relationship could be:\n\nUser (U1) has a policy (P1) granting read/write access to an account Resource (R)\nUser (U2) has a policy (P2) granting read access to the same account Resource (R)\n\nThe application can then query the api asking if (U1) can preform write access on (R) which will return True\nThe application can also query the api asking if (U2) can perform write access on (R) which will return False\n\nMore advanced capabilities include:\n* Inheritance - Resource access granted to a parent permits the same access to all children\n* Invitations - This model allows users having `with_grant` permissions to invite other users to join in a self-service way\n* Context - Users with multiple policies can have differing permission. The api permits the caller to specify context when performing permission checks.\n\n## ERD\n\n![Image](https://www.lucidchart.com/publicSegments/view/e66a76a3-8114-4b1c-9104-765f307c7869/image.png)\n\n## Resources\n---\nSimply stated a resource represents the nouns in your application. Resources are polymorphic and might represent users,\naccounts, or any application specific entity requiring gated access.\n\nResources are granted access to other resources through Policies. It is possible for a resource to be the\n`principal` in once policy while simultaneously a `target_resource` in another policy.\n\n\n_See definitions below for further explanation of principals and target_resources._\n\n\nResource may be owned by other resources. Resource inheritance will help reduce redundant permissions to similar resources\nif the principal has the same level of access to a class of resource. E.g. System Admins can read/write all accounts.\n\n**Precedence is determined by path length.** - In the event a resource has two policies with conflicting permission\nto a resource, the path with the shortest distance to the resource is preferred.\n\n#### Example:\n---\n**Given:**\n\nThe following resources exist - Parent Resource (PR), Child Resource (CR), Principal (P)\n\n**AND**\n\nThe following Policies exist - Policy (P1), Policy (P2)\n\n**AND**\n\nParent Resource (PR) owns Child Resource (CR)\n\n**AND**\n\nPrincipal (P) has a policy (P1) explicitly denying a permission, say \"read\", to (PR)\n\n**AND**\n\nPrincipal (P) has a policy (P2) allowing the same permission, \"read\", to (CR)\n\n**Conclusion:**\n(P) can not read (PR)\n(P) can read (CR)\n\nIn the event there are two policies from a principal directly to a resource with conflicting permission, the permission\ncheck will fail close and access will be denied.\n\n#### Example:\n---\n**Given:**\n\nThe following resources exist - Child Resource (R), Principal (P)\n\n**AND**\n\nThe following Policies exist - Policy (P1), Policy (P2)\n\n**AND**\n\nPrincipal (P) has a policy (P1) explicitly denying a permission, say \"read\", to (R)\n\n**AND**\n\nPrincipal (P) has a policy (P2) allowing the same permission, \"read\", to (R)\n\n**Conclusion:**\n(P) can not read (R)\n\n## Policies\n\n---\nPolicies `allow` or `deny` permissions to principals on target resources. A single policy can be granted to zero or\nmore principals and affect zero or more target resources.\n\nA policy contains zero or more permissions to target resources. A permission is always scoped to a single target resource within the policy.\nHowever, it is possible to grant the same permission to multiple target resources, or grant multiple permissions to\none target resource within the context of a single policy.\n\nEach grant of a policy to a principal contains a `with_grant` boolean allowing the aforementioned principal to\npropagate their permissions to additional principals if the `with_grant` option has been set to `true`.\nBy default `with_grant=false`.\n\n## Permissions\n---\nA permission defines access to perform an action between a Policy and a Resource.\nPermissions take simply a `name` and whether the permission is `permitted`.\nThe `name` is used to determine a principal\\'s authorization to a target resource.\n\nPermission Rules:\n* A permission can have `permitted: \"allow\"` which grants all `principals` of the policy access to the `target_resource` for that permission.\n* A permission can have `permitted: \"deny\"` which prevents all `principals` of the policy from performing the permission action the `target_resource` for that permission.\n* A permission can be `revoked` which will remove the `allow` or `deny` constraint. Access may then be based on the inheritance rules described above.\n* There is a unique constraint on the `(Policy.id, Permission.name, Resource.id)` tuple.\n\n### Definitions\n|Entity|Definition|\n|------|----------|\n|Resource|Any noun in your application. Resources (principals) access other Resources (target resource) through policies.|\n|Policy|A named collection of permissions. Policies are granted to resources (principals) and grant or deny access to affect resources (target resources) through permissions.|\n|Permission|An explicit allowance or refusal of a resource (principal) to perform an action on a resource (target resource).|\n|Principal|In the context of a Policy the principal refers to the resource which has been granted access to make use of the policy.|\n|Target Resource|In the context of a Policy a target resource is any and all resources which the policy allows or denies access through Permissions.|\n\n### Getting Started\nReview the [Getting Started Guide](http://localhost:3000/documentation/GettingStarted.md) for minimal setup instructions",
+	Description: "### A domain agnostic permission management and querying API. to manage\n\nAt the most basic level the Sentinel API offers a way for consumers to manage access of application resources to other application resources through the use of contexts.\n\nA simple example demonstrating this flexibility of this relationship could be:\n\nUser (U1) has a context (P1) granting read/write access to an account Resource (R)\nUser (U2) has a context (P2) granting read access to the same account Resource (R)\n\nThe application can then query the api asking if (U1) can preform write access on (R) which will return True\nThe application can also query the api asking if (U2) can perform write access on (R) which will return False\n\nMore advanced capabilities include:\n* Inheritance - Resource access granted to a parent permits the same access to all children\n* Invitations - This model allows users having `with_grant` permissions to invite other users to join in a self-service way\n* Context - Users with multiple contexts can have differing permission. The api permits the caller to specify context when performing permission checks.\n\n## ERD\n\n\n## Resources\n---\nSimply stated a resource represents the nouns in your application. Resources are polymorphic and might represent users,\naccounts, or any application specific entity requiring gated access.\n\nResources are granted access to other resources through Contexts. It is possible for a resource to be the\n`principal` in once context while simultaneously a `target_resource` in another context.\n\n\n_See definitions below for further explanation of principals and target_resources._\n\n\nResource may be owned by other resources. Resource inheritance will help reduce redundant permissions to similar resources\nif the principal has the same level of access to a class of resource. E.g. System Admins can read/write all accounts.\n\n**Precedence is determined by path length.** - In the event a resource has two contexts with conflicting permission\nto a resource, the path with the shortest distance to the resource is preferred.\n\n#### Example:\n---\n**Given:**\n\nThe following resources exist - Parent Resource (PR), Child Resource (CR), Principal (P)\n\n**AND**\n\nThe following Contexts exist - context (P1), context (P2)\n\n**AND**\n\nParent Resource (PR) owns Child Resource (CR)\n\n**AND**\n\nPrincipal (P) has a context (P1) explicitly denying a permission, say \"read\", to (PR)\n\n**AND**\n\nPrincipal (P) has a context (P2) allowing the same permission, \"read\", to (CR)\n\n**Conclusion:**\n(P) can not read (PR)\n(P) can read (CR)\n\nIn the event there are two contexts from a principal directly to a resource with conflicting permission, the permission\ncheck will fail close and access will be denied.\n\n#### Example:\n---\n**Given:**\n\nThe following resources exist - Child Resource (R), Principal (P)\n\n**AND**\n\nThe following Contexts exist - context (P1), context (P2)\n\n**AND**\n\nPrincipal (P) has a context (P1) explicitly denying a permission, say \"read\", to (R)\n\n**AND**\n\nPrincipal (P) has a context (P2) allowing the same permission, \"read\", to (R)\n\n**Conclusion:**\n(P) can not read (R)\n\n## Contexts\n\n---\nContexts `allow` or `deny` permissions to principals on target resources. A single context can be granted to zero or\nmore principals and affect zero or more target resources.\n\nA context contains zero or more permissions to target resources. A permission is always scoped to a single target resource within the context.\nHowever, it is possible to grant the same permission to multiple target resources, or grant multiple permissions to\none target resource within the context of a single context.\n\nEach grant of a context to a principal contains a `with_grant` boolean allowing the aforementioned principal to\npropagate their permissions to additional principals if the `with_grant` option has been set to `true`.\nBy default `with_grant=false`.\n\n## Permissions\n---\nA permission defines access to perform an action between a context and a Resource.\nPermissions take simply a `name` and whether the permission is `permitted`.\nThe `name` is used to determine a principal\\'s authorization to a target resource.\n\nPermission Rules:\n* A permission can have `permitted: \"allow\"` which grants all `principals` of the context access to the `target_resource` for that permission.\n* A permission can have `permitted: \"deny\"` which prevents all `principals` of the context from performing the permission action the `target_resource` for that permission.\n* A permission can be `revoked` which will remove the `allow` or `deny` constraint. Access may then be based on the inheritance rules described above.\n* There is a unique constraint on the `(context.id, Permission.name, Resource.id)` tuple.\n\n### Definitions\n|Entity|Definition|\n|------|----------|\n|Resource|Any noun in your application. Resources (principals) access other Resources (target resource) through contexts.|\n|context|A named collection of permissions. Contexts are granted to resources (principals) and grant or deny access to affect resources (target resources) through permissions.|\n|Permission|An explicit allowance or refusal of a resource (principal) to perform an action on a resource (target resource).|\n|Principal|In the context of a context the principal refers to the resource which has been granted access to make use of the context.|\n|Target Resource|In the context of a context a target resource is any and all resources which the context allows or denies access through Permissions.|\n\n### Getting Started\nReview the [Getting Started Guide](http://localhost:3000/documentation/GettingStarted.md) for minimal setup instructions",
 }
 
 type s struct{}

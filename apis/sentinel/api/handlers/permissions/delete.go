@@ -14,6 +14,7 @@ import (
 // @Accept  json
 // @Produce  json
 // @Param id path string true "Permission ID"
+// @Param x-sentinel-tenant header string true "Desired environment"
 // @Success 404 {object} views.ErrView
 // @Security ApiKeyAuth
 // @Router /v1/permissions/{id} [delete]

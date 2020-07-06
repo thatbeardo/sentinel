@@ -11,17 +11,17 @@ import (
 )
 
 type mockRepository struct {
-	CreateResponse                           grant.OutputDetails
-	GetPrincipalAndPolicyForResourceResponse grant.Output
-	Err                                      error
+	CreateResponse                            grant.OutputDetails
+	GetPrincipalAndcontextForResourceResponse grant.Output
+	Err                                       error
 }
 
 func (m mockRepository) Create(*grant.Input, string, string) (grant.OutputDetails, error) {
 	return m.CreateResponse, m.Err
 }
 
-func (m mockRepository) GetPrincipalAndPolicyForResource(string) (grant.Output, error) {
-	return m.GetPrincipalAndPolicyForResourceResponse, m.Err
+func (m mockRepository) GetPrincipalAndcontextForResource(string) (grant.Output, error) {
+	return m.GetPrincipalAndcontextForResourceResponse, m.Err
 }
 
 var errTest = errors.New("test-error")
@@ -30,7 +30,7 @@ func TestCreate_RepositoryReturnsError_ReturnsError(t *testing.T) {
 	repository := mockRepository{Err: errTest}
 	service := service.New(repository)
 
-	_, err := service.Create(testdata.Input, "test-policy-id", "test-target-id")
+	_, err := service.Create(testdata.Input, "test-context-id", "test-target-id")
 	assert.Equal(t, errTest, err)
 }
 
@@ -38,24 +38,24 @@ func TestCreate_RepositoryReturnsResponse_ResponseReturned(t *testing.T) {
 	repository := mockRepository{CreateResponse: testdata.OutputDetails}
 	service := service.New(repository)
 
-	grant, err := service.Create(testdata.Input, "test-policy-id", "test-target-id")
+	grant, err := service.Create(testdata.Input, "test-context-id", "test-target-id")
 	assert.Equal(t, testdata.OutputDetails, grant)
 	assert.Nil(t, err)
 }
 
-func TestGetAllPrincipalsAndPolicies_RepositoryReturnsError_ReturnsError(t *testing.T) {
+func TestGetAllPrincipalsAndContexts_RepositoryReturnsError_ReturnsError(t *testing.T) {
 	repository := mockRepository{Err: errTest}
 	service := service.New(repository)
 
-	_, err := service.GetPrincipalAndPolicyForResource("test-policy-id")
+	_, err := service.GetPrincipalAndcontextForResource("test-context-id")
 	assert.Equal(t, errTest, err)
 }
 
-func TestGetAllPrincipalsAndPolicies_RepositoryReturnsResponse_ResponseReturned(t *testing.T) {
-	repository := mockRepository{GetPrincipalAndPolicyForResourceResponse: testdata.Output}
+func TestGetAllPrincipalsAndContexts_RepositoryReturnsResponse_ResponseReturned(t *testing.T) {
+	repository := mockRepository{GetPrincipalAndcontextForResourceResponse: testdata.Output}
 	service := service.New(repository)
 
-	grant, err := service.GetPrincipalAndPolicyForResource("test-policy-id")
+	grant, err := service.GetPrincipalAndcontextForResource("test-context-id")
 	assert.Equal(t, testdata.Output, grant)
 	assert.Nil(t, err)
 }

@@ -20,7 +20,11 @@ import (
 
 // GenerateRouter instantiates and initializes a new Router.
 func GenerateRouter(r *gin.Engine) *gin.RouterGroup {
-	r.Use(cors.Default())
+	config := cors.DefaultConfig()
+	config.AllowHeaders = append(config.AllowHeaders, "x-sentinel-tenant", "Authorization")
+	config.AllowMethods = append(config.AllowMethods, "OPTIONS")
+	config.AllowAllOrigins = true
+	r.Use(cors.New(config))
 	setupSwagger(r)
 	return r.Group("/v1")
 }

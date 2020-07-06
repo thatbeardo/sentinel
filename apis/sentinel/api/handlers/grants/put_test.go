@@ -16,7 +16,7 @@ func TestPut_AllParametersPresent_Returns200(t *testing.T) {
 	}
 
 	router := setupRouter(mockService)
-	response, cleanup := testutil.PerformRequest(router, "PUT", "/v1/grants/resources/test-resource-id/policies/test-policy-id", noErrors)
+	response, cleanup := testutil.PerformRequest(router, "PUT", "/v1/grants/resources/test-resource-id/contexts/test-context-id", noErrors)
 	defer cleanup()
 
 	testutil.ValidateResponse(t, response, testdata.OutputDetails, http.StatusAccepted)
@@ -28,12 +28,12 @@ func TestPut_TypeFieldAbsent_ReturnsBadRequest(t *testing.T) {
 	}
 
 	router := setupRouter(mockService)
-	response, cleanup := testutil.PerformRequest(router, "PUT", "/v1/grants/resources/test-resource-id/policies/test-policy-id", typeFieldAbsent)
+	response, cleanup := testutil.PerformRequest(router, "PUT", "/v1/grants/resources/test-resource-id/contexts/test-context-id", typeFieldAbsent)
 	defer cleanup()
 
 	testutil.ValidateResponse(t,
 		response,
-		views.GenerateErrorResponse(response.StatusCode, "Key: 'Input.Data.Type' Error:Field validation for 'Type' failed on the 'required' tag", "/v1/grants/resources/:resource_id/policies/:policy_id"),
+		views.GenerateErrorResponse(response.StatusCode, "Key: 'Input.Data.Type' Error:Field validation for 'Type' failed on the 'required' tag", "/v1/grants/resources/:resource_id/contexts/:context_id"),
 		http.StatusBadRequest)
 }
 
@@ -43,12 +43,12 @@ func TestPut_WithGrantFieldAbsent_ReturnsBadRequest(t *testing.T) {
 	}
 
 	router := setupRouter(mockService)
-	response, cleanup := testutil.PerformRequest(router, "PUT", "/v1/grants/resources/test-resource-id/policies/test-policy-id", withGrantFieldAbsent)
+	response, cleanup := testutil.PerformRequest(router, "PUT", "/v1/grants/resources/test-resource-id/contexts/test-context-id", withGrantFieldAbsent)
 	defer cleanup()
 
 	testutil.ValidateResponse(t,
 		response,
-		views.GenerateErrorResponse(response.StatusCode, "Key: 'Input.Data.Attributes.WithGrant' Error:Field validation for 'WithGrant' failed on the 'required' tag", "/v1/grants/resources/:resource_id/policies/:policy_id"),
+		views.GenerateErrorResponse(response.StatusCode, "Key: 'Input.Data.Attributes.WithGrant' Error:Field validation for 'WithGrant' failed on the 'required' tag", "/v1/grants/resources/:resource_id/contexts/:context_id"),
 		http.StatusBadRequest)
 }
 
@@ -58,11 +58,11 @@ func TestPut_ServiceReturnsError_Returns500(t *testing.T) {
 	}
 
 	router := setupRouter(mockService)
-	response, cleanup := testutil.PerformRequest(router, "PUT", "/v1/grants/resources/test-resource-id/policies/test-policy-id", noErrors)
+	response, cleanup := testutil.PerformRequest(router, "PUT", "/v1/grants/resources/test-resource-id/contexts/test-context-id", noErrors)
 	defer cleanup()
 
 	testutil.ValidateResponse(t,
 		response,
-		views.GenerateErrorResponse(response.StatusCode, "some-test-error", "/v1/grants/resources/:resource_id/policies/:policy_id"),
+		views.GenerateErrorResponse(response.StatusCode, "some-test-error", "/v1/grants/resources/:resource_id/contexts/:context_id"),
 		http.StatusInternalServerError)
 }

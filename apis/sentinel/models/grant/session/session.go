@@ -34,7 +34,7 @@ type resource struct {
 	SourceID string `mapstructure:"source_id"`
 }
 
-type policy struct {
+type context struct {
 	ID   string `mapstructure:"id"`
 	Name string `mapstructure:"name"`
 }
@@ -59,8 +59,8 @@ func (n session) Execute(statement string, parameters map[string]interface{}) (o
 			return
 		}
 
-		var policy policy
-		err = injection.NodeDecoder(result, "policy", &policy)
+		var context context
+		err = injection.NodeDecoder(result, "context", &context)
 		if err != nil {
 			return
 		}
@@ -71,7 +71,7 @@ func (n session) Execute(statement string, parameters map[string]interface{}) (o
 			return
 		}
 
-		relationships := generateRelationships(policy.ID, principal.ID)
+		relationships := generateRelationships(context.ID, principal.ID)
 		grants = append(grants, generateGrant(grant.ID, grant.WithGrant, relationships))
 	}
 
@@ -79,13 +79,13 @@ func (n session) Execute(statement string, parameters map[string]interface{}) (o
 	return
 }
 
-func generateRelationships(policyID, principalID string) grant.Relationships {
+func generateRelationships(contextID, principalID string) grant.Relationships {
 	// TODO:
 	// Generate relationship only if ID is non-empty
-	policy := grant.Relationship{
+	context := grant.Relationship{
 		Data: grant.Data{
-			Type: "policy",
-			ID:   policyID,
+			Type: "context",
+			ID:   contextID,
 		},
 	}
 
@@ -98,7 +98,7 @@ func generateRelationships(policyID, principalID string) grant.Relationships {
 
 	return grant.Relationships{
 		Principal: &principal,
-		Policy:    &policy,
+		Context:   &context,
 	}
 }
 

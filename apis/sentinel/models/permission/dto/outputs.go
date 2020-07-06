@@ -10,7 +10,7 @@ type OutputDetails struct {
 	Data Details `json:"data"`
 }
 
-// Details represents whether a policy has access to a resource
+// Details represents whether a context has access to a resource
 type Details struct {
 	InputDetails
 	ID string `json:"id"`

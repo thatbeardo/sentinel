@@ -11,9 +11,9 @@ import (
 
 // Repository exposes wrapper methods around the underlying session
 type Repository interface {
-	GetAuthorizationForPrincipal(string, authorization.Input) (authorization.Output, error)
-	IsTargetOwnedByTenant(string, string) bool
-  IsPolicyOwnedByTenant(string, string) bool
+	GetAuthorizationForPrincipal(principalID, contextID string, input authorization.Input) (authorization.Output, error)
+	IsTargetOwnedByClient(clientID, tenant, targetID string) bool
+	IsContextOwnedByClient(clientID, tenant, contextID string) bool
 	IsPermissionOwnedByTenant(string, string) bool
 }
 
@@ -22,69 +22,64 @@ type repository struct {
 }
 
 // GetAuthorizationForPrincipal calls underlying session and returns output data to the service
-func (repo repository) GetAuthorizationForPrincipal(principalID string, input authorization.Input) (output authorization.Output, err error) {
+func (repo repository) GetAuthorizationForPrincipal(principalID, contextID string, input authorization.Input) (output authorization.Output, err error) {
 	return repo.session.Execute(
 		fmt.Sprintf(`
 			MATCH(target:Resource)-[:OWNED_BY*0..%s]->(ancestors:Resource)
 			%s
-			MATCH (policy:Policy)-[permission:PERMISSION{%s}]->(target)
+			MATCH (principal:Resource{id: $principal_id})
+			MATCH (context:Context{id:%s})-[permission:PERMISSION{%s}]->(target)
 			%s
-			MATCH (principal:Resource{id: $principalID})<-[grant:GRANTED_TO]-(policy)
+			MATCH (principal)<-[grant:GRANTED_TO]-(context)
 			RETURN {target:target, permissions: COLLECT(permission)}`,
 			strconv.Itoa(input.Depth),
 			generateQueryFilter(input.Targets, "target", "id"),
+			generateContextFilter(contextID),
 			generatePermittedFilter(input),
 			generateQueryFilter(input.Permissions, "permission", "name"),
 		),
 		map[string]interface{}{
-			"principalID": principalID,
+			"principal_id": principalID,
+			"context_id":   contextID,
 		},
 	)
 }
 
-
-func (repo repository) IsTargetOwnedByTenant(targetID, tenantID string) bool {
-	results, err := repo.session.Execute(`
-		MATCH (target:Resource{id: $targetID})
-		-[OWNED_BY*0..]->(ancestors:Resource)
-		<-[permission:PERMISSION]-(policy:Policy)
-		-[:GRANTED_TO]->(tenant:Resource{source_id:$tenantID})
-		RETURN {target: target, permissions: COLLECT(permission)}`,
+func (repo repository) IsTargetOwnedByClient(clientID, tenant, targetID string) bool {
+	fmt.Println(clientID, tenant, targetID)
+	results, err := repo.session.Execute(fmt.Sprintf(`
+		MATCH (target:Resource{id: $target_id})
+		%s`, generateOwnershipInspectionQuery()),
 		map[string]interface{}{
-			"targetID": targetID,
-			"tenantID": tenantID,
+			"client_id": clientID,
+			"tenant":    tenant,
+			"target_id": targetID,
 		},
 	)
+	fmt.Println(results)
 	return err == nil && len(results.Data) > 0
 }
 
-
-func (repo repository) IsPolicyOwnedByTenant(policyID, tenantID string) bool {
-	results, err := repo.session.Execute(`
-		MATCH (policy:Policy{id: $policyID})
-		-[:GRANTED_TO]->(target:Resource)
-		-[:OWNED_BY*0..]->(ancestors:Resource)
-		<-[permission:PERMISSION]-(tenantPolicy:Policy)
-		-[:GRANTED_TO]->(tenant:Resource{source_id: $tenantID})
-		RETURN {target: target, permissions: COLLECT(permission)}`,
+func (repo repository) IsContextOwnedByClient(clientID, tenant, contextID string) bool {
+	results, err := repo.session.Execute(fmt.Sprintf(`
+		MATCH (context:Context{id: $context_id})-[:GRANTED_TO]->(target:Resource)
+		%s`, generateOwnershipInspectionQuery()),
 		map[string]interface{}{
-			"policyID": policyID,
-			"tenantID": tenantID,
+			"client_id":  clientID,
+			"tenant":     tenant,
+			"context_id": contextID,
 		},
 	)
 	return err == nil && len(results.Data) > 0
 }
 
 func (repo repository) IsPermissionOwnedByTenant(permissionID, tenantID string) bool {
-	results, err := repo.session.Execute(`
-		MATCH (policy:Policy)-[:PERMISSION{id: $permissionID}]->(target:Resource)
-		-[:OWNED_BY*0..]->(ancestors:Resource)
-		<-[permission:PERMISSION]-(tenantPolicy:Policy)
-		-[:GRANTED_TO]->(tenant:Resource{source_id: $tenantID})
-		RETURN {target: target, permissions: COLLECT(permission)}`,
+	results, err := repo.session.Execute(fmt.Sprintf(`
+		MATCH (context:Context)-[:PERMISSION{id: $permission_id}]->(target:Resource)
+		%s`, generateOwnershipInspectionQuery()),
 		map[string]interface{}{
-			"permissionID": permissionID,
-			"tenantID":     tenantID,
+			"permission_id": permissionID,
+			"tenant_id":     tenantID,
 		},
 	)
 	return err == nil && len(results.Data) > 0
@@ -95,6 +90,15 @@ func New(session session.Session) Repository {
 	return repository{
 		session: session,
 	}
+}
+
+func generateOwnershipInspectionQuery() string {
+	return `-[:OWNED_BY*0..]->(hub:Resource)
+		<-[tenantPermission:PERMISSION {name:"sentinel:read", permitted:"allow"}]-(tenantContext:Context)
+		-[:GRANTED_TO]->(tenant:Resource {source_id:$tenant})
+		<-[clientPermission:PERMISSION {name:"sentinel:read", permitted:"allow"}]-(clientContext:Context)
+		-[:GRANTED_TO]->(client:Resource {source_id:$client_id})
+		RETURN {target: target, permissions: COLLECT(clientPermission)}`
 }
 
 func generateQueryFilter(elements []string, property string, field string) (properties string) {
@@ -109,4 +113,11 @@ func generatePermittedFilter(input authorization.Input) (properties string) {
 		properties = `permitted:"allow"`
 	}
 	return
+}
+
+func generateContextFilter(contextID string) (context string) {
+	if contextID == "" {
+		return "principal.context_id"
+	}
+	return "$context_id"
 }

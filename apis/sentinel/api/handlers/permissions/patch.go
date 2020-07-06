@@ -16,6 +16,7 @@ import (
 // @Produce  json
 // @Param id path string true "Permission ID"
 // @Param input body permission.Input true "New name to be assigned to an existing permission"
+// @Param x-sentinel-tenant header string true "Desired environment"
 // @Success 202 {object} permission.OutputDetails	"ok"
 // @Success 404 {object} views.ErrView
 // @Security ApiKeyAuth

@@ -16,17 +16,17 @@ const typeFieldAbsent = `{"data":{"attributes":{"with_grant":true}}}`
 const withGrantFieldAbsent = `{"data":{"type":"grant","attributes":{}}}`
 
 type mockService struct {
-	CreateResponse                           grant.OutputDetails
-	GetPrincipalAndPolicyForResourceResponse grant.Output
-	Err                                      error
+	CreateResponse                            grant.OutputDetails
+	GetPrincipalAndcontextForResourceResponse grant.Output
+	Err                                       error
 }
 
 func (m mockService) Create(*grant.Input, string, string) (grant.OutputDetails, error) {
 	return m.CreateResponse, m.Err
 }
 
-func (m mockService) GetPrincipalAndPolicyForResource(id string) (grant.Output, error) {
-	return m.GetPrincipalAndPolicyForResourceResponse, m.Err
+func (m mockService) GetPrincipalAndcontextForResource(id string) (grant.Output, error) {
+	return m.GetPrincipalAndcontextForResourceResponse, m.Err
 }
 
 func setupRouter(s service.Service) *gin.Engine {

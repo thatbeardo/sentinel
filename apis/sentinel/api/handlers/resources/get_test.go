@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	models "github.com/bithippie/guard-my-app/apis/sentinel/models"
-	policyTestData "github.com/bithippie/guard-my-app/apis/sentinel/models/policy/testdata"
+	contextTestData "github.com/bithippie/guard-my-app/apis/sentinel/models/context/testdata"
 	"github.com/bithippie/guard-my-app/apis/sentinel/models/resource/testdata"
 	"github.com/bithippie/guard-my-app/apis/sentinel/testutil"
 )
@@ -68,28 +68,28 @@ func TestGetResourceByIDNoResourceFound(t *testing.T) {
 	testutil.ValidateResponse(t, response, testutil.GenerateError("/v1/resources/:id", "query-parameter-todo", "Data not found", http.StatusNotFound), http.StatusNotFound)
 }
 
-func TestGetAllAssociatedPolicies_ServiceReturnsError_ReportError(t *testing.T) {
+func TestGetAllAssociatedContexts_ServiceReturnsError_ReportError(t *testing.T) {
 
 	mockService := mockService{
 		AssociateErr: models.ErrDatabase,
 	}
 
 	router := setupRouter(mockService)
-	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/resources/test-id/policies", "")
+	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/resources/test-id/contexts", "")
 	defer cleanup()
 
-	testutil.ValidateResponse(t, response, testutil.GenerateError("/v1/resources/:id/policies", "query-parameter-todo", "Database Error", http.StatusInternalServerError), response.StatusCode)
+	testutil.ValidateResponse(t, response, testutil.GenerateError("/v1/resources/:id/contexts", "query-parameter-todo", "Database Error", http.StatusInternalServerError), response.StatusCode)
 }
 
-func TestGetAllAssociatedPolicies_ServiceReturnsData_ReportData(t *testing.T) {
+func TestGetAllAssociatedContexts_ServiceReturnsData_ReportData(t *testing.T) {
 
 	mockService := mockService{
-		GetAllAssociatedPoliciesResponse: policyTestData.Output,
+		GetAllAssociatedContextsResponse: contextTestData.Output,
 	}
 
 	router := setupRouter(mockService)
-	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/resources/test-id/policies", "")
+	response, cleanup := testutil.PerformRequest(router, "GET", "/v1/resources/test-id/contexts", "")
 	defer cleanup()
 
-	testutil.ValidateResponse(t, response, policyTestData.Output, response.StatusCode)
+	testutil.ValidateResponse(t, response, contextTestData.Output, response.StatusCode)
 }

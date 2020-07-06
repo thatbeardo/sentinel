@@ -37,10 +37,10 @@ var OutputDetails = grant.OutputDetails{
 }
 
 var relationships = grant.Relationships{
-	Policy: &grant.Relationship{
+	Context: &grant.Relationship{
 		Data: grant.Data{
-			Type: "policy",
-			ID:   "policy-id",
+			Type: "context",
+			ID:   "context-id",
 		},
 	},
 	Principal: &grant.Relationship{

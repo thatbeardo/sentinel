@@ -12,24 +12,24 @@ type Details struct {
 	ID            string `json:"id"`
 }
 
-// OutputDetails represents whether a policy has access to a resource
+// OutputDetails represents whether a context has access to a resource
 type OutputDetails struct {
 	Data Details `json:"data"`
 }
 
-// Data provides details about the Policy and Principal
+// Data provides details about the context and Principal
 type Data struct {
 	Type string `json:"type" binding:"required"`
 	ID   string `json:"id" binding:"required"`
 }
 
-// Relationship has data pertaining to a Policy/Principal
+// Relationship has data pertaining to a context/Principal
 type Relationship struct {
 	Data Data `json:"data"`
 }
 
-// Relationships enlists details about the Policy and the resource that are attached with this grant
+// Relationships enlists details about the context and the resource that are attached with this grant
 type Relationships struct {
-	Policy    *Relationship `json:"policy" binding:"required"`
+	Context   *Relationship `json:"context" binding:"required"`
 	Principal *Relationship `json:"principal" binding:"required"`
 }
