@@ -75,7 +75,7 @@ func ConnectToDB() (neo4j.Session, neo4j.Driver, error) {
 // Orchestrate begins listening on 8080 and gracefully shuts down the server incase of interrupt
 func Orchestrate(router *gin.Engine, cleanup func()) {
 	srv := &http.Server{
-		Addr:    ":8080",
+		Addr:    ":" + os.Getenv("PORT"),
 		Handler: router,
 	}
 

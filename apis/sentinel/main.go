@@ -21,9 +21,6 @@
 // @description * Invitations - This model allows users having `with_grant` permissions to invite other users to join in a self-service way
 // @description * Context - Users with multiple contexts can have differing permission. The api permits the caller to specify context when performing permission checks.
 // @description
-// @description ## ERD
-// @description
-// @description ![Image](https://www.lucidchart.com/publicSegments/view/e66a76a3-8114-4b1c-9104-765f307c7869/image.png)
 // @description ## Resources
 //@description ---
 // @description Simply stated a resource represents the nouns in your application. Resources are polymorphic and might represent users,

@@ -16,13 +16,13 @@ import (
 // @Description Shows all the permissions this principal has to provided target resources
 // @Accept  json
 // @Produce  json
+// @Param x-sentinel-tenant header string true "Desired environment"
 // @Param principal_id path string true "Principal ID"
 // @Param permissions query []string false "Name of the permissions which allow access to the target"
 // @Param targets query []string false "Name of the targtes to which a permission allows access"
-// @Param depth query int false "Name of the permissions which allow access to the target" default(0)
 // @Param context_id query string false "Context through which authorization is determined"
+// @Param depth query int false "Limit your search results." default(0)
 // @Param include_denied query boolean false "Include permissions that have deny permit fields set" default(false)
-// @Param x-sentinel-tenant header string true "Desired environment"
 // @Success 200 {object} authorization.Output	"ok"
 // @Success 500 {object} views.ErrView
 // @Security ApiKeyAuth
