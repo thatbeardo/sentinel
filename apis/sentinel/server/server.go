@@ -66,7 +66,7 @@ func ConnectToDB() (neo4j.Session, neo4j.Driver, error) {
 	dbURI := os.Getenv("DB_URI")
 	fmt.Println("Now connecting " + dbURI)
 	if driver, err = neo4j.NewDriver(dbURI, neo4j.BasicAuth(os.Getenv("USERNAME"), os.Getenv("PASSWORD"), ""), func(c *neo4j.Config) {
-		c.Encrypted = false
+		c.Encrypted = true
 	}); err != nil {
 		fmt.Println("Error while establishing graph connection")
 	}

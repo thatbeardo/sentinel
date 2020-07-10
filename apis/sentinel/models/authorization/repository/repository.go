@@ -46,7 +46,6 @@ func (repo repository) GetAuthorizationForPrincipal(principalID, contextID strin
 }
 
 func (repo repository) IsTargetOwnedByClient(clientID, tenant, targetID string) bool {
-	fmt.Println(clientID, tenant, targetID)
 	results, err := repo.session.Execute(fmt.Sprintf(`
 		MATCH (target:Resource{id: $target_id})
 		%s`, generateOwnershipInspectionQuery()),
