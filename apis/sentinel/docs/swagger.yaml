@@ -1,0 +1,1142 @@
+basePath: /
+definitions:
+  authorization.Details:
+    properties:
+      attributes:
+        $ref: '#/definitions/resource.Attributes'
+        type: object
+      id:
+        type: string
+      relationships:
+        $ref: '#/definitions/authorization.Relationships'
+        type: object
+      type:
+        enum:
+        - resource
+        type: string
+    type: object
+  authorization.Output:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/authorization.Details'
+        type: array
+    required:
+    - data
+    type: object
+  authorization.Permissions:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/permission.Attributes'
+        type: array
+    type: object
+  authorization.Relationships:
+    properties:
+      permissions:
+        $ref: '#/definitions/authorization.Permissions'
+        type: object
+    type: object
+  context.Attributes:
+    properties:
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  context.Details:
+    properties:
+      attributes:
+        $ref: '#/definitions/context.Attributes'
+        type: object
+      id:
+        type: string
+      relationships:
+        $ref: '#/definitions/context.Relationships'
+        type: object
+      type:
+        type: string
+    required:
+    - attributes
+    - type
+    type: object
+  context.Input:
+    properties:
+      data:
+        $ref: '#/definitions/context.InputDetails'
+        type: object
+    required:
+    - data
+    type: object
+  context.InputDetails:
+    properties:
+      attributes:
+        $ref: '#/definitions/context.Attributes'
+        type: object
+      type:
+        type: string
+    required:
+    - attributes
+    - type
+    type: object
+  context.Output:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/context.Details'
+        type: array
+    type: object
+  context.OutputDetails:
+    properties:
+      data:
+        $ref: '#/definitions/context.Details'
+        type: object
+    type: object
+  context.Relationship:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/context.Resource'
+        type: array
+    required:
+    - data
+    type: object
+  context.Relationships:
+    properties:
+      principals:
+        $ref: '#/definitions/context.Relationship'
+        type: object
+      target_resources:
+        $ref: '#/definitions/context.Relationship'
+        type: object
+    required:
+    - principals
+    - target_resources
+    type: object
+  context.Resource:
+    properties:
+      id:
+        type: string
+      type:
+        type: string
+    type: object
+  grant.Attributes:
+    properties:
+      with_grant:
+        type: boolean
+    required:
+    - with_grant
+    type: object
+  grant.Data:
+    properties:
+      id:
+        type: string
+      type:
+        type: string
+    required:
+    - id
+    - type
+    type: object
+  grant.Details:
+    properties:
+      attributes:
+        $ref: '#/definitions/grant.Attributes'
+        type: object
+      context:
+        $ref: '#/definitions/grant.Relationship'
+        type: object
+      id:
+        type: string
+      principal:
+        $ref: '#/definitions/grant.Relationship'
+        type: object
+      type:
+        type: string
+    required:
+    - attributes
+    - context
+    - principal
+    - type
+    type: object
+  grant.Input:
+    properties:
+      data:
+        $ref: '#/definitions/grant.InputDetails'
+        type: object
+    required:
+    - data
+    type: object
+  grant.InputDetails:
+    properties:
+      attributes:
+        $ref: '#/definitions/grant.Attributes'
+        type: object
+      type:
+        type: string
+    required:
+    - attributes
+    - type
+    type: object
+  grant.Output:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/grant.Details'
+        type: array
+    type: object
+  grant.Relationship:
+    properties:
+      data:
+        $ref: '#/definitions/grant.Data'
+        type: object
+    type: object
+  permission.Attributes:
+    properties:
+      name:
+        type: string
+      permitted:
+        type: string
+    required:
+    - name
+    - permitted
+    type: object
+  permission.Details:
+    properties:
+      attributes:
+        $ref: '#/definitions/permission.Attributes'
+        type: object
+      id:
+        type: string
+      type:
+        type: string
+    required:
+    - attributes
+    - type
+    type: object
+  permission.Input:
+    properties:
+      data:
+        $ref: '#/definitions/permission.InputDetails'
+        type: object
+    required:
+    - data
+    type: object
+  permission.InputDetails:
+    properties:
+      attributes:
+        $ref: '#/definitions/permission.Attributes'
+        type: object
+      type:
+        type: string
+    required:
+    - attributes
+    - type
+    type: object
+  permission.Output:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/permission.Details'
+        type: array
+    type: object
+  permission.OutputDetails:
+    properties:
+      data:
+        $ref: '#/definitions/permission.Details'
+        type: object
+    type: object
+  resource.Attributes:
+    properties:
+      context_id:
+        type: string
+      name:
+        type: string
+      source_id:
+        type: string
+    required:
+    - source_id
+    type: object
+  resource.Contexts:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/resource.Data'
+        type: array
+    type: object
+  resource.Data:
+    properties:
+      id:
+        type: string
+      type:
+        enum:
+        - resource
+        type: string
+    required:
+    - id
+    - type
+    type: object
+  resource.Details:
+    properties:
+      attributes:
+        $ref: '#/definitions/resource.Attributes'
+        type: object
+      id:
+        type: string
+      relationships:
+        $ref: '#/definitions/resource.Relationships'
+        type: object
+      type:
+        enum:
+        - resource
+        type: string
+    type: object
+  resource.Input:
+    properties:
+      data:
+        $ref: '#/definitions/resource.InputDetails'
+        type: object
+    required:
+    - data
+    type: object
+  resource.InputDetails:
+    properties:
+      attributes:
+        $ref: '#/definitions/resource.Attributes'
+        type: object
+      relationships:
+        $ref: '#/definitions/resource.InputRelationships'
+        type: object
+      type:
+        enum:
+        - resource
+        type: string
+    required:
+    - attributes
+    - type
+    type: object
+  resource.InputRelationships:
+    properties:
+      parent:
+        $ref: '#/definitions/resource.Parent'
+        type: object
+    required:
+    - parent
+    type: object
+  resource.Output:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/resource.Details'
+        type: array
+    type: object
+  resource.OutputDetails:
+    properties:
+      data:
+        $ref: '#/definitions/resource.Details'
+        type: object
+    type: object
+  resource.Parent:
+    properties:
+      data:
+        $ref: '#/definitions/resource.Data'
+        type: object
+    required:
+    - data
+    type: object
+  resource.Relationships:
+    properties:
+      contexts:
+        $ref: '#/definitions/resource.Contexts'
+        type: object
+      parent:
+        $ref: '#/definitions/resource.Parent'
+        type: object
+    type: object
+  views.ErrView:
+    properties:
+      detail:
+        type: string
+      id:
+        type: string
+      source:
+        $ref: '#/definitions/views.Source'
+        type: object
+      status:
+        type: integer
+    type: object
+  views.Source:
+    properties:
+      parameter:
+        type: string
+      pointer:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: |-
+    ### A domain agnostic permission management and querying API. to manage
+
+    At the most basic level the Sentinel API offers a way for consumers to manage access of application resources to other application resources through the use of contexts.
+
+    A simple example demonstrating this flexibility of this relationship could be:
+
+    User (U1) has a context (P1) granting read/write access to an account Resource (R)
+    User (U2) has a context (P2) granting read access to the same account Resource (R)
+
+    The application can then query the api asking if (U1) can preform write access on (R) which will return True
+    The application can also query the api asking if (U2) can perform write access on (R) which will return False
+
+    More advanced capabilities include:
+    * Inheritance - Resource access granted to a parent permits the same access to all children
+    * Invitations - This model allows users having `with_grant` permissions to invite other users to join in a self-service way
+    * Context - Users with multiple contexts can have differing permission. The api permits the caller to specify context when performing permission checks.
+
+    ## Resources
+    ---
+    Simply stated a resource represents the nouns in your application. Resources are polymorphic and might represent users,
+    accounts, or any application specific entity requiring gated access.
+
+    Resources are granted access to other resources through Contexts. It is possible for a resource to be the
+    `principal` in once context while simultaneously a `target_resource` in another context.
+
+
+    _See definitions below for further explanation of principals and target_resources._
+
+
+    Resource may be owned by other resources. Resource inheritance will help reduce redundant permissions to similar resources
+    if the principal has the same level of access to a class of resource. E.g. System Admins can read/write all accounts.
+
+    **Precedence is determined by path length.** - In the event a resource has two contexts with conflicting permission
+    to a resource, the path with the shortest distance to the resource is preferred.
+
+    #### Example:
+    ---
+    **Given:**
+
+    The following resources exist - Parent Resource (PR), Child Resource (CR), Principal (P)
+
+    **AND**
+
+    The following Contexts exist - context (P1), context (P2)
+
+    **AND**
+
+    Parent Resource (PR) owns Child Resource (CR)
+
+    **AND**
+
+    Principal (P) has a context (P1) explicitly denying a permission, say "read", to (PR)
+
+    **AND**
+
+    Principal (P) has a context (P2) allowing the same permission, "read", to (CR)
+
+    **Conclusion:**
+    (P) can not read (PR)
+    (P) can read (CR)
+
+    In the event there are two contexts from a principal directly to a resource with conflicting permission, the permission
+    check will fail close and access will be denied.
+
+    #### Example:
+    ---
+    **Given:**
+
+    The following resources exist - Child Resource (R), Principal (P)
+
+    **AND**
+
+    The following Contexts exist - context (P1), context (P2)
+
+    **AND**
+
+    Principal (P) has a context (P1) explicitly denying a permission, say "read", to (R)
+
+    **AND**
+
+    Principal (P) has a context (P2) allowing the same permission, "read", to (R)
+
+    **Conclusion:**
+    (P) can not read (R)
+
+    ## Contexts
+
+    ---
+    Contexts `allow` or `deny` permissions to principals on target resources. A single context can be granted to zero or
+    more principals and affect zero or more target resources.
+
+    A context contains zero or more permissions to target resources. A permission is always scoped to a single target resource within the context.
+    However, it is possible to grant the same permission to multiple target resources, or grant multiple permissions to
+    one target resource within the context of a single context.
+
+    Each grant of a context to a principal contains a `with_grant` boolean allowing the aforementioned principal to
+    propagate their permissions to additional principals if the `with_grant` option has been set to `true`.
+    By default `with_grant=false`.
+
+    ## Permissions
+    ---
+    A permission defines access to perform an action between a context and a Resource.
+    Permissions take simply a `name` and whether the permission is `permitted`.
+    The `name` is used to determine a principal\'s authorization to a target resource.
+
+    Permission Rules:
+    * A permission can have `permitted: "allow"` which grants all `principals` of the context access to the `target_resource` for that permission.
+    * A permission can have `permitted: "deny"` which prevents all `principals` of the context from performing the permission action the `target_resource` for that permission.
+    * A permission can be `revoked` which will remove the `allow` or `deny` constraint. Access may then be based on the inheritance rules described above.
+    * There is a unique constraint on the `(context.id, Permission.name, Resource.id)` tuple.
+
+    ### Definitions
+    |Entity|Definition|
+    |------|----------|
+    |Resource|Any noun in your application. Resources (principals) access other Resources (target resource) through contexts.|
+    |context|A named collection of permissions. Contexts are granted to resources (principals) and grant or deny access to affect resources (target resources) through permissions.|
+    |Permission|An explicit allowance or refusal of a resource (principal) to perform an action on a resource (target resource).|
+    |Principal|In the context of a context the principal refers to the resource which has been granted access to make use of the context.|
+    |Target Resource|In the context of a context a target resource is any and all resources which the context allows or denies access through Permissions.|
+
+    ### Getting Started
+    Review the [Getting Started Guide](http://localhost:3000/documentation/GettingStarted.md) for minimal setup instructions
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Sentinel API
+  version: 0.1.0
+paths:
+  /v1/contexts/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a context by its ID
+      parameters:
+      - description: context ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Desired environment
+        in: header
+        name: x-sentinel-tenant
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/views.ErrView'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a context by its ID
+      tags:
+      - Contexts
+    get:
+      consumes:
+      - application/json
+      description: Get a context by its ID
+      parameters:
+      - description: context ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Desired environment
+        in: header
+        name: x-sentinel-tenant
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/context.OutputDetails'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/views.ErrView'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/views.ErrView'
+      security:
+      - ApiKeyAuth: []
+      summary: Get context by ID
+      tags:
+      - Contexts
+    patch:
+      consumes:
+      - application/json
+      description: Update Polciy name.
+      parameters:
+      - description: context ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: New name to be assigned to an existing context
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/context.Input'
+      - description: Desired environment
+        in: header
+        name: x-sentinel-tenant
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ok
+          schema:
+            $ref: '#/definitions/context.OutputDetails'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/views.ErrView'
+      security:
+      - ApiKeyAuth: []
+      summary: Update a context by it's ID
+      tags:
+      - Contexts
+  /v1/grants/resources/{resource_id}:
+    get:
+      consumes:
+      - application/json
+      description: Shows all Principal access to Target Resources managed through a context
+      parameters:
+      - description: Resource ID
+        in: path
+        name: resource_id
+        required: true
+        type: string
+      - description: Desired environment
+        in: header
+        name: x-sentinel-tenant
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/grant.Output'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/views.ErrView'
+      security:
+      - ApiKeyAuth: []
+      summary: Shows all Principal access to Target Resources managed through a context
+      tags:
+      - Grants
+  /v1/grants/resources/{resource_id}/contexts/{context_id}:
+    put:
+      consumes:
+      - application/json
+      description: Create a grant for a context on a resource
+      parameters:
+      - description: context ID
+        in: path
+        name: context_id
+        required: true
+        type: string
+      - description: Resource ID
+        in: path
+        name: resource_id
+        required: true
+        type: string
+      - description: Details about the Grant to be added
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/grant.Input'
+      - description: Desired environment
+        in: header
+        name: x-sentinel-tenant
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ok
+          schema:
+            $ref: '#/definitions/grant.Output'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/views.ErrView'
+      security:
+      - ApiKeyAuth: []
+      summary: Update a grant that permits a context on a resource
+      tags:
+      - Grants
+  /v1/permissions/{context_id}/resources:
+    get:
+      consumes:
+      - application/json
+      description: List all Permissions for all Target Resources in context.
+      parameters:
+      - description: context ID
+        in: path
+        name: context_id
+        required: true
+        type: string
+      - description: Desired environment
+        in: header
+        name: x-sentinel-tenant
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/permission.Output'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/views.ErrView'
+      security:
+      - ApiKeyAuth: []
+      summary: List all Permissions for all Target Resources in context.
+      tags:
+      - Permissions
+  /v1/permissions/{context_id}/resources/{resource_id}:
+    get:
+      consumes:
+      - application/json
+      description: List all permissions for a context for a given target
+      parameters:
+      - description: context ID
+        in: path
+        name: context_id
+        required: true
+        type: string
+      - description: Resource ID
+        in: path
+        name: resource_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/permission.Output'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/views.ErrView'
+      security:
+      - ApiKeyAuth: []
+      summary: List all permissions for a context for a given target
+      tags:
+      - Permissions
+    put:
+      consumes:
+      - application/json
+      description: Create a permission for a context on a resource
+      parameters:
+      - description: context ID
+        in: path
+        name: context_id
+        required: true
+        type: string
+      - description: Resource ID
+        in: path
+        name: resource_id
+        required: true
+        type: string
+      - description: Details about the permission to be added
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/permission.Input'
+      - description: Desired environment
+        in: header
+        name: x-sentinel-tenant
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ok
+          schema:
+            $ref: '#/definitions/permission.OutputDetails'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/views.ErrView'
+      security:
+      - ApiKeyAuth: []
+      summary: Update a permission that permits acontext on a resource
+      tags:
+      - Permissions
+  /v1/permissions/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a permission by its ID
+      parameters:
+      - description: Permission ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Desired environment
+        in: header
+        name: x-sentinel-tenant
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/views.ErrView'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a permission by its ID
+      tags:
+      - Permissions
+    patch:
+      consumes:
+      - application/json
+      description: Update Permission Details.
+      parameters:
+      - description: Permission ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: New name to be assigned to an existing permission
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/permission.Input'
+      - description: Desired environment
+        in: header
+        name: x-sentinel-tenant
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: ok
+          schema:
+            $ref: '#/definitions/permission.OutputDetails'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/views.ErrView'
+      security:
+      - ApiKeyAuth: []
+      summary: Update a Permission by its ID
+      tags:
+      - Permissions
+  /v1/principal/{principal_id}/authorization:
+    get:
+      consumes:
+      - application/json
+      description: Shows all the permissions this principal has to provided target resources
+      parameters:
+      - description: Desired environment
+        in: header
+        name: x-sentinel-tenant
+        required: true
+        type: string
+      - description: Principal ID
+        in: path
+        name: principal_id
+        required: true
+        type: string
+      - description: Name of the permissions which allow access to the target
+        in: query
+        items:
+          type: string
+        name: permissions
+        type: array
+      - description: Name of the targtes to which a permission allows access
+        in: query
+        items:
+          type: string
+        name: targets
+        type: array
+      - description: Context through which authorization is determined
+        in: query
+        name: context_id
+        type: string
+      - default: 0
+        description: Limit your search results.
+        in: query
+        name: depth
+        type: integer
+      - default: false
+        description: Include permissions that have deny permit fields set
+        in: query
+        name: include_denied
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/authorization.Output'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/views.ErrView'
+      security:
+      - ApiKeyAuth: []
+      summary: Get authorization details about a principal.
+      tags:
+      - Authorization
+  /v1/resources:
+    get:
+      consumes:
+      - application/json
+      description: Get all the resources stored
+      parameters:
+      - description: Desired tenant - environment
+        in: header
+        name: x-sentinel-tenant
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/resource.Output'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/views.ErrView'
+      security:
+      - ApiKeyAuth: []
+      summary: Get all the resources
+      tags:
+      - Resources
+  /v1/resources/:
+    post:
+      consumes:
+      - application/json
+      description: Add a new resource to existing resources
+      parameters:
+      - description: Resource to be created
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/resource.Input'
+      - description: Desired tenant - environment
+        in: header
+        name: x-sentinel-tenant
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: ok
+          schema:
+            $ref: '#/definitions/resource.OutputDetails'
+        "500":
+          description: ok
+          schema:
+            $ref: '#/definitions/views.ErrView'
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new Resource
+      tags:
+      - Resources
+  /v1/resources/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a resource by its ID
+      parameters:
+      - description: Resource ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Desired environment
+        in: header
+        name: x-sentinel-tenant
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/views.ErrView'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a resource by its ID
+      tags:
+      - Resources
+    get:
+      consumes:
+      - application/json
+      description: Get a resource by its ID
+      parameters:
+      - description: Desired tenant - environment
+        in: header
+        name: x-sentinel-tenant
+        required: true
+        type: string
+      - description: Resource ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/resource.OutputDetails'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/views.ErrView'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/views.ErrView'
+      security:
+      - ApiKeyAuth: []
+      summary: Get resource by ID
+      tags:
+      - Resources
+    patch:
+      consumes:
+      - application/json
+      description: Update resource name, sourceID, parent, etc
+      parameters:
+      - description: Resource ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Resource to be created
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/resource.Input'
+      - description: Desired environment
+        in: header
+        name: x-sentinel-tenant
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ok
+          schema:
+            $ref: '#/definitions/resource.Output'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/views.ErrView'
+      security:
+      - ApiKeyAuth: []
+      summary: Update a resource by it's ID
+      tags:
+      - Resources
+  /v1/resources/{id}/contexts:
+    get:
+      consumes:
+      - application/json
+      description: Get all context and details that are granted to this context
+      parameters:
+      - description: Resource ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/context.Output'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/views.ErrView'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/views.ErrView'
+      security:
+      - ApiKeyAuth: []
+      summary: Get all contexts granted to this resource
+      tags:
+      - Resources
+    post:
+      consumes:
+      - application/json
+      description: Grant a new context to an existing principal resources
+      parameters:
+      - description: Desired tenant - environment
+        in: header
+        name: x-sentinel-tenant
+        required: true
+        type: string
+      - description: Principal Resource ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: context to be created
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/context.Input'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: ok
+          schema:
+            $ref: '#/definitions/context.OutputDetails'
+        "500":
+          description: ok
+          schema:
+            $ref: '#/definitions/views.ErrView'
+      security:
+      - ApiKeyAuth: []
+      summary: Associate a new context with an existing resource
+      tags:
+      - Resources
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

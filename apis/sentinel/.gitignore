@@ -16,6 +16,3 @@ vendor/
 
 *.html
 coverage
-
-swagger.json
-swagger.yaml
