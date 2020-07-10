@@ -33,10 +33,6 @@ func setupSwagger(r *gin.Engine) {
 	hostURL := fmt.Sprintf("https://%s:%s", os.Getenv("HOST"), os.Getenv("PORT"))
 	docs.SwaggerInfo.Host = hostURL
 	r.StaticFile("/docs", "./docs/swagger.json")
-	// A band aid to enable heroku deployments
-	if os.Getenv("HOST") != "localhost" {
-		hostURL = os.Getenv("HOST")
-	}
 
 	url := ginSwagger.URL(fmt.Sprintf("%s/docs", hostURL))
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
