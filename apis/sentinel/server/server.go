@@ -30,7 +30,7 @@ func GenerateRouter(r *gin.Engine) *gin.RouterGroup {
 }
 
 func setupSwagger(r *gin.Engine) {
-	hostURL := fmt.Sprintf("http://%s:%s", os.Getenv("HOST"), os.Getenv("PORT"))
+	hostURL := fmt.Sprintf("https://%s:%s", os.Getenv("HOST"), os.Getenv("PORT"))
 	docs.SwaggerInfo.Host = hostURL
 	r.StaticFile("/docs/", "./docs/swagger.json")
 
