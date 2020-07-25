@@ -13,13 +13,13 @@ import (
 var getAllContextsAndPrincipalsStatement = `
 		MATCH (context:Context)-[:PERMISSION]->(principal: Resource {id: $principalID})
 		OPTIONAL MATCH (context)-[grant:GRANTED_TO]->(principal:Resource)
-		RETURN {grant: grant, context:Context, principal:principal}`
+		RETURN {grant: grant, context:context, principal:principal}`
 
 var createStatement = `
 		MATCH (context:Context), (principal: Resource)
 		WHERE context.id = $contextID AND principal.id = $principalID
 		CREATE (context)-[grant:GRANTED_TO {with_grant: $withGrant, id: randomUUID()}]->(principal)
-		RETURN {grant: grant, context:Context, principal: principal}`
+		RETURN {grant: grant, context:context, principal: principal}`
 
 type mockSession struct {
 	ExecuteResponse   grant.Output

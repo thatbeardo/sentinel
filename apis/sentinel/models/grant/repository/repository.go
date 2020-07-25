@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"fmt"
+
 	models "github.com/bithippie/guard-my-app/apis/sentinel/models"
 	grant "github.com/bithippie/guard-my-app/apis/sentinel/models/grant/dto"
 	"github.com/bithippie/guard-my-app/apis/sentinel/models/grant/session"
@@ -27,18 +29,19 @@ func (repo *repository) GetPrincipalAndcontextForResource(principal string) (out
 	return repo.session.Execute(`
 		MATCH (context:Context)-[:PERMISSION]->(principal: Resource {id: $principalID})
 		OPTIONAL MATCH (context)-[grant:GRANTED_TO]->(principal:Resource)
-		RETURN {grant: grant, context:Context, principal:principal}`,
+		RETURN {grant: grant, context:context, principal:principal}`,
 		map[string]interface{}{
 			"principalID": principal,
 		})
 }
 
 func (repo *repository) Create(input *grant.Input, contextID string, principalID string) (output grant.OutputDetails, err error) {
+	fmt.Println(contextID, principalID)
 	result, err := repo.session.Execute(`
 		MATCH (context:Context), (principal: Resource)
 		WHERE context.id = $contextID AND principal.id = $principalID
 		CREATE (context)-[grant:GRANTED_TO {with_grant: $withGrant, id: randomUUID()}]->(principal)
-		RETURN {grant: grant, context:Context, principal: principal}`,
+		RETURN {grant: grant, context:context, principal: principal}`,
 		map[string]interface{}{
 			"withGrant":   input.Data.Attributes.WithGrant,
 			"contextID":   contextID,
