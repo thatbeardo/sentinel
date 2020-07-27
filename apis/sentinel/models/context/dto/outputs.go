@@ -30,6 +30,6 @@ type Relationship struct {
 
 // Resource denotes either the Principal or Target resource
 type Resource struct {
-	Type string `json:"type"`
+	Type string `json:"type" enums:"resource"`
 	ID   string `json:"id"`
 }

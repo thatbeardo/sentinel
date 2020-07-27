@@ -1080,7 +1080,10 @@
                     "$ref": "#/definitions/context.Relationships"
                 },
                 "type": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "context"
+                    ]
                 }
             }
         },
@@ -1108,7 +1111,10 @@
                     "$ref": "#/definitions/context.Attributes"
                 },
                 "type": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "context"
+                    ]
                 }
             }
         },
@@ -1170,7 +1176,10 @@
                     "type": "string"
                 },
                 "type": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "resource"
+                    ]
                 }
             }
         },
@@ -1196,7 +1205,10 @@
                     "type": "string"
                 },
                 "type": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "grant"
+                    ]
                 }
             }
         },
@@ -1225,7 +1237,10 @@
                     "$ref": "#/definitions/grant.Relationship"
                 },
                 "type": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "grant"
+                    ]
                 }
             }
         },
@@ -1253,7 +1268,10 @@
                     "$ref": "#/definitions/grant.Attributes"
                 },
                 "type": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "grant"
+                    ]
                 }
             }
         },
@@ -1307,7 +1325,10 @@
                     "type": "string"
                 },
                 "type": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "permission"
+                    ]
                 }
             }
         },
@@ -1335,7 +1356,10 @@
                     "$ref": "#/definitions/permission.Attributes"
                 },
                 "type": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "permission"
+                    ]
                 }
             }
         },

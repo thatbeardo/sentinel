@@ -55,6 +55,8 @@ definitions:
         $ref: '#/definitions/context.Relationships'
         type: object
       type:
+        enum:
+        - context
         type: string
     required:
     - attributes
@@ -74,6 +76,8 @@ definitions:
         $ref: '#/definitions/context.Attributes'
         type: object
       type:
+        enum:
+        - context
         type: string
     required:
     - attributes
@@ -118,6 +122,8 @@ definitions:
       id:
         type: string
       type:
+        enum:
+        - resource
         type: string
     type: object
   grant.Attributes:
@@ -132,6 +138,8 @@ definitions:
       id:
         type: string
       type:
+        enum:
+        - grant
         type: string
     required:
     - id
@@ -151,6 +159,8 @@ definitions:
         $ref: '#/definitions/grant.Relationship'
         type: object
       type:
+        enum:
+        - grant
         type: string
     required:
     - attributes
@@ -172,6 +182,8 @@ definitions:
         $ref: '#/definitions/grant.Attributes'
         type: object
       type:
+        enum:
+        - grant
         type: string
     required:
     - attributes
@@ -208,6 +220,8 @@ definitions:
       id:
         type: string
       type:
+        enum:
+        - permission
         type: string
     required:
     - attributes
@@ -227,6 +241,8 @@ definitions:
         $ref: '#/definitions/permission.Attributes'
         type: object
       type:
+        enum:
+        - permission
         type: string
     required:
     - attributes

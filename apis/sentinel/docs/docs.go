@@ -1096,7 +1096,10 @@ var doc = `{
                     "$ref": "#/definitions/context.Relationships"
                 },
                 "type": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "context"
+                    ]
                 }
             }
         },
@@ -1124,7 +1127,10 @@ var doc = `{
                     "$ref": "#/definitions/context.Attributes"
                 },
                 "type": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "context"
+                    ]
                 }
             }
         },
@@ -1186,7 +1192,10 @@ var doc = `{
                     "type": "string"
                 },
                 "type": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "resource"
+                    ]
                 }
             }
         },
@@ -1212,7 +1221,10 @@ var doc = `{
                     "type": "string"
                 },
                 "type": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "grant"
+                    ]
                 }
             }
         },
@@ -1241,7 +1253,10 @@ var doc = `{
                     "$ref": "#/definitions/grant.Relationship"
                 },
                 "type": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "grant"
+                    ]
                 }
             }
         },
@@ -1269,7 +1284,10 @@ var doc = `{
                     "$ref": "#/definitions/grant.Attributes"
                 },
                 "type": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "grant"
+                    ]
                 }
             }
         },
@@ -1323,7 +1341,10 @@ var doc = `{
                     "type": "string"
                 },
                 "type": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "permission"
+                    ]
                 }
             }
         },
@@ -1351,7 +1372,10 @@ var doc = `{
                     "$ref": "#/definitions/permission.Attributes"
                 },
                 "type": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "permission"
+                    ]
                 }
             }
         },

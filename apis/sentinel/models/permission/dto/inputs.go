@@ -7,7 +7,7 @@ type Input struct {
 
 // InputDetails represents whether a context has access to a resource
 type InputDetails struct {
-	Type       string      `json:"type" binding:"required"`
+	Type       string      `json:"type" enums:"permission" binding:"required"`
 	Attributes *Attributes `json:"attributes" binding:"required,dive"`
 }
 

@@ -19,7 +19,7 @@ type OutputDetails struct {
 
 // Data provides details about the context and Principal
 type Data struct {
-	Type string `json:"type" binding:"required"`
+	Type string `json:"type" enums:"grant" binding:"required"`
 	ID   string `json:"id" binding:"required"`
 }
 

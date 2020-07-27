@@ -7,7 +7,7 @@ type Input struct {
 
 // InputDetails is the paylaod sent when creating a new resource
 type InputDetails struct {
-	Type       string      `json:"type" binding:"required"`
+	Type       string      `json:"type" enums:"context" binding:"required"`
 	Attributes *Attributes `json:"attributes" binding:"required,dive"`
 }
 
