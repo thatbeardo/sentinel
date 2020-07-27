@@ -524,14 +524,14 @@ paths:
       - application/json
       description: Delete a context by its ID
       parameters:
-      - description: context ID
-        in: path
-        name: id
-        required: true
-        type: string
       - description: Desired environment
         in: header
         name: x-sentinel-tenant
+        required: true
+        type: string
+      - description: context ID
+        in: path
+        name: id
         required: true
         type: string
       produces:
@@ -551,14 +551,14 @@ paths:
       - application/json
       description: Get a context by its ID
       parameters:
-      - description: context ID
-        in: path
-        name: id
-        required: true
-        type: string
       - description: Desired environment
         in: header
         name: x-sentinel-tenant
+        required: true
+        type: string
+      - description: context ID
+        in: path
+        name: id
         required: true
         type: string
       produces:
@@ -586,6 +586,11 @@ paths:
       - application/json
       description: Update Polciy name.
       parameters:
+      - description: Desired environment
+        in: header
+        name: x-sentinel-tenant
+        required: true
+        type: string
       - description: context ID
         in: path
         name: id
@@ -597,11 +602,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/context.Input'
-      - description: Desired environment
-        in: header
-        name: x-sentinel-tenant
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -624,14 +624,14 @@ paths:
       - application/json
       description: Shows all Principal access to Target Resources managed through a context
       parameters:
-      - description: Resource ID
-        in: path
-        name: resource_id
-        required: true
-        type: string
       - description: Desired environment
         in: header
         name: x-sentinel-tenant
+        required: true
+        type: string
+      - description: Resource ID
+        in: path
+        name: resource_id
         required: true
         type: string
       produces:
@@ -656,6 +656,11 @@ paths:
       - application/json
       description: Create a grant for a context on a resource
       parameters:
+      - description: Desired environment
+        in: header
+        name: x-sentinel-tenant
+        required: true
+        type: string
       - description: context ID
         in: path
         name: context_id
@@ -672,11 +677,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/grant.Input'
-      - description: Desired environment
-        in: header
-        name: x-sentinel-tenant
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -699,14 +699,14 @@ paths:
       - application/json
       description: List all Permissions for all Target Resources in context.
       parameters:
-      - description: context ID
-        in: path
-        name: context_id
-        required: true
-        type: string
       - description: Desired environment
         in: header
         name: x-sentinel-tenant
+        required: true
+        type: string
+      - description: context ID
+        in: path
+        name: context_id
         required: true
         type: string
       produces:
@@ -762,6 +762,11 @@ paths:
       - application/json
       description: Create a permission for a context on a resource
       parameters:
+      - description: Desired environment
+        in: header
+        name: x-sentinel-tenant
+        required: true
+        type: string
       - description: context ID
         in: path
         name: context_id
@@ -778,11 +783,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/permission.Input'
-      - description: Desired environment
-        in: header
-        name: x-sentinel-tenant
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -805,14 +805,14 @@ paths:
       - application/json
       description: Delete a permission by its ID
       parameters:
-      - description: Permission ID
-        in: path
-        name: id
-        required: true
-        type: string
       - description: Desired environment
         in: header
         name: x-sentinel-tenant
+        required: true
+        type: string
+      - description: Permission ID
+        in: path
+        name: id
         required: true
         type: string
       produces:
@@ -832,6 +832,11 @@ paths:
       - application/json
       description: Update Permission Details.
       parameters:
+      - description: Desired environment
+        in: header
+        name: x-sentinel-tenant
+        required: true
+        type: string
       - description: Permission ID
         in: path
         name: id
@@ -843,11 +848,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/permission.Input'
-      - description: Desired environment
-        in: header
-        name: x-sentinel-tenant
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -955,17 +955,17 @@ paths:
       - application/json
       description: Add a new resource to existing resources
       parameters:
+      - description: Desired tenant - environment
+        in: header
+        name: x-sentinel-tenant
+        required: true
+        type: string
       - description: Resource to be created
         in: body
         name: input
         required: true
         schema:
           $ref: '#/definitions/resource.Input'
-      - description: Desired tenant - environment
-        in: header
-        name: x-sentinel-tenant
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -988,14 +988,14 @@ paths:
       - application/json
       description: Delete a resource by its ID
       parameters:
-      - description: Resource ID
-        in: path
-        name: id
-        required: true
-        type: string
       - description: Desired environment
         in: header
         name: x-sentinel-tenant
+        required: true
+        type: string
+      - description: Resource ID
+        in: path
+        name: id
         required: true
         type: string
       produces:
@@ -1050,6 +1050,11 @@ paths:
       - application/json
       description: Update resource name, sourceID, parent, etc
       parameters:
+      - description: Desired environment
+        in: header
+        name: x-sentinel-tenant
+        required: true
+        type: string
       - description: Resource ID
         in: path
         name: id
@@ -1061,11 +1066,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/resource.Input'
-      - description: Desired environment
-        in: header
-        name: x-sentinel-tenant
-        required: true
-        type: string
       produces:
       - application/json
       responses:

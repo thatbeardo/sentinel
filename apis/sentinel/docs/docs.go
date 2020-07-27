@@ -49,16 +49,16 @@ var doc = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "context ID",
-                        "name": "id",
-                        "in": "path",
+                        "description": "Desired environment",
+                        "name": "x-sentinel-tenant",
+                        "in": "header",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "Desired environment",
-                        "name": "x-sentinel-tenant",
-                        "in": "header",
+                        "description": "context ID",
+                        "name": "id",
+                        "in": "path",
                         "required": true
                     }
                 ],
@@ -103,16 +103,16 @@ var doc = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "context ID",
-                        "name": "id",
-                        "in": "path",
+                        "description": "Desired environment",
+                        "name": "x-sentinel-tenant",
+                        "in": "header",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "Desired environment",
-                        "name": "x-sentinel-tenant",
-                        "in": "header",
+                        "description": "context ID",
+                        "name": "id",
+                        "in": "path",
                         "required": true
                     }
                 ],
@@ -145,6 +145,13 @@ var doc = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "description": "Desired environment",
+                        "name": "x-sentinel-tenant",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "context ID",
                         "name": "id",
                         "in": "path",
@@ -158,13 +165,6 @@ var doc = `{
                         "schema": {
                             "$ref": "#/definitions/context.Input"
                         }
-                    },
-                    {
-                        "type": "string",
-                        "description": "Desired environment",
-                        "name": "x-sentinel-tenant",
-                        "in": "header",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -204,16 +204,16 @@ var doc = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Resource ID",
-                        "name": "resource_id",
-                        "in": "path",
+                        "description": "Desired environment",
+                        "name": "x-sentinel-tenant",
+                        "in": "header",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "Desired environment",
-                        "name": "x-sentinel-tenant",
-                        "in": "header",
+                        "description": "Resource ID",
+                        "name": "resource_id",
+                        "in": "path",
                         "required": true
                     }
                 ],
@@ -254,6 +254,13 @@ var doc = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "description": "Desired environment",
+                        "name": "x-sentinel-tenant",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "context ID",
                         "name": "context_id",
                         "in": "path",
@@ -274,13 +281,6 @@ var doc = `{
                         "schema": {
                             "$ref": "#/definitions/grant.Input"
                         }
-                    },
-                    {
-                        "type": "string",
-                        "description": "Desired environment",
-                        "name": "x-sentinel-tenant",
-                        "in": "header",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -320,16 +320,16 @@ var doc = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "context ID",
-                        "name": "context_id",
-                        "in": "path",
+                        "description": "Desired environment",
+                        "name": "x-sentinel-tenant",
+                        "in": "header",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "Desired environment",
-                        "name": "x-sentinel-tenant",
-                        "in": "header",
+                        "description": "context ID",
+                        "name": "context_id",
+                        "in": "path",
                         "required": true
                     }
                 ],
@@ -418,6 +418,13 @@ var doc = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "description": "Desired environment",
+                        "name": "x-sentinel-tenant",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "context ID",
                         "name": "context_id",
                         "in": "path",
@@ -438,13 +445,6 @@ var doc = `{
                         "schema": {
                             "$ref": "#/definitions/permission.Input"
                         }
-                    },
-                    {
-                        "type": "string",
-                        "description": "Desired environment",
-                        "name": "x-sentinel-tenant",
-                        "in": "header",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -484,16 +484,16 @@ var doc = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Permission ID",
-                        "name": "id",
-                        "in": "path",
+                        "description": "Desired environment",
+                        "name": "x-sentinel-tenant",
+                        "in": "header",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "Desired environment",
-                        "name": "x-sentinel-tenant",
-                        "in": "header",
+                        "description": "Permission ID",
+                        "name": "id",
+                        "in": "path",
                         "required": true
                     }
                 ],
@@ -526,6 +526,13 @@ var doc = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "description": "Desired environment",
+                        "name": "x-sentinel-tenant",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "Permission ID",
                         "name": "id",
                         "in": "path",
@@ -539,13 +546,6 @@ var doc = `{
                         "schema": {
                             "$ref": "#/definitions/permission.Input"
                         }
-                    },
-                    {
-                        "type": "string",
-                        "description": "Desired environment",
-                        "name": "x-sentinel-tenant",
-                        "in": "header",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -715,6 +715,13 @@ var doc = `{
                 "summary": "Create a new Resource",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "Desired tenant - environment",
+                        "name": "x-sentinel-tenant",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
                         "description": "Resource to be created",
                         "name": "input",
                         "in": "body",
@@ -722,13 +729,6 @@ var doc = `{
                         "schema": {
                             "$ref": "#/definitions/resource.Input"
                         }
-                    },
-                    {
-                        "type": "string",
-                        "description": "Desired tenant - environment",
-                        "name": "x-sentinel-tenant",
-                        "in": "header",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -822,16 +822,16 @@ var doc = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Resource ID",
-                        "name": "id",
-                        "in": "path",
+                        "description": "Desired environment",
+                        "name": "x-sentinel-tenant",
+                        "in": "header",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "Desired environment",
-                        "name": "x-sentinel-tenant",
-                        "in": "header",
+                        "description": "Resource ID",
+                        "name": "id",
+                        "in": "path",
                         "required": true
                     }
                 ],
@@ -864,6 +864,13 @@ var doc = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "description": "Desired environment",
+                        "name": "x-sentinel-tenant",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "Resource ID",
                         "name": "id",
                         "in": "path",
@@ -877,13 +884,6 @@ var doc = `{
                         "schema": {
                             "$ref": "#/definitions/resource.Input"
                         }
-                    },
-                    {
-                        "type": "string",
-                        "description": "Desired environment",
-                        "name": "x-sentinel-tenant",
-                        "in": "header",
-                        "required": true
                     }
                 ],
                 "responses": {
