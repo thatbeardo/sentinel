@@ -13,8 +13,8 @@ import (
 // @Description Delete a context by its ID
 // @Accept  json
 // @Produce  json
-// @Param id path string true "context ID"
 // @Param x-sentinel-tenant header string true "Desired environment"
+// @Param id path string true "context ID"
 // @Success 404 {object} views.ErrView
 // @Security ApiKeyAuth
 // @Router /v1/contexts/{id} [delete]

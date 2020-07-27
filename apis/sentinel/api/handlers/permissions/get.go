@@ -13,8 +13,8 @@ import (
 // @Description List all Permissions for all Target Resources in context.
 // @Accept  json
 // @Produce  json
-// @Param context_id path string true "context ID"
 // @Param x-sentinel-tenant header string true "Desired environment"
+// @Param context_id path string true "context ID"
 // @Success 200 {object} permission.Output	"ok"
 // @Success 500 {object} views.ErrView
 // @Security ApiKeyAuth

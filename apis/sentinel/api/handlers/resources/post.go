@@ -21,8 +21,8 @@ const (
 // @Tags Resources
 // @Accept  json
 // @Produce  json
-// @Param input body resource.Input true "Resource to be created"
 // @Param x-sentinel-tenant header string true "Desired tenant - environment"
+// @Param input body resource.Input true "Resource to be created"
 // @Success 202 {object} resource.OutputDetails	"ok"
 // @Failure 500 {object} views.ErrView	"ok"
 // @Security ApiKeyAuth

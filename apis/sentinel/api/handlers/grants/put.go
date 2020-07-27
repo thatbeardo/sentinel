@@ -14,10 +14,10 @@ import (
 // @Description Create a grant for a context on a resource
 // @Accept  json
 // @Produce  json
+// @Param x-sentinel-tenant header string true "Desired environment"
 // @Param context_id path string true "context ID"
 // @Param resource_id path string true "Resource ID"
 // @Param input body grant.Input true "Details about the Grant to be added"
-// @Param x-sentinel-tenant header string true "Desired environment"
 // @Success 204 {object} grant.Output	"ok"
 // @Success 404 {object} views.ErrView
 // @Security ApiKeyAuth

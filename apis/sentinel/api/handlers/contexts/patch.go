@@ -14,9 +14,9 @@ import (
 // @Description Update Polciy name.
 // @Accept  json
 // @Produce  json
+// @Param x-sentinel-tenant header string true "Desired environment"
 // @Param id path string true "context ID"
 // @Param input body context.Input true "New name to be assigned to an existing context"
-// @Param x-sentinel-tenant header string true "Desired environment"
 // @Success 204 {object} context.OutputDetails	"ok"
 // @Success 404 {object} views.ErrView
 // @Security ApiKeyAuth

@@ -13,8 +13,8 @@ import (
 // @Description Delete a permission by its ID
 // @Accept  json
 // @Produce  json
-// @Param id path string true "Permission ID"
 // @Param x-sentinel-tenant header string true "Desired environment"
+// @Param id path string true "Permission ID"
 // @Success 404 {object} views.ErrView
 // @Security ApiKeyAuth
 // @Router /v1/permissions/{id} [delete]

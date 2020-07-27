@@ -13,8 +13,8 @@ import (
 // @Description Shows all Principal access to Target Resources managed through a context
 // @Accept  json
 // @Produce  json
-// @Param resource_id path string true "Resource ID"
 // @Param x-sentinel-tenant header string true "Desired environment"
+// @Param resource_id path string true "Resource ID"
 // @Success 200 {object} grant.Output	"ok"
 // @Success 500 {object} views.ErrView
 // @Security ApiKeyAuth

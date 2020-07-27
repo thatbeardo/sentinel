@@ -13,8 +13,8 @@ import (
 // @Description Delete a resource by its ID
 // @Accept  json
 // @Produce  json
-// @Param id path string true "Resource ID"
 // @Param x-sentinel-tenant header string true "Desired environment"
+// @Param id path string true "Resource ID"
 // @Success 404 {object} views.ErrView
 // @Security ApiKeyAuth
 // @Router /v1/resources/{id} [delete]
