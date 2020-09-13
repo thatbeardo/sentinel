@@ -138,6 +138,7 @@ import (
 	authorizations "github.com/bithippie/guard-my-app/apis/sentinel/api/handlers/authorization"
 	contexts "github.com/bithippie/guard-my-app/apis/sentinel/api/handlers/contexts"
 	"github.com/bithippie/guard-my-app/apis/sentinel/api/handlers/grants"
+	"github.com/bithippie/guard-my-app/apis/sentinel/api/handlers/healthcheck"
 	"github.com/bithippie/guard-my-app/apis/sentinel/api/handlers/permissions"
 	"github.com/bithippie/guard-my-app/apis/sentinel/api/handlers/resources"
 	"github.com/bithippie/guard-my-app/apis/sentinel/api/middleware"
@@ -189,6 +190,8 @@ func main() {
 	engine := gin.Default()
 
 	router := server.GenerateRouter(engine)
+	healthcheck.Routes(router)
+
 	router.Use(middleware.VerifyToken)
 	router.Use(middleware.VerifyTenant)
 
