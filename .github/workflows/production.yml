@@ -47,13 +47,13 @@ jobs:
     #     terraform apply -var 'app_image=${{ steps.build-image.outputs.image }}' -auto-approve
     #     terraform output website_bucket_id
 
-    - name: Terraform Destroy
-      id: terraform-destroy
-      run: |
-        cd infrastructure/dev
-        terraform init
-        terraform plan
-        terraform destroy -auto-approve
+    # - name: Terraform Destroy
+    #   id: terraform-destroy
+    #   run: |
+    #     cd infrastructure/dev
+    #     terraform init
+    #     terraform plan
+    #     terraform destroy -auto-approve
     
     # - name: Install Yarn
     #   uses: borales/actions-yarn@v2.1.0
