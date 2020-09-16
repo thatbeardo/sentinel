@@ -2,14 +2,19 @@ package middleware
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/bithippie/guard-my-app/apis/sentinel/api/middleware/injection"
 	"github.com/bithippie/guard-my-app/apis/sentinel/api/views"
 	"github.com/bithippie/guard-my-app/apis/sentinel/models/authorization/service"
 	resource "github.com/bithippie/guard-my-app/apis/sentinel/models/resource/dto"
+	"github.com/bithippie/guard-my-app/apis/sentinel/statsd"
 	"github.com/gin-gonic/gin"
 )
 
@@ -153,4 +158,31 @@ func VerifyRelationshipOwnership(s service.Service, identifier string) gin.Handl
 			)
 		}
 	}
+}
+
+// Metrics is a middleware responsible to report metrics to statsd
+func Metrics(client statsd.Client) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		startTime := time.Now()
+		c.Next()
+
+		// send call count
+		client.Increment(fmt.Sprintf("%s.%s", constructPathMetric(c.Request.URL.Path), Count))
+
+		// send response code
+		status := c.Writer.Status()
+		client.Increment(fmt.Sprintf("%s.%s", constructPathMetric(c.Request.URL.Path), strconv.Itoa(status)))
+
+		// send response time
+		duration := time.Since(startTime).Seconds() * 1000 // in milliseconds
+		client.Timing(constructPathMetric(c.Request.URL.Path), duration)
+
+		// send response size
+		size := c.Writer.Size()
+		client.Gauge(constructPathMetric(c.Request.URL.Path), size)
+	}
+}
+
+func constructPathMetric(path string) string {
+	return fmt.Sprintf("%s.%s.%s.%s", Organization, Class, os.Getenv("ENV"), path)
 }

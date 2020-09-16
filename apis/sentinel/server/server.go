@@ -14,6 +14,8 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/neo4j/neo4j-go-driver/neo4j"
+	"gopkg.in/alexcesaro/statsd.v2"
+
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -29,15 +31,17 @@ func GenerateRouter(r *gin.Engine) *gin.RouterGroup {
 	return r.Group("/v1")
 }
 
+// GenerateStatsdClient instantiates and returns a statsd client
+func GenerateStatsdClient(host, port string) (*statsd.Client, error) {
+	return statsd.New(
+		statsd.Address(
+			fmt.Sprintf("%s:%s", host, port)))
+}
+
 func setupSwagger(r *gin.Engine) {
 	hostURL := fmt.Sprintf("https://%s:%s", os.Getenv("HOST"), os.Getenv("PORT"))
 	docs.SwaggerInfo.Host = hostURL
 	r.StaticFile("/docs", "./docs/swagger.json")
-
-	// A band aid to enable heroku deployments
-	if os.Getenv("HOST") != "localhost" {
-		hostURL = "https://" + os.Getenv("HOST")
-	}
 
 	url := ginSwagger.URL(fmt.Sprintf("%s/docs", hostURL))
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))

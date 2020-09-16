@@ -135,6 +135,8 @@
 package main
 
 import (
+	"os"
+
 	authorizations "github.com/bithippie/guard-my-app/apis/sentinel/api/handlers/authorization"
 	contexts "github.com/bithippie/guard-my-app/apis/sentinel/api/handlers/contexts"
 	"github.com/bithippie/guard-my-app/apis/sentinel/api/handlers/grants"
@@ -155,6 +157,7 @@ import (
 	resourceRepository "github.com/bithippie/guard-my-app/apis/sentinel/models/resource/repository"
 	resourceService "github.com/bithippie/guard-my-app/apis/sentinel/models/resource/service"
 	resourceSession "github.com/bithippie/guard-my-app/apis/sentinel/models/resource/session"
+	"github.com/bithippie/guard-my-app/apis/sentinel/statsd"
 
 	authorizationRepository "github.com/bithippie/guard-my-app/apis/sentinel/models/authorization/repository"
 	authorizationService "github.com/bithippie/guard-my-app/apis/sentinel/models/authorization/service"
@@ -165,6 +168,8 @@ import (
 
 func main() {
 	shutdown, neo4jSession := server.Initialize()
+	statsdClient, err := statsd.New(os.Getenv("STATSD_HOST"), os.Getenv("STATSD_PORT"))
+
 	runner := neo4j.New(neo4jSession)
 
 	contextsSession := contextSession.NewNeo4jSession(runner)
@@ -188,8 +193,12 @@ func main() {
 	authorizationService := authorizationService.New(authorizationRepository)
 
 	engine := gin.Default()
-
 	router := server.GenerateRouter(engine)
+
+	if err == nil {
+		router.Use(middleware.Metrics(statsdClient))
+	}
+
 	healthcheck.Routes(router)
 
 	router.Use(middleware.VerifyToken)

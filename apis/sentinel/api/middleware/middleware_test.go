@@ -3,13 +3,16 @@ package middleware_test
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	handler "github.com/bithippie/guard-my-app/apis/sentinel/api/handlers"
 	"github.com/bithippie/guard-my-app/apis/sentinel/api/middleware"
 	"github.com/bithippie/guard-my-app/apis/sentinel/api/middleware/injection"
+	mock "github.com/bithippie/guard-my-app/apis/sentinel/mocks"
 	mocks "github.com/bithippie/guard-my-app/apis/sentinel/mocks/authorization"
 	"github.com/bithippie/guard-my-app/apis/sentinel/testutil"
 	"github.com/gin-contrib/cors"
@@ -287,6 +290,21 @@ func TestVerifyRelationshipOwnership_AuthorizationServiceReturnsTrue_ReturnStatu
 	defer cleanup()
 
 	assert.Equal(t, http.StatusOK, response.StatusCode)
+}
+
+func TestInternalMetricLogging_UDPCallsAreFired_ReturnsVoid(t *testing.T) {
+	const path = "/test"
+	router := setupRouter()
+
+	router.GET(path, middleware.Metrics(mock.Statsd{
+		ExpectedTimingMetric: fmt.Sprintf("%s.%s.%s.%s", middleware.Organization, middleware.Class, os.Getenv("ENV"), path),
+		ExpectedGaugeMetric:  fmt.Sprintf("%s.%s.%s.%s", middleware.Organization, middleware.Class, os.Getenv("ENV"), path),
+		T:                    t,
+	}))
+
+	response, cleanup := testutil.PerformRequest(router, "GET", path, "")
+	assert.Equal(t, http.StatusOK, response.StatusCode)
+	defer cleanup()
 }
 
 func setupRouter() *gin.Engine {

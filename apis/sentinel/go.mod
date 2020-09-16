@@ -27,5 +27,6 @@ require (
 	golang.org/x/text v0.3.3 // indirect
 	golang.org/x/tools v0.0.0-20200725200936-102e7d357031 // indirect
 	google.golang.org/protobuf v1.25.0 // indirect
+	gopkg.in/alexcesaro/statsd.v2 v2.0.0
 	gopkg.in/yaml.v2 v2.3.0 // indirect
 )
