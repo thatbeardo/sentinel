@@ -13,7 +13,7 @@ type Service interface {
 	GetAuthorizationForPrincipal(principalID, contextID string, input authorization.Input) (output authorization.Output, err error)
 	IsTargetOwnedByClient(ctx context.Context, targetID string) bool
 	IsContextOwnedByClient(ctx context.Context, contextID string) bool
-	IsPermissionOwnedByTenant(string, string) bool
+	IsPermissionOwnedByTenant(ctx context.Context, permissionID string) bool
 }
 
 type service struct {
@@ -32,8 +32,8 @@ func (s service) IsContextOwnedByClient(ctx context.Context, contextID string) b
 	return s.repository.IsContextOwnedByClient(injection.ExtractClaims(ctx, "azp"), injection.ExtractTenant(ctx), contextID)
 }
 
-func (s service) IsPermissionOwnedByTenant(permissionID, tenantID string) bool {
-	return s.repository.IsPermissionOwnedByTenant(permissionID, tenantID)
+func (s service) IsPermissionOwnedByTenant(ctx context.Context, permissionID string) bool {
+	return s.repository.IsPermissionOwnedByTenant(injection.ExtractClaims(ctx, "azp"), injection.ExtractTenant(ctx), permissionID)
 }
 
 // New is a singleton factory method to return service instances

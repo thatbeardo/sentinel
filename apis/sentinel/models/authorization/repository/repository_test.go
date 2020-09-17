@@ -284,14 +284,15 @@ func TestIsPermissionOwnedByTenant_SessionReturnsEmptyResponse_ReturnFalse(t *te
 		ExecuteResponse:   authorization.Output{Data: []authorization.Details{}},
 		ExpectedStatement: permissionOwnershipStatement,
 		ExpectedParameter: map[string]interface{}{
+			"client_id":     "client-id",
+			"tenant":        "tenant",
 			"permission_id": "permission-id",
-			"tenant_id":     "tenant-id",
 		},
 		t: t,
 	}
 
 	repository := repository.New(session)
-	result := repository.IsPermissionOwnedByTenant("permission-id", "tenant-id")
+	result := repository.IsPermissionOwnedByTenant("client-id", "tenant", "permission-id")
 
 	assert.False(t, result)
 }
@@ -301,14 +302,15 @@ func TestIsPermissionOwnedByTenant_SessionReturnsError_ReturnFalse(t *testing.T)
 		ExecuteErr:        errors.New("some-test-error"),
 		ExpectedStatement: permissionOwnershipStatement,
 		ExpectedParameter: map[string]interface{}{
+			"client_id":     "client-id",
+			"tenant":        "tenant",
 			"permission_id": "permission-id",
-			"tenant_id":     "tenant-id",
 		},
 		t: t,
 	}
 
 	repository := repository.New(session)
-	result := repository.IsPermissionOwnedByTenant("permission-id", "tenant-id")
+	result := repository.IsPermissionOwnedByTenant("client-id", "tenant", "permission-id")
 
 	assert.False(t, result)
 }
@@ -318,14 +320,15 @@ func TestIsPermissionOwnedByTenant_SessionReturnsData_ReturnTrue(t *testing.T) {
 		ExecuteResponse:   testdata.Output,
 		ExpectedStatement: permissionOwnershipStatement,
 		ExpectedParameter: map[string]interface{}{
-			"tenant_id":     "tenant-id",
+			"client_id":     "client-id",
+			"tenant":        "tenant",
 			"permission_id": "permission-id",
 		},
 		t: t,
 	}
 
 	repository := repository.New(session)
-	result := repository.IsPermissionOwnedByTenant("permission-id", "tenant-id")
+	result := repository.IsPermissionOwnedByTenant("client-id", "tenant", "permission-id")
 
 	assert.True(t, result)
 }

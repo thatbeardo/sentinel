@@ -33,7 +33,7 @@ func (m mockRepository) IsContextOwnedByClient(string, string, string) bool {
 	return m.IsContextOwnedByClientResponse
 }
 
-func (m mockRepository) IsPermissionOwnedByTenant(permissionID string, tenantID string) bool {
+func (m mockRepository) IsPermissionOwnedByTenant(string, string, string) bool {
 	return m.IsPermissionOwnedByTenantResponse
 }
 
@@ -105,17 +105,25 @@ func TestIsContextOwnedByTenant_RepositoryReturnsTrue_ReturnTrue(t *testing.T) {
 }
 
 func TestIsPermissionOwnedByTenant_RepositoryReturnsTrue_ReturnTrue(t *testing.T) {
+	defer injection.Reset()
+	injection.ExtractTenant = func(ctx context.Context) string { return "tenant" }
+	injection.ExtractClaims = func(context.Context, string) string { return "clientID" }
+
 	repository := mockRepository{IsPermissionOwnedByTenantResponse: true}
 	s := service.New(repository)
 
-	response := s.IsPermissionOwnedByTenant("test-permission-id", "test-tenant")
+	response := s.IsPermissionOwnedByTenant(mocks.Context{}, "test-permission-id")
 	assert.True(t, response)
 }
 
 func TestIsPermissionOwnedByTenant_RepositoryReturnsFalse_ReturnFalse(t *testing.T) {
+	defer injection.Reset()
+	injection.ExtractTenant = func(ctx context.Context) string { return "tenant" }
+	injection.ExtractClaims = func(context.Context, string) string { return "clientID" }
+
 	repository := mockRepository{IsPermissionOwnedByTenantResponse: false}
 	s := service.New(repository)
 
-	response := s.IsPermissionOwnedByTenant("test-permission-id", "test-tenant")
+	response := s.IsPermissionOwnedByTenant(mocks.Context{}, "test-permission-id")
 	assert.False(t, response)
 }

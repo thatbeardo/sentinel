@@ -14,7 +14,7 @@ type Repository interface {
 	GetAuthorizationForPrincipal(principalID, contextID string, input authorization.Input) (authorization.Output, error)
 	IsTargetOwnedByClient(clientID, tenant, targetID string) bool
 	IsContextOwnedByClient(clientID, tenant, contextID string) bool
-	IsPermissionOwnedByTenant(string, string) bool
+	IsPermissionOwnedByTenant(clientID, tenant, permissionID string) bool
 }
 
 type repository struct {
@@ -72,13 +72,14 @@ func (repo repository) IsContextOwnedByClient(clientID, tenant, contextID string
 	return err == nil && len(results.Data) > 0
 }
 
-func (repo repository) IsPermissionOwnedByTenant(permissionID, tenantID string) bool {
+func (repo repository) IsPermissionOwnedByTenant(clientID, tenant, permissionID string) bool {
 	results, err := repo.session.Execute(fmt.Sprintf(`
 		MATCH (context:Context)-[:PERMISSION{id: $permission_id}]->(target:Resource)
 		%s`, generateOwnershipInspectionQuery()),
 		map[string]interface{}{
+			"client_id":     clientID,
+			"tenant":        tenant,
 			"permission_id": permissionID,
-			"tenant_id":     tenantID,
 		},
 	)
 	return err == nil && len(results.Data) > 0

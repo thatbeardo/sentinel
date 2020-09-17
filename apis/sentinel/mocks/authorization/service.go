@@ -36,6 +36,6 @@ func (m AuthorizationService) IsContextOwnedByClient(context.Context, string) bo
 }
 
 // IsPermissionOwnedByTenant checks if the permission being updated is owned by the tenant
-func (m AuthorizationService) IsPermissionOwnedByTenant(string, string) bool {
+func (m AuthorizationService) IsPermissionOwnedByTenant(context.Context, string) bool {
 	return m.IsPermissionOwnedByTenantResponse
 }

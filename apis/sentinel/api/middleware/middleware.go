@@ -144,8 +144,7 @@ func ValidateNewResource(s service.Service) gin.HandlerFunc {
 // VerifyRelationshipOwnership makes sure that the edge being created/updated belongs to the correct tenant
 func VerifyRelationshipOwnership(s service.Service, identifier string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		tenantID := injection.ExtractClaim(c.Request.Context(), "azp")
-		isValidPermission := s.IsPermissionOwnedByTenant(c.Param(identifier), tenantID)
+		isValidPermission := s.IsPermissionOwnedByTenant(c.Request.Context(), c.Param(identifier))
 
 		if !isValidPermission {
 			c.AbortWithStatusJSON(

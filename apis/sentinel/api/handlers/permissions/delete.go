@@ -20,7 +20,7 @@ import (
 // @Router /v1/permissions/{id} [delete]
 func delete(service service.Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		id := c.Param("id")
+		id := c.Param("permission_id")
 		err := service.Delete(id)
 		if err != nil {
 			views.Wrap(err, c)
