@@ -13,6 +13,9 @@ import (
 	"github.com/bithippie/guard-my-app/apis/sentinel/api/middleware/injection"
 	"github.com/bithippie/guard-my-app/apis/sentinel/api/views"
 	"github.com/bithippie/guard-my-app/apis/sentinel/models/authorization/service"
+	grants "github.com/bithippie/guard-my-app/apis/sentinel/models/grant/service"
+	permission "github.com/bithippie/guard-my-app/apis/sentinel/models/permission/dto"
+	permissions "github.com/bithippie/guard-my-app/apis/sentinel/models/permission/service"
 	resource "github.com/bithippie/guard-my-app/apis/sentinel/models/resource/dto"
 	"github.com/bithippie/guard-my-app/apis/sentinel/statsd"
 	"github.com/gin-gonic/gin"
@@ -159,7 +162,58 @@ func VerifyRelationshipOwnership(s service.Service, identifier string) gin.Handl
 	}
 }
 
-// Metrics is a middleware responsible to report metrics to statsd
+// VerifyGrantExistence is used to ensure a deuplicate grant isn't being created
+func VerifyGrantExistence(s grants.Service, contextIdentifier, principalIdentifier string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		grantExists, _ := s.GrantExists(c.Param(contextIdentifier), c.Param(principalIdentifier))
+
+		if grantExists {
+			c.AbortWithStatusJSON(
+				http.StatusBadRequest,
+				views.GenerateErrorResponse(
+					http.StatusBadRequest,
+					"There already exists a grant between this context-principal pair",
+					c.Request.URL.Path,
+				),
+			)
+		}
+	}
+}
+
+// VerifyPermissionIdempotence checks to see if the permission already exists
+func VerifyPermissionIdempotence(s permissions.Service, contextIdentifier, resourceIdentifier string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var input permission.Input
+		bodyBytes, _ := ioutil.ReadAll(c.Request.Body)
+		err := injection.Unmarshal(bodyBytes, &input)
+		if err != nil {
+			c.AbortWithStatusJSON(
+				http.StatusBadRequest,
+				views.GenerateErrorResponse(
+					http.StatusBadRequest,
+					"Malformed request body",
+					c.Request.URL.Path,
+				),
+			)
+			return
+		}
+		c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+		isPermissionIdempotent, _ := s.IsPermissionIdempotent(&input, c.Param(contextIdentifier), c.Param(resourceIdentifier))
+		if !isPermissionIdempotent {
+			c.AbortWithStatusJSON(
+				http.StatusBadRequest,
+				views.GenerateErrorResponse(
+					http.StatusBadRequest,
+					"A permission with the same name already exists between the context-resource pair",
+					c.Request.URL.Path,
+				),
+			)
+			return
+		}
+	}
+}
+
+// Metrics is a middleware responsible to report monitoring to statsd
 func Metrics(client statsd.Client) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		startTime := time.Now()

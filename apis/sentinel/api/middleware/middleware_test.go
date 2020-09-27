@@ -14,6 +14,8 @@ import (
 	"github.com/bithippie/guard-my-app/apis/sentinel/api/middleware/injection"
 	mock "github.com/bithippie/guard-my-app/apis/sentinel/mocks"
 	mocks "github.com/bithippie/guard-my-app/apis/sentinel/mocks/authorization"
+	mockGrants "github.com/bithippie/guard-my-app/apis/sentinel/mocks/grants"
+	mockPermissions "github.com/bithippie/guard-my-app/apis/sentinel/mocks/permissions"
 	"github.com/bithippie/guard-my-app/apis/sentinel/testutil"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -305,6 +307,117 @@ func TestInternalMetricLogging_UDPCallsAreFired_ReturnsVoid(t *testing.T) {
 	response, cleanup := testutil.PerformRequest(router, "GET", path, "")
 	assert.Equal(t, http.StatusOK, response.StatusCode)
 	defer cleanup()
+}
+
+func TestGrantExists_ServiceReturnsTrue_ReturnBadRequest(t *testing.T) {
+	// This is not how you set path params.
+	// Refer to https://stackoverflow.com/questions/43826412/how-to-properly-set-path-params-in-url-using-golang-http-client
+	// Update testutil.PerformRequest()
+	const path = "/test"
+	const params = "?context_id=test-context-id&resource_id=test-principal-id"
+	router := setupRouter()
+
+	router.GET(path, middleware.VerifyGrantExistence(mockGrants.GrantService{
+		GrantExistsResponse: true,
+		ExpectedContextID:   "test-context-id",
+		ExpectedPrincipalID: "test-principal-id",
+		T:                   t},
+		"context_id",
+		"resource_id"))
+
+	response, cleanup := testutil.PerformRequest(router, "GET", path+params, "")
+	assert.Equal(t, http.StatusBadRequest, response.StatusCode)
+	defer cleanup()
+}
+
+func TestGrantExists_ServiceReturnsFalse_ReturnStatusOK(t *testing.T) {
+	// This is not how you set path params.
+	// Refer to https://stackoverflow.com/questions/43826412/how-to-properly-set-path-params-in-url-using-golang-http-client
+	// Update testutil.PerformRequest()
+	const path = "/test"
+	const params = "?context_id=test-context-id&resource_id=test-principal-id"
+	router := setupRouter()
+
+	router.GET(path, middleware.VerifyGrantExistence(mockGrants.GrantService{
+		GrantExistsResponse: false,
+		ExpectedContextID:   "test-context-id",
+		ExpectedPrincipalID: "test-principal-id",
+		T:                   t},
+		"context_id",
+		"resource_id"))
+
+	response, cleanup := testutil.PerformRequest(router, "GET", path+params, "")
+	assert.Equal(t, http.StatusOK, response.StatusCode)
+	defer cleanup()
+}
+
+func TestPermissionIdempotence_ErrorInUnmarshallingBody_ReturnStatusBadRequest(t *testing.T) {
+	defer injection.Reset()
+	injection.Unmarshal = func(data []byte, v interface{}) error {
+		return errors.New("Some test error")
+	}
+
+	const path = "/test"
+	router := setupRouter()
+	router.POST(path, middleware.VerifyPermissionIdempotence(mockPermissions.PermissionService{
+		IsPermissionIdempotentResponse: false,
+	},
+		"context_id",
+		"resource_id"))
+	response, cleanup := testutil.PerformRequest(router, "POST", path, `{"data"}`)
+	defer cleanup()
+
+	testutil.ValidateResponse(t,
+		response,
+		testutil.GenerateError("/test", "query-parameter-todo", "Malformed request body", 400),
+		http.StatusBadRequest)
+
+}
+
+func TestPermissionIdempotence_PermissionAlreadyExists_ReturnStatusBadRequest(t *testing.T) {
+	defer injection.Reset()
+	injection.Unmarshal = func(data []byte, v interface{}) error {
+		return nil
+	}
+
+	const path = "/test"
+	router := setupRouter()
+	router.POST(path, middleware.VerifyPermissionIdempotence(mockPermissions.PermissionService{
+		IsPermissionIdempotentResponse: false,
+	},
+		"context_id",
+		"resource_id"))
+	response, cleanup := testutil.PerformRequest(router, "POST", path, `{"data"}`)
+	defer cleanup()
+
+	testutil.ValidateResponse(t,
+		response,
+		testutil.GenerateError(
+			"/test",
+			"query-parameter-todo",
+			"A permission with the same name already exists between the context-resource pair",
+			http.StatusBadRequest),
+		http.StatusBadRequest)
+
+}
+
+func TestPermissionIdempotence_NewPermissionCreated_ReturnStatusOK(t *testing.T) {
+	defer injection.Reset()
+	injection.Unmarshal = func(data []byte, v interface{}) error {
+		return nil
+	}
+
+	const path = "/test"
+	router := setupRouter()
+	router.POST(path, middleware.VerifyPermissionIdempotence(mockPermissions.PermissionService{
+		IsPermissionIdempotentResponse: true,
+	},
+		"context_id",
+		"resource_id"))
+	response, cleanup := testutil.PerformRequest(router, "POST", path, `{"data"}`)
+	defer cleanup()
+
+	assert.Equal(t, http.StatusOK, response.StatusCode)
 }
 
 func setupRouter() *gin.Engine {

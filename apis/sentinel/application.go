@@ -141,6 +141,7 @@ import (
 	contexts "github.com/bithippie/guard-my-app/apis/sentinel/api/handlers/contexts"
 	"github.com/bithippie/guard-my-app/apis/sentinel/api/handlers/grants"
 	"github.com/bithippie/guard-my-app/apis/sentinel/api/handlers/healthcheck"
+	"github.com/bithippie/guard-my-app/apis/sentinel/api/handlers/login"
 	"github.com/bithippie/guard-my-app/apis/sentinel/api/handlers/permissions"
 	"github.com/bithippie/guard-my-app/apis/sentinel/api/handlers/resources"
 	"github.com/bithippie/guard-my-app/apis/sentinel/api/middleware"
@@ -200,6 +201,7 @@ func main() {
 	}
 
 	healthcheck.Routes(router)
+	login.Routes(router)
 
 	router.Use(middleware.VerifyToken)
 	router.Use(middleware.VerifyTenant)

@@ -1,6 +1,7 @@
 package repository_test
 
 import (
+	"errors"
 	"testing"
 
 	models "github.com/bithippie/guard-my-app/apis/sentinel/models"
@@ -20,6 +21,12 @@ var createStatement = `
 		WHERE context.id = $contextID AND principal.id = $principalID
 		CREATE (context)-[grant:GRANTED_TO {with_grant: $withGrant, id: randomUUID()}]->(principal)
 		RETURN {grant: grant, context:context, principal: principal}`
+
+var grantExistsStatement = `
+		MATCH (context:Context{id: $contextID})-[grant:GRANTED_TO]->(principal: Resource {id: $principalID})
+		RETURN {grant: grant}`
+
+var dbErr = errors.New("database-error")
 
 type mockSession struct {
 	ExecuteResponse   grant.Output
@@ -96,4 +103,51 @@ func TestGetAllContextsAndPrincipals_SessionReturnsEmptyResponse_DatabaseErrorRe
 	result, err := repository.GetPrincipalAndcontextForResource("test-principal-id")
 	assert.Equal(t, grant.Output{Data: []grant.Details{}}, result)
 	assert.Nil(t, err)
+}
+
+func TestGrantExists_DatabaseReturnsError_ReturnFalseAndError(t *testing.T) {
+	session := mockSession{
+		ExecuteErr:        dbErr,
+		ExpectedStatement: grantExistsStatement,
+		ExpectedParameter: map[string]interface{}{
+			"contextID":   "test-context-id",
+			"principalID": "test-principal-id",
+		},
+		t: t,
+	}
+	repository := repository.New(session)
+	_, err := repository.GrantExists("test-context-id", "test-principal-id")
+	assert.Equal(t, err, dbErr)
+}
+
+func TestGrantExists_DatabaseReturnsGrant_ReturnTrue(t *testing.T) {
+	session := mockSession{
+		ExecuteResponse:   testdata.Output,
+		ExpectedStatement: grantExistsStatement,
+		ExpectedParameter: map[string]interface{}{
+			"contextID":   "test-context-id",
+			"principalID": "test-principal-id",
+		},
+		t: t,
+	}
+	repository := repository.New(session)
+	results, err := repository.GrantExists("test-context-id", "test-principal-id")
+	assert.Equal(t, err, nil)
+	assert.Equal(t, results, true)
+}
+
+func TestGrantExists_DatabaseReturnsEmptyArray_ReturnTrue(t *testing.T) {
+	session := mockSession{
+		ExecuteResponse:   grant.Output{Data: []grant.Details{}},
+		ExpectedStatement: grantExistsStatement,
+		ExpectedParameter: map[string]interface{}{
+			"contextID":   "test-context-id",
+			"principalID": "test-principal-id",
+		},
+		t: t,
+	}
+	repository := repository.New(session)
+	results, err := repository.GrantExists("test-context-id", "test-principal-id")
+	assert.Equal(t, err, nil)
+	assert.Equal(t, results, false)
 }

@@ -123,3 +123,51 @@ func TestDelete_RepositoryReturnsResponse_ResponseReturned(t *testing.T) {
 	err := service.Delete("test-context-id")
 	assert.Nil(t, err)
 }
+
+func TestPermissionIdempotence_DuplicatePermissionName_ReturnsFalse(t *testing.T) {
+	repository := mockRepository{
+		GetAllPermissionsForcontextResponseWithResource: testdata.Output,
+	}
+	service := service.New(repository)
+	isPermissionIdempotent, _ := service.IsPermissionIdempotent(testdata.Input, "test-context-id", "test-principal-id")
+	assert.False(t, isPermissionIdempotent)
+}
+
+func TestPermissionIdempotence_UniquePermissionName_ReturnsTrue(t *testing.T) {
+	repository := mockRepository{
+		GetAllPermissionsForcontextResponseWithResource: testdata.Output,
+	}
+	service := service.New(repository)
+
+	idempotentPermission := clonePermission(testdata.Input)
+	idempotentPermission.Data.Attributes.Name = "permission"
+
+	isPermissionIdempotent, _ := service.IsPermissionIdempotent(idempotentPermission, "test-context-id", "test-principal-id")
+	assert.True(t, isPermissionIdempotent)
+}
+
+func TestPermissionIdempotence_SamePermissionNameDifferentPermitted_ReturnsFalse(t *testing.T) {
+	repository := mockRepository{
+		GetAllPermissionsForcontextResponseWithResource: testdata.Output,
+	}
+	service := service.New(repository)
+
+	idempotentPermission := clonePermission(testdata.Input)
+	idempotentPermission.Data.Attributes.Permitted = "deny"
+
+	isPermissionIdempotent, _ := service.IsPermissionIdempotent(idempotentPermission, "test-context-id", "test-principal-id")
+	assert.False(t, isPermissionIdempotent)
+}
+
+func clonePermission(original *permission.Input) (input *permission.Input) {
+	input = &permission.Input{
+		Data: permission.InputDetails{
+			Type: "permission",
+			Attributes: &permission.Attributes{
+				Name:      original.Data.Attributes.Name,
+				Permitted: original.Data.Attributes.Permitted,
+			},
+		},
+	}
+	return
+}

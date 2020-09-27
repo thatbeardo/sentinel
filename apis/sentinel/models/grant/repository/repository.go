@@ -1,8 +1,6 @@
 package repository
 
 import (
-	"fmt"
-
 	models "github.com/bithippie/guard-my-app/apis/sentinel/models"
 	grant "github.com/bithippie/guard-my-app/apis/sentinel/models/grant/dto"
 	"github.com/bithippie/guard-my-app/apis/sentinel/models/grant/session"
@@ -12,6 +10,7 @@ import (
 type Repository interface {
 	Create(*grant.Input, string, string) (grant.OutputDetails, error)
 	GetPrincipalAndcontextForResource(string) (grant.Output, error)
+	GrantExists(contextID, principalID string) (bool, error)
 }
 
 type repository struct {
@@ -35,8 +34,7 @@ func (repo *repository) GetPrincipalAndcontextForResource(principal string) (out
 		})
 }
 
-func (repo *repository) Create(input *grant.Input, contextID string, principalID string) (output grant.OutputDetails, err error) {
-	fmt.Println(contextID, principalID)
+func (repo *repository) Create(input *grant.Input, contextID, principalID string) (output grant.OutputDetails, err error) {
 	result, err := repo.session.Execute(`
 		MATCH (context:Context), (principal: Resource)
 		WHERE context.id = $contextID AND principal.id = $principalID
@@ -53,4 +51,20 @@ func (repo *repository) Create(input *grant.Input, contextID string, principalID
 	}
 	output = grant.OutputDetails{Data: result.Data[0]}
 	return
+}
+
+func (repo *repository) GrantExists(contextID, principalID string) (bool, error) {
+	result, err := repo.session.Execute(`
+		MATCH (context:Context{id: $contextID})-[grant:GRANTED_TO]->(principal: Resource {id: $principalID})
+		RETURN {grant: grant}`,
+		map[string]interface{}{
+			"contextID":   contextID,
+			"principalID": principalID,
+		})
+
+	if err != nil {
+		return false, err
+	}
+
+	return len(result.Data) > 0, err
 }

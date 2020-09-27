@@ -18,6 +18,7 @@ const withGrantFieldAbsent = `{"data":{"type":"grant","attributes":{}}}`
 type mockService struct {
 	CreateResponse                            grant.OutputDetails
 	GetPrincipalAndcontextForResourceResponse grant.Output
+	GrantExistsResponse                       bool
 	Err                                       error
 }
 
@@ -27,6 +28,10 @@ func (m mockService) Create(*grant.Input, string, string) (grant.OutputDetails, 
 
 func (m mockService) GetPrincipalAndcontextForResource(id string) (grant.Output, error) {
 	return m.GetPrincipalAndcontextForResourceResponse, m.Err
+}
+
+func (m mockService) GrantExists(contextID, principalID string) (bool, error) {
+	return m.GrantExistsResponse, m.Err
 }
 
 func setupRouter(s service.Service) *gin.Engine {

@@ -12,6 +12,7 @@ func Routes(r *gin.RouterGroup, service service.Service, authorizationService au
 	router := r.Group("/grants")
 
 	router.PUT("/resources/:resource_id/contexts/:context_id",
+		injection.VerifyGrantExistence(service, "context_id", "resource_id"),
 		injection.VerifyContextOwnership(authorizationService, "context_id"),
 		injection.VerifyResourceOwnership(authorizationService, "resource_id"),
 		put(service))

@@ -283,6 +283,46 @@
                 }
             }
         },
+        "/v1/login": {
+            "post": {
+                "description": "Allows the user to fetch an access_token and make authenticated requests to Sentinel",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Login"
+                ],
+                "summary": "Fetch access token to make authenticated requests to the API",
+                "parameters": [
+                    {
+                        "description": "ClientID and ClientSecret needed to authenticate a users identity",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/login.ClientCredentials"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "$ref": "#/definitions/login.BearerToken"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/views.ErrView"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/permissions/{context_id}/resources": {
             "get": {
                 "security": [
@@ -1292,6 +1332,32 @@
                 "data": {
                     "type": "object",
                     "$ref": "#/definitions/grant.Data"
+                }
+            }
+        },
+        "login.BearerToken": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "bearer": {
+                    "type": "string"
+                }
+            }
+        },
+        "login.ClientCredentials": {
+            "type": "object",
+            "required": [
+                "client_id",
+                "client_secret"
+            ],
+            "properties": {
+                "client_id": {
+                    "type": "string"
+                },
+                "client_secret": {
+                    "type": "string"
                 }
             }
         },

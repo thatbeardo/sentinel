@@ -13,7 +13,11 @@ import (
 type mockRepository struct {
 	CreateResponse                            grant.OutputDetails
 	GetPrincipalAndcontextForResourceResponse grant.Output
+	ExpectedContextID                         string
+	ExpectedPrincipalID                       string
+	GrantExistsResponse                       bool
 	Err                                       error
+	T                                         *testing.T
 }
 
 func (m mockRepository) Create(*grant.Input, string, string) (grant.OutputDetails, error) {
@@ -22,6 +26,12 @@ func (m mockRepository) Create(*grant.Input, string, string) (grant.OutputDetail
 
 func (m mockRepository) GetPrincipalAndcontextForResource(string) (grant.Output, error) {
 	return m.GetPrincipalAndcontextForResourceResponse, m.Err
+}
+
+func (m mockRepository) GrantExists(contextID, principalID string) (bool, error) {
+	assert.Equal(m.T, m.ExpectedContextID, contextID)
+	assert.Equal(m.T, m.ExpectedPrincipalID, principalID)
+	return m.GrantExistsResponse, m.Err
 }
 
 var errTest = errors.New("test-error")
@@ -58,4 +68,32 @@ func TestGetAllPrincipalsAndContexts_RepositoryReturnsResponse_ResponseReturned(
 	grant, err := service.GetPrincipalAndcontextForResource("test-context-id")
 	assert.Equal(t, testdata.Output, grant)
 	assert.Nil(t, err)
+}
+
+func TestGrantExists_RepositoryReturnsTrue_ReturnTrue(t *testing.T) {
+	repository := mockRepository{
+		GrantExistsResponse: true,
+		ExpectedContextID:   "test-context-id",
+		ExpectedPrincipalID: "test-principal-id",
+		T:                   t,
+	}
+	service := service.New(repository)
+
+	grantExists, err := service.GrantExists("test-context-id", "test-principal-id")
+	assert.Equal(t, grantExists, true)
+	assert.Nil(t, err, nil)
+}
+
+func TestGrantExists_RepositoryReturnsError_ReturnError(t *testing.T) {
+	repository := mockRepository{
+		Err:                 errTest,
+		ExpectedContextID:   "test-context-id",
+		ExpectedPrincipalID: "test-principal-id",
+		T:                   t,
+	}
+	service := service.New(repository)
+
+	grantExists, err := service.GrantExists("test-context-id", "test-principal-id")
+	assert.Equal(t, grantExists, false)
+	assert.Equal(t, err, errTest)
 }

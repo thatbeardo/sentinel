@@ -202,6 +202,23 @@ definitions:
         $ref: '#/definitions/grant.Data'
         type: object
     type: object
+  login.BearerToken:
+    properties:
+      access_token:
+        type: string
+      bearer:
+        type: string
+    type: object
+  login.ClientCredentials:
+    properties:
+      client_id:
+        type: string
+      client_secret:
+        type: string
+    required:
+    - client_id
+    - client_secret
+    type: object
   permission.Attributes:
     properties:
       name:
@@ -693,6 +710,32 @@ paths:
       summary: Update a grant that permits a context on a resource
       tags:
       - Grants
+  /v1/login:
+    post:
+      consumes:
+      - application/json
+      description: Allows the user to fetch an access_token and make authenticated requests to Sentinel
+      parameters:
+      - description: ClientID and ClientSecret needed to authenticate a users identity
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/login.ClientCredentials'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/login.BearerToken'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/views.ErrView'
+      summary: Fetch access token to make authenticated requests to the API
+      tags:
+      - Login
   /v1/permissions/{context_id}/resources:
     get:
       consumes:

@@ -10,7 +10,8 @@ import (
 
 	"github.com/bithippie/guard-my-app/apis/sentinel/api/handlers/injection"
 	"github.com/bithippie/guard-my-app/apis/sentinel/api/views"
-	authorizationService "github.com/bithippie/guard-my-app/apis/sentinel/models/authorization/service"
+	authorization "github.com/bithippie/guard-my-app/apis/sentinel/models/authorization/service"
+	permission "github.com/bithippie/guard-my-app/apis/sentinel/models/permission/service"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
@@ -58,19 +59,23 @@ var noMiddleware = func(c *gin.Context) {}
 
 // RemoveMiddleware injects middlewares that don't carry out any verification
 func RemoveMiddleware() {
-	injection.VerifyResourceOwnership = func(authorizationService.Service, string) gin.HandlerFunc {
+	injection.VerifyResourceOwnership = func(authorization.Service, string) gin.HandlerFunc {
 		return noMiddleware
 	}
 
-	injection.VerifyContextOwnership = func(authorizationService.Service, string) gin.HandlerFunc {
+	injection.VerifyContextOwnership = func(authorization.Service, string) gin.HandlerFunc {
 		return noMiddleware
 	}
 
-	injection.ValidateNewResource = func(authorizationService.Service) gin.HandlerFunc {
+	injection.ValidateNewResource = func(authorization.Service) gin.HandlerFunc {
 		return noMiddleware
 	}
 
-	injection.VerifyPermissionOwnership = func(s authorizationService.Service, identifier string) gin.HandlerFunc {
+	injection.VerifyPermissionOwnership = func(authorization.Service, string) gin.HandlerFunc {
+		return noMiddleware
+	}
+
+	injection.VerifyPermissionIdempotence = func(permission.Service, string, string) gin.HandlerFunc {
 		return noMiddleware
 	}
 }

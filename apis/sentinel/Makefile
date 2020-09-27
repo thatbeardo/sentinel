@@ -4,4 +4,4 @@ check_install:
 		go get -u github.com/swaggo/files
 
 swagger: check_install
-		swag init
+		swag init -g application.go

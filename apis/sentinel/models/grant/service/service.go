@@ -9,6 +9,7 @@ import (
 type Service interface {
 	Create(*grant.Input, string, string) (grant.OutputDetails, error)
 	GetPrincipalAndcontextForResource(string) (grant.Output, error)
+	GrantExists(contextID, principalID string) (bool, error)
 }
 
 type service struct {
@@ -28,4 +29,8 @@ func (service *service) Create(input *grant.Input, contextID string, targetID st
 
 func (service *service) GetPrincipalAndcontextForResource(id string) (grant.Output, error) {
 	return service.repository.GetPrincipalAndcontextForResource(id)
+}
+
+func (service *service) GrantExists(contextID, principalID string) (bool, error) {
+	return service.repository.GrantExists(contextID, principalID)
 }

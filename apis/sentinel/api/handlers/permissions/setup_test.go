@@ -21,6 +21,7 @@ type mockService struct {
 	GetAllPermissionsForcontextWithResourceResponse permission.Output
 	CreateResponse                                  permission.OutputDetails
 	UpdateResponse                                  permission.OutputDetails
+	IsPermissionIdempotentResponse                  bool
 	Err                                             error
 }
 
@@ -30,6 +31,10 @@ func (m mockService) GetAllPermissionsForcontext(contextID string) (permission.O
 
 func (m mockService) GetAllPermissionsForcontextWithResource(contextID string, resourceID string) (permission.Output, error) {
 	return m.GetAllPermissionsForcontextWithResourceResponse, m.Err
+}
+
+func (m mockService) IsPermissionIdempotent(input *permission.Input, contextID, resourceID string) (bool, error) {
+	return m.IsPermissionIdempotentResponse, m.Err
 }
 
 func (m mockService) Create(*permission.Input, string, string) (permission.OutputDetails, error) {

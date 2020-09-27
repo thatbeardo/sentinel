@@ -12,6 +12,7 @@ import (
 func Routes(r *gin.RouterGroup, service service.Service, authorizationService authorizationService.Service) {
 	router := r.Group("/permissions")
 	router.PUT("/:context_id/resources/:resource_id",
+		injection.VerifyPermissionIdempotence(service, "context_id", "resource_id"),
 		injection.VerifyContextOwnership(authorizationService, "context_id"),
 		injection.VerifyResourceOwnership(authorizationService, "resource_id"),
 		put(service))
