@@ -9,7 +9,7 @@
                 "s3:GetObject"
             ],
             "Resource": [
-                "arn:aws:s3:::guardmy.app/*"
+                "arn:aws:s3:::bithippie.com/*"
             ]
         }
     ]

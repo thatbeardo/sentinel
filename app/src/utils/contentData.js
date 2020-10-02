@@ -1,27 +1,27 @@
 const contentData = [
   {
-    title: "Configure other identity providers",
+    title: "Cost Effective",
     link: "https://auth0.com/docs/connections",
     description:
-      "Auth0 supports social providers as Facebook, Twitter, Instagram and 100+, Enterprise providers as Microsoft Office 365, Google Apps, Azure, and more. You can also use any OAuth2 Authorization Server."
+      "All the abilities at a fraction of the cost. To implement a Sentinel like solution you may need a team of in house experts. Sentinel allows you to focus on your business problems while not worrying about authorization."
   },
   {
-    title: "Enable Multifactor Authentication",
+    title: "Fails Closed",
     link: "https://auth0.com/docs/multifactor-authentication",
     description:
-      "Add an extra layer of security by enabling Multi-factor Authentication, requiring your users to provide more than one piece of identifying information. Push notifications, authenticator apps, SMS, and DUO Security are supported."
+      "In case of conflicting permissions to a resource, Sentinel returns most restrictive permission."
   },
   {
-    title: "Anomaly Detection",
+    title: "Multi Tenancy",
     link: "https://auth0.com/docs/anomaly-detection",
     description:
-      "Auth0 can detect anomalies and stop malicious attempts to access your application. Anomaly detection can alert you and your users of suspicious activity, as well as block further login attempts."
+      "Create an manage multiple tenants with the same endpoint. Sentinel keeps track of all environments you create reducing your book keeping efforts."
   },
   {
-    title: "Learn About Rules",
+    title: "Performant",
     link: "https://auth0.com/docs/rules",
     description:
-      "Rules are JavaScript functions that execute when a user authenticates to your application. They run once the authentication process is complete, and you can use them to customize and extend Auth0's capabilities."
+      "Sentinels high performant graph database ensures that complex authorization queries are answered quickly and correctly. Besides answering queries Sentinel also allows you to model niche use cases with ease."
   }
 ];
 

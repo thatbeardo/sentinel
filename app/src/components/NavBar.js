@@ -1,56 +1,57 @@
 import React, { useState } from "react";
 import { NavLink as RouterNavLink } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
+// import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import navItems from "../utils/navItems"
 import {
   Collapse,
   Container,
   Navbar,
   NavbarToggler,
-  NavbarBrand,
+  // NavbarBrand,
   Nav,
   NavItem,
   NavLink,
-  Button,
-  UncontrolledDropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem
+  // Button,
+  // UncontrolledDropdown,
+  // DropdownToggle,
+  // DropdownMenu,
+  // DropdownItem
 } from "reactstrap";
 
-import { useAuth0 } from "../react-auth0-spa";
+// import { useAuth0 } from "../react-auth0-spa";
 
 const NavBar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { user, isAuthenticated, loginWithRedirect, logout } = useAuth0();
+  // const { user, isAuthenticated, loginWithRedirect, logout } = useAuth0();
   const toggle = () => setIsOpen(!isOpen);
 
-  const logoutWithRedirect = () =>
-    logout({
-      returnTo: window.location.origin
-    });
+  // const logoutWithRedirect = () =>
+  //   logout({
+  //     returnTo: window.location.origin
+  //   });
 
   return (
     <div className="nav-container">
       <Navbar color="light" light expand="md">
         <Container>
-          <NavbarBrand className="logo" />
           <NavbarToggler onClick={toggle} />
           <Collapse isOpen={isOpen} navbar>
             <Nav className="mr-auto" navbar>
-              <NavItem>
+              {navItems.map((item, i) => (
+                <NavItem>
                 <NavLink
                   tag={RouterNavLink}
-                  to="/"
+                  to={item.route}
                   exact
                   activeClassName="router-link-exact-active"
                 >
-                  Home
+                  {item.text}
                 </NavLink>
               </NavItem>
+              ))}
             </Nav>
             <Nav className="d-none d-md-block" navbar>
-              {!isAuthenticated && (
+              {/* {!isAuthenticated && (
                 <NavItem>
                   <Button
                     id="qsLoginBtn"
@@ -61,8 +62,8 @@ const NavBar = () => {
                     Log in
                   </Button>
                 </NavItem>
-              )}
-              {isAuthenticated && (
+              )} */}
+              {/* {isAuthenticated && (
                 <UncontrolledDropdown nav inNavbar>
                   <DropdownToggle nav caret id="profileDropDown">
                     <img
@@ -91,9 +92,9 @@ const NavBar = () => {
                     </DropdownItem>
                   </DropdownMenu>
                 </UncontrolledDropdown>
-              )}
+              )} */}
             </Nav>
-            {!isAuthenticated && (
+            {/* {!isAuthenticated && (
               <Nav className="d-md-none" navbar>
                 <NavItem>
                   <Button
@@ -106,8 +107,8 @@ const NavBar = () => {
                   </Button>
                 </NavItem>
               </Nav>
-            )}
-            {isAuthenticated && (
+            )} */}
+            {/* {isAuthenticated && (
               <Nav
                 className="d-md-none justify-content-between"
                 navbar
@@ -144,7 +145,7 @@ const NavBar = () => {
                   </RouterNavLink>
                 </NavItem>
               </Nav>
-            )}
+            )} */}
           </Collapse>
         </Container>
       </Navbar>

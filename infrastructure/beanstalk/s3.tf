@@ -1,5 +1,5 @@
 resource aws_s3_bucket website_bucket {
-  bucket = "guardmy.app"
+  bucket = "bithippie.com"
   acl    = "public-read"
   policy = file("templates/s3/policy.json")
 
