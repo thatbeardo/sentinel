@@ -16,6 +16,7 @@ import (
 // @Produce  json
 // @Param x-sentinel-tenant header string true "Desired environment"
 // @Param id path string true "Resource ID"
+// @Param claimant query string true "Claimant requesting the operation"
 // @Param input body resource.Input true "Resource to be created"
 // @Success 204 {object} resource.Output	"ok"
 // @Success 404 {object} views.ErrView

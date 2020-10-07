@@ -16,6 +16,22 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// PerformRequestWithQueryParams creates a request with query parameters
+func PerformRequestWithQueryParams(r http.Handler, method, path, body string, queryParams map[string]string) (*http.Response, func() error) {
+	req, _ := http.NewRequest(method, path, strings.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	params := req.URL.Query()
+	for k, v := range queryParams {
+		params.Add(k, v)
+	}
+	req.URL.RawQuery = params.Encode()
+	recorder := httptest.NewRecorder()
+
+	r.ServeHTTP(recorder, req)
+	response := recorder.Result()
+	return response, response.Body.Close
+}
+
 // PerformRequest creates and returns an initialized ResponseRecorder
 func PerformRequest(r http.Handler, method, path, body string) (*http.Response, func() error) {
 	req, _ := http.NewRequest(method, path, strings.NewReader(body))

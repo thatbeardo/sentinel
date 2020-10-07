@@ -56,6 +56,13 @@ var doc = `{
                     },
                     {
                         "type": "string",
+                        "description": "Claimant requesting the operation",
+                        "name": "claimant",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "context ID",
                         "name": "id",
                         "in": "path",
@@ -110,6 +117,13 @@ var doc = `{
                     },
                     {
                         "type": "string",
+                        "description": "Claimant requesting the operation",
+                        "name": "claimant",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "context ID",
                         "name": "id",
                         "in": "path",
@@ -148,6 +162,13 @@ var doc = `{
                         "description": "Desired environment",
                         "name": "x-sentinel-tenant",
                         "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Claimant requesting the operation",
+                        "name": "claimant",
+                        "in": "query",
                         "required": true
                     },
                     {
@@ -211,6 +232,13 @@ var doc = `{
                     },
                     {
                         "type": "string",
+                        "description": "Claimant requesting the operation",
+                        "name": "claimant",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "Resource ID",
                         "name": "resource_id",
                         "in": "path",
@@ -257,6 +285,13 @@ var doc = `{
                         "description": "Desired environment",
                         "name": "x-sentinel-tenant",
                         "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Claimant requesting the operation",
+                        "name": "claimant",
+                        "in": "query",
                         "required": true
                     },
                     {
@@ -367,6 +402,13 @@ var doc = `{
                     },
                     {
                         "type": "string",
+                        "description": "Claimant requesting the operation",
+                        "name": "claimant",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "context ID",
                         "name": "context_id",
                         "in": "path",
@@ -408,6 +450,20 @@ var doc = `{
                 ],
                 "summary": "List all permissions for a context for a given target",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Desired environment",
+                        "name": "x-sentinel-tenant",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Claimant requesting the operation",
+                        "name": "claimant",
+                        "in": "query",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "context ID",
@@ -461,6 +517,13 @@ var doc = `{
                         "description": "Desired environment",
                         "name": "x-sentinel-tenant",
                         "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Claimant requesting the operation",
+                        "name": "claimant",
+                        "in": "query",
                         "required": true
                     },
                     {
@@ -531,6 +594,13 @@ var doc = `{
                     },
                     {
                         "type": "string",
+                        "description": "Claimant requesting the operation",
+                        "name": "claimant",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "Permission ID",
                         "name": "id",
                         "in": "path",
@@ -569,6 +639,13 @@ var doc = `{
                         "description": "Desired environment",
                         "name": "x-sentinel-tenant",
                         "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Claimant requesting the operation",
+                        "name": "claimant",
+                        "in": "query",
                         "required": true
                     },
                     {
@@ -628,6 +705,13 @@ var doc = `{
                         "description": "Desired environment",
                         "name": "x-sentinel-tenant",
                         "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Claimant requesting the operation",
+                        "name": "claimant",
+                        "in": "query",
                         "required": true
                     },
                     {
@@ -717,6 +801,13 @@ var doc = `{
                         "name": "x-sentinel-tenant",
                         "in": "header",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Claimant requesting the operation",
+                        "name": "claimant",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -759,6 +850,13 @@ var doc = `{
                         "description": "Desired tenant - environment",
                         "name": "x-sentinel-tenant",
                         "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Claimant requesting the operation",
+                        "name": "claimant",
+                        "in": "query",
                         "required": true
                     },
                     {
@@ -811,6 +909,13 @@ var doc = `{
                         "description": "Desired tenant - environment",
                         "name": "x-sentinel-tenant",
                         "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Claimant requesting the operation",
+                        "name": "claimant",
+                        "in": "query",
                         "required": true
                     },
                     {
@@ -869,6 +974,13 @@ var doc = `{
                     },
                     {
                         "type": "string",
+                        "description": "Claimant requesting the operation",
+                        "name": "claimant",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "Resource ID",
                         "name": "id",
                         "in": "path",
@@ -914,6 +1026,13 @@ var doc = `{
                         "description": "Resource ID",
                         "name": "id",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Claimant requesting the operation",
+                        "name": "claimant",
+                        "in": "query",
                         "required": true
                     },
                     {
@@ -966,6 +1085,13 @@ var doc = `{
                         "description": "Resource ID",
                         "name": "id",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Claimant requesting the operation",
+                        "name": "claimant",
+                        "in": "query",
                         "required": true
                     }
                 ],
@@ -1357,7 +1483,7 @@ var doc = `{
                 "access_token": {
                     "type": "string"
                 },
-                "bearer": {
+                "token_type": {
                     "type": "string"
                 }
             }

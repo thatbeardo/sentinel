@@ -203,6 +203,7 @@ func main() {
 	healthcheck.Routes(router)
 	login.Routes(router)
 
+	router.Use(middleware.VerifyClaimant)
 	router.Use(middleware.VerifyToken)
 	router.Use(middleware.VerifyTenant)
 

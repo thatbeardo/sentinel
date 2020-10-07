@@ -17,6 +17,7 @@ import (
 // @Accept  json
 // @Produce  json
 // @Param x-sentinel-tenant header string true "Desired environment"
+// @Param claimant query string true "Claimant requesting the operation"
 // @Param principal_id path string true "Principal ID"
 // @Param permissions query []string false "Name of the permissions which allow access to the target"
 // @Param targets query []string false "Name of the targtes to which a permission allows access"

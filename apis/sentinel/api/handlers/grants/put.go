@@ -15,6 +15,7 @@ import (
 // @Accept  json
 // @Produce  json
 // @Param x-sentinel-tenant header string true "Desired environment"
+// @Param claimant query string true "Claimant requesting the operation"
 // @Param context_id path string true "context ID"
 // @Param resource_id path string true "Resource ID"
 // @Param input body grant.Input true "Details about the Grant to be added"

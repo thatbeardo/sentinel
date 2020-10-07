@@ -14,6 +14,7 @@ import (
 // @Accept  json
 // @Produce  json
 // @Param x-sentinel-tenant header string true "Desired environment"
+// @Param claimant query string true "Claimant requesting the operation"
 // @Param id path string true "context ID"
 // @Success 404 {object} views.ErrView
 // @Security ApiKeyAuth

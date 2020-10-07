@@ -206,7 +206,7 @@ definitions:
     properties:
       access_token:
         type: string
-      bearer:
+      token_type:
         type: string
     type: object
   login.ClientCredentials:
@@ -546,6 +546,11 @@ paths:
         name: x-sentinel-tenant
         required: true
         type: string
+      - description: Claimant requesting the operation
+        in: query
+        name: claimant
+        required: true
+        type: string
       - description: context ID
         in: path
         name: id
@@ -571,6 +576,11 @@ paths:
       - description: Desired environment
         in: header
         name: x-sentinel-tenant
+        required: true
+        type: string
+      - description: Claimant requesting the operation
+        in: query
+        name: claimant
         required: true
         type: string
       - description: context ID
@@ -606,6 +616,11 @@ paths:
       - description: Desired environment
         in: header
         name: x-sentinel-tenant
+        required: true
+        type: string
+      - description: Claimant requesting the operation
+        in: query
+        name: claimant
         required: true
         type: string
       - description: context ID
@@ -646,6 +661,11 @@ paths:
         name: x-sentinel-tenant
         required: true
         type: string
+      - description: Claimant requesting the operation
+        in: query
+        name: claimant
+        required: true
+        type: string
       - description: Resource ID
         in: path
         name: resource_id
@@ -676,6 +696,11 @@ paths:
       - description: Desired environment
         in: header
         name: x-sentinel-tenant
+        required: true
+        type: string
+      - description: Claimant requesting the operation
+        in: query
+        name: claimant
         required: true
         type: string
       - description: context ID
@@ -747,6 +772,11 @@ paths:
         name: x-sentinel-tenant
         required: true
         type: string
+      - description: Claimant requesting the operation
+        in: query
+        name: claimant
+        required: true
+        type: string
       - description: context ID
         in: path
         name: context_id
@@ -774,6 +804,16 @@ paths:
       - application/json
       description: List all permissions for a context for a given target
       parameters:
+      - description: Desired environment
+        in: header
+        name: x-sentinel-tenant
+        required: true
+        type: string
+      - description: Claimant requesting the operation
+        in: query
+        name: claimant
+        required: true
+        type: string
       - description: context ID
         in: path
         name: context_id
@@ -808,6 +848,11 @@ paths:
       - description: Desired environment
         in: header
         name: x-sentinel-tenant
+        required: true
+        type: string
+      - description: Claimant requesting the operation
+        in: query
+        name: claimant
         required: true
         type: string
       - description: context ID
@@ -853,6 +898,11 @@ paths:
         name: x-sentinel-tenant
         required: true
         type: string
+      - description: Claimant requesting the operation
+        in: query
+        name: claimant
+        required: true
+        type: string
       - description: Permission ID
         in: path
         name: id
@@ -878,6 +928,11 @@ paths:
       - description: Desired environment
         in: header
         name: x-sentinel-tenant
+        required: true
+        type: string
+      - description: Claimant requesting the operation
+        in: query
+        name: claimant
         required: true
         type: string
       - description: Permission ID
@@ -916,6 +971,11 @@ paths:
       - description: Desired environment
         in: header
         name: x-sentinel-tenant
+        required: true
+        type: string
+      - description: Claimant requesting the operation
+        in: query
+        name: claimant
         required: true
         type: string
       - description: Principal ID
@@ -976,6 +1036,11 @@ paths:
         name: x-sentinel-tenant
         required: true
         type: string
+      - description: Claimant requesting the operation
+        in: query
+        name: claimant
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -1001,6 +1066,11 @@ paths:
       - description: Desired tenant - environment
         in: header
         name: x-sentinel-tenant
+        required: true
+        type: string
+      - description: Claimant requesting the operation
+        in: query
+        name: claimant
         required: true
         type: string
       - description: Resource to be created
@@ -1036,6 +1106,11 @@ paths:
         name: x-sentinel-tenant
         required: true
         type: string
+      - description: Claimant requesting the operation
+        in: query
+        name: claimant
+        required: true
+        type: string
       - description: Resource ID
         in: path
         name: id
@@ -1061,6 +1136,11 @@ paths:
       - description: Desired tenant - environment
         in: header
         name: x-sentinel-tenant
+        required: true
+        type: string
+      - description: Claimant requesting the operation
+        in: query
+        name: claimant
         required: true
         type: string
       - description: Resource ID
@@ -1103,6 +1183,11 @@ paths:
         name: id
         required: true
         type: string
+      - description: Claimant requesting the operation
+        in: query
+        name: claimant
+        required: true
+        type: string
       - description: Resource to be created
         in: body
         name: input
@@ -1134,6 +1219,11 @@ paths:
       - description: Resource ID
         in: path
         name: id
+        required: true
+        type: string
+      - description: Claimant requesting the operation
+        in: query
+        name: claimant
         required: true
         type: string
       produces:

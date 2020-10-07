@@ -19,6 +19,7 @@ import (
 	resource "github.com/bithippie/guard-my-app/apis/sentinel/models/resource/dto"
 	"github.com/bithippie/guard-my-app/apis/sentinel/statsd"
 	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 )
 
 // VerifyToken function verifies the incoming jwt token
@@ -217,7 +218,6 @@ func VerifyPermissionIdempotence(s permissions.Service, contextIdentifier, resou
 func Metrics(client statsd.Client) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		startTime := time.Now()
-		c.Next()
 
 		// send call count
 		client.Increment(fmt.Sprintf("%s.%s", constructPathMetric(c.Request.URL.Path), Count))
@@ -233,6 +233,31 @@ func Metrics(client statsd.Client) gin.HandlerFunc {
 		// send response size
 		size := c.Writer.Size()
 		client.Gauge(constructPathMetric(c.Request.URL.Path), size)
+	}
+}
+
+// VerifyClaimant ensures that the consumer supplies claimant information for audit purposes
+func VerifyClaimant(c *gin.Context) {
+	claimantQueryParam := c.Request.URL.Query()["claimant"]
+	if len(claimantQueryParam) != 0 && claimantQueryParam[0] != "" {
+		log.Info(fmt.Sprintf(
+			"%s %s %s %s %s",
+			claimantQueryParam[0],
+			"performed",
+			c.Request.Method,
+			"on",
+			c.Request.URL,
+		))
+		c.Next()
+	} else {
+		c.AbortWithStatusJSON(
+			http.StatusBadRequest,
+			views.GenerateErrorResponse(
+				http.StatusBadRequest,
+				"Please provide a claimant",
+				c.Request.URL.Path,
+			),
+		)
 	}
 }
 

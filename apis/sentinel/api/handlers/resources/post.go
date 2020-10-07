@@ -22,6 +22,7 @@ const (
 // @Accept  json
 // @Produce  json
 // @Param x-sentinel-tenant header string true "Desired tenant - environment"
+// @Param claimant query string true "Claimant requesting the operation"
 // @Param input body resource.Input true "Resource to be created"
 // @Success 202 {object} resource.OutputDetails	"ok"
 // @Failure 500 {object} views.ErrView	"ok"

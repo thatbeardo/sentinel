@@ -40,6 +40,13 @@
                     },
                     {
                         "type": "string",
+                        "description": "Claimant requesting the operation",
+                        "name": "claimant",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "context ID",
                         "name": "id",
                         "in": "path",
@@ -94,6 +101,13 @@
                     },
                     {
                         "type": "string",
+                        "description": "Claimant requesting the operation",
+                        "name": "claimant",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "context ID",
                         "name": "id",
                         "in": "path",
@@ -132,6 +146,13 @@
                         "description": "Desired environment",
                         "name": "x-sentinel-tenant",
                         "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Claimant requesting the operation",
+                        "name": "claimant",
+                        "in": "query",
                         "required": true
                     },
                     {
@@ -195,6 +216,13 @@
                     },
                     {
                         "type": "string",
+                        "description": "Claimant requesting the operation",
+                        "name": "claimant",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "Resource ID",
                         "name": "resource_id",
                         "in": "path",
@@ -241,6 +269,13 @@
                         "description": "Desired environment",
                         "name": "x-sentinel-tenant",
                         "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Claimant requesting the operation",
+                        "name": "claimant",
+                        "in": "query",
                         "required": true
                     },
                     {
@@ -351,6 +386,13 @@
                     },
                     {
                         "type": "string",
+                        "description": "Claimant requesting the operation",
+                        "name": "claimant",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "context ID",
                         "name": "context_id",
                         "in": "path",
@@ -392,6 +434,20 @@
                 ],
                 "summary": "List all permissions for a context for a given target",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Desired environment",
+                        "name": "x-sentinel-tenant",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Claimant requesting the operation",
+                        "name": "claimant",
+                        "in": "query",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "context ID",
@@ -445,6 +501,13 @@
                         "description": "Desired environment",
                         "name": "x-sentinel-tenant",
                         "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Claimant requesting the operation",
+                        "name": "claimant",
+                        "in": "query",
                         "required": true
                     },
                     {
@@ -515,6 +578,13 @@
                     },
                     {
                         "type": "string",
+                        "description": "Claimant requesting the operation",
+                        "name": "claimant",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "Permission ID",
                         "name": "id",
                         "in": "path",
@@ -553,6 +623,13 @@
                         "description": "Desired environment",
                         "name": "x-sentinel-tenant",
                         "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Claimant requesting the operation",
+                        "name": "claimant",
+                        "in": "query",
                         "required": true
                     },
                     {
@@ -612,6 +689,13 @@
                         "description": "Desired environment",
                         "name": "x-sentinel-tenant",
                         "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Claimant requesting the operation",
+                        "name": "claimant",
+                        "in": "query",
                         "required": true
                     },
                     {
@@ -701,6 +785,13 @@
                         "name": "x-sentinel-tenant",
                         "in": "header",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Claimant requesting the operation",
+                        "name": "claimant",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -743,6 +834,13 @@
                         "description": "Desired tenant - environment",
                         "name": "x-sentinel-tenant",
                         "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Claimant requesting the operation",
+                        "name": "claimant",
+                        "in": "query",
                         "required": true
                     },
                     {
@@ -795,6 +893,13 @@
                         "description": "Desired tenant - environment",
                         "name": "x-sentinel-tenant",
                         "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Claimant requesting the operation",
+                        "name": "claimant",
+                        "in": "query",
                         "required": true
                     },
                     {
@@ -853,6 +958,13 @@
                     },
                     {
                         "type": "string",
+                        "description": "Claimant requesting the operation",
+                        "name": "claimant",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "Resource ID",
                         "name": "id",
                         "in": "path",
@@ -898,6 +1010,13 @@
                         "description": "Resource ID",
                         "name": "id",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Claimant requesting the operation",
+                        "name": "claimant",
+                        "in": "query",
                         "required": true
                     },
                     {
@@ -950,6 +1069,13 @@
                         "description": "Resource ID",
                         "name": "id",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Claimant requesting the operation",
+                        "name": "claimant",
+                        "in": "query",
                         "required": true
                     }
                 ],
@@ -1341,7 +1467,7 @@
                 "access_token": {
                     "type": "string"
                 },
-                "bearer": {
+                "token_type": {
                     "type": "string"
                 }
             }

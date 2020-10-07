@@ -14,6 +14,7 @@ import (
 // @Accept  json
 // @Produce  json
 // @Param x-sentinel-tenant header string true "Desired tenant - environment"
+// @Param claimant query string true "Claimant requesting the operation"
 // @Success 200 {object} resource.Output	"ok"
 // @Success 500 {object} views.ErrView
 // @Security ApiKeyAuth
@@ -35,6 +36,7 @@ func get(service service.Service) gin.HandlerFunc {
 // @Accept  json
 // @Produce  json
 // @Param x-sentinel-tenant header string true "Desired tenant - environment"
+// @Param claimant query string true "Claimant requesting the operation"
 // @Param id path string true "Resource ID"
 // @Success 200 {object} resource.OutputDetails	"ok"
 // @Success 404 {object} views.ErrView
@@ -59,6 +61,7 @@ func getByID(service service.Service) gin.HandlerFunc {
 // @Accept  json
 // @Produce  json
 // @Param id path string true "Resource ID"
+// @Param claimant query string true "Claimant requesting the operation"
 // @Success 200 {object} context.Output	"ok"
 // @Success 404 {object} views.ErrView
 // @Success 500 {object} views.ErrView

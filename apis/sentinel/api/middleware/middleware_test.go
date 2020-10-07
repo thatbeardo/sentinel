@@ -420,6 +420,33 @@ func TestPermissionIdempotence_NewPermissionCreated_ReturnStatusOK(t *testing.T)
 	assert.Equal(t, http.StatusOK, response.StatusCode)
 }
 
+func TestVerifyClaimant_ClaimantNotProvided_ReturnsStatusBadRequest(t *testing.T) {
+	const path = "/test"
+	router := setupRouter()
+	router.GET(path, middleware.VerifyClaimant)
+	response, cleanup := testutil.PerformRequest(router, "GET", path, ``)
+	defer cleanup()
+
+	testutil.ValidateResponse(t,
+		response,
+		testutil.GenerateError(
+			"/test",
+			"query-parameter-todo",
+			"Please provide a claimant",
+			http.StatusBadRequest),
+		http.StatusBadRequest)
+}
+
+func TestVerifyClaimant_ClaimantProvided_ReturnsStatusOK(t *testing.T) {
+	const path = "/test"
+	router := setupRouter()
+	router.GET(path, middleware.VerifyClaimant)
+	response, cleanup := testutil.PerformRequest(router, "GET", path+"?claimant=test", ``)
+	defer cleanup()
+
+	assert.Equal(t, http.StatusOK, response.StatusCode)
+}
+
 func setupRouter() *gin.Engine {
 	r := gin.Default()
 	r.Use(cors.Default())

@@ -15,6 +15,7 @@ import (
 // @Accept  json
 // @Produce  json
 // @Param x-sentinel-tenant header string true "Desired environment"
+// @Param claimant query string true "Claimant requesting the operation"
 // @Param id path string true "context ID"
 // @Param input body context.Input true "New name to be assigned to an existing context"
 // @Success 204 {object} context.OutputDetails	"ok"

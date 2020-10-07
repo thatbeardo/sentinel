@@ -14,6 +14,7 @@ import (
 // @Accept  json
 // @Produce  json
 // @Param x-sentinel-tenant header string true "Desired environment"
+// @Param claimant query string true "Claimant requesting the operation"
 // @Param context_id path string true "context ID"
 // @Success 200 {object} permission.Output	"ok"
 // @Success 500 {object} views.ErrView
@@ -36,6 +37,8 @@ func getAllPermissionsForAcontext(service service.Service) gin.HandlerFunc {
 // @Description List all permissions for a context for a given target
 // @Accept  json
 // @Produce  json
+// @Param x-sentinel-tenant header string true "Desired environment"
+// @Param claimant query string true "Claimant requesting the operation"
 // @Param context_id path string true "context ID"
 // @Param resource_id path string true "Resource ID"
 // @Success 200 {object} permission.Output	"ok"

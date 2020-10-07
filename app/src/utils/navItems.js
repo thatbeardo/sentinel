@@ -5,11 +5,11 @@ const navItems = [
     },
     {
         route: "/AboutUs",
-        text: "AboutUs",
+        text: "About Us",
     },
     {
         route: "/ContactUs",
-        text: "ContactUs",
+        text: "Contact Us",
     }
 ]
 

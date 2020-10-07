@@ -15,6 +15,7 @@ import (
 // @Accept  json
 // @Produce  json
 // @Param x-sentinel-tenant header string true "Desired environment"
+// @Param claimant query string true "Claimant requesting the operation"
 // @Param id path string true "Permission ID"
 // @Param input body permission.Input true "New name to be assigned to an existing permission"
 // @Success 202 {object} permission.OutputDetails	"ok"
