@@ -4,6 +4,18 @@ variable "region" {
   default = "us-east-1"
 }
 
+variable host {
+  type        = string
+  description = "Host name used to resolve dns queries"
+  default     = "sentinel.bithippie.com"
+}
+
+variable acm_certificate_arn {
+  type        = string
+  description = "AWS certificate arn used to enable https traffic"
+  default     = ""
+}
+
 variable "namespace" {
   type        = string
   description = "Namespace, which could be your organization name, e.g. 'eg' or 'cp'"
@@ -122,7 +134,7 @@ variable db_uri {
     default = ""
 }
 
-variable user {
+variable username {
     type = string
     description = "Graph database username"
     default = ""
@@ -334,7 +346,7 @@ variable "http_listener_enabled" {
 
 variable "application_port" {
   type        = number
-  default     = 80
+  default     = 443
   description = "Port application is listening on"
 }
 

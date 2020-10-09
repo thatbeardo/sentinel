@@ -1149,6 +1149,13 @@ var doc = `{
                         "required": true
                     },
                     {
+                        "type": "string",
+                        "description": "Claimant requesting the operation",
+                        "name": "claimant",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
                         "description": "context to be created",
                         "name": "input",
                         "in": "body",

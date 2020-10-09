@@ -39,7 +39,7 @@ func GenerateStatsdClient(host, port string) (*statsd.Client, error) {
 }
 
 func setupSwagger(r *gin.Engine) {
-	hostURL := fmt.Sprintf("https://%s:%s", os.Getenv("HOST"), os.Getenv("PORT"))
+	hostURL := fmt.Sprintf("https://%s", os.Getenv("HOST"))
 	docs.SwaggerInfo.Host = hostURL
 	r.StaticFile("/docs", "./docs/swagger.json")
 
@@ -81,7 +81,7 @@ func ConnectToDB() (neo4j.Session, neo4j.Driver, error) {
 	return session, driver, nil
 }
 
-// Orchestrate begins listening on 8080 and gracefully shuts down the server incase of interrupt
+// Orchestrate begins listening on PORT and gracefully shuts down the server incase of interrupt
 func Orchestrate(router *gin.Engine, cleanup func()) {
 	srv := &http.Server{
 		Addr:    ":" + os.Getenv("PORT"),

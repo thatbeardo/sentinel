@@ -1261,6 +1261,11 @@ paths:
         name: id
         required: true
         type: string
+      - description: Claimant requesting the operation
+        in: query
+        name: claimant
+        required: true
+        type: string
       - description: context to be created
         in: body
         name: input

@@ -30,7 +30,7 @@ jobs:
         cd infrastructure/beanstalk
         terraform init
         terraform plan
-        terraform apply -var 'user=${{ secrets.USER }}' -var 'password=${{ secrets.PASSWORD }}' -var 'db_uri=${{ secrets.DB_URI }}'  -auto-approve
+        terraform apply -var 'user=${{ secrets.USER }}' -var 'password=${{ secrets.PASSWORD }}' -var 'db_uri=${{ secrets.DB_URI }}' -var 'acm_certificate_arn=${{ secrets.ACM_CERTIFICATE_ARN }}' -auto-approve
         echo "::set-env name=WEBSITE_BUCKET::$(terraform output website_bucket_id)"
         echo "::set-env name=APPLICATION_NAME::$(terraform output application_name)"
         echo "::set-env name=ENVIRONMENT_NAME::$(terraform output environment_name)"

@@ -48,13 +48,14 @@ module elastic_beanstalk_environment {
     updating_min_in_service = 0
     updating_max_batch      = 1
 
-    loadbalancer_type       = "application"
-    vpc_id                  = module.vpc.vpc_id
-    loadbalancer_subnets    = module.subnets.public_subnet_ids
-    application_subnets     = module.subnets.public_subnet_ids
-    allowed_security_groups = [module.vpc.vpc_default_security_group_id]
-    healthcheck_url         = var.healthcheck_url
-    associate_public_ip_address = true
+    loadbalancer_type             = "application"
+    vpc_id                        = module.vpc.vpc_id
+    loadbalancer_subnets          = module.subnets.public_subnet_ids
+    loadbalancer_certificate_arn  = var.acm_certificate_arn
+    application_subnets           = module.subnets.public_subnet_ids
+    allowed_security_groups       = [module.vpc.vpc_default_security_group_id]
+    healthcheck_url               = var.healthcheck_url
+    associate_public_ip_address   = true
 
     // https://docs.aws.amazon.com/elasticbeanstalk/latest/platforms/platforms-supported.html
     // https://docs.aws.amazon.com/elasticbeanstalk/latest/platforms/platforms-supported.html#platforms-supported.docker
@@ -68,13 +69,18 @@ module elastic_beanstalk_environment {
       },
       {
         namespace = "aws:elasticbeanstalk:application:environment"
-        name      = "USER"
-        value     = var.user
+        name      = "USERNAME"
+        value     = var.username
       },
       {
         namespace = "aws:elasticbeanstalk:application:environment"
         name      = "PASSWORD"
         value     = var.password
+      },
+      {
+        namespace = "aws:elasticbeanstalk:application:environment"
+        name      = "HOST"
+        value     = var.host
       },
       {
         namespace = "aws:elasticbeanstalk:application:environment"

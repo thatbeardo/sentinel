@@ -51,6 +51,7 @@ func post(service service.Service) gin.HandlerFunc {
 // @Produce  json
 // @Param x-sentinel-tenant header string true "Desired tenant - environment"
 // @Param id path string true "Principal Resource ID"
+// @Param claimant query string true "Claimant requesting the operation"
 // @Param input body context.Input true "context to be created"
 // @Success 202 {object} context.OutputDetails	"ok"
 // @Failure 500 {object} views.ErrView	"ok"
