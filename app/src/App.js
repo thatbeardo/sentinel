@@ -9,6 +9,7 @@ import Footer from "./components/Footer";
 import Home from "./views/Home";
 import AboutUs from "./views/AboutUs";
 import ContactUs from "./views/ContactUs";
+import Documentation from "./views/Documentation";
 import Profile from "./views/Profile";
 import { useAuth0 } from "./react-auth0-spa";
 import history from "./utils/history";
@@ -36,6 +37,7 @@ const App = () => {
             <Route path="/" exact component={Home} />
             <Route path="/AboutUs" exact component={AboutUs} />
             <Route path="/ContactUs" exact component={ContactUs} />
+            <Route path="/Documentation" exact component={Documentation} />            
             <PrivateRoute path="/profile" component={Profile} />
           </Switch>
         </Container>

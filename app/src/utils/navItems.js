@@ -10,6 +10,10 @@ const navItems = [
     {
         route: "/ContactUs",
         text: "Contact Us",
+    },
+    {
+        route: "/Documentation",
+        text: "Documentation",
     }
 ]
 
