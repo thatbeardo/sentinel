@@ -52,7 +52,6 @@ module elastic_beanstalk_environment {
     vpc_id                        = module.vpc.vpc_id
     loadbalancer_subnets          = module.subnets.public_subnet_ids
     loadbalancer_certificate_arn  = var.acm_certificate_arn
-    loadbalancer_ssl_policy       = 
     application_subnets           = module.subnets.public_subnet_ids
     allowed_security_groups       = [module.vpc.vpc_default_security_group_id]
     healthcheck_url               = var.healthcheck_url
