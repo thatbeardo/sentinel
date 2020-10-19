@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { NavLink as RouterNavLink } from "react-router-dom";
 // import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import navItems from "../utils/navItems"
+import navItems from "../utils/navItems";
 import {
   Collapse,
   Container,
@@ -39,15 +39,15 @@ const NavBar = () => {
             <Nav className="mr-auto" navbar>
               {navItems.map((item, i) => (
                 <NavItem>
-                <NavLink
-                  tag={RouterNavLink}
-                  to={item.route}
-                  exact
-                  activeClassName="router-link-exact-active"
-                >
-                  {item.text}
-                </NavLink>
-              </NavItem>
+                  <NavLink
+                    tag={RouterNavLink}
+                    to={item.route}
+                    exact
+                    activeClassName="router-link-exact-active"
+                  >
+                    {item.text}
+                  </NavLink>
+                </NavItem>
               ))}
             </Nav>
             <Nav className="d-none d-md-block" navbar>

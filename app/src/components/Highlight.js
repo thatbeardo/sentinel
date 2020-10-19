@@ -63,11 +63,11 @@ class Highlight extends Component {
 
 Highlight.propTypes = {
   children: PropTypes.node.isRequired,
-  language: PropTypes.string
+  language: PropTypes.string,
 };
 
 Highlight.defaultProps = {
-  language: "json"
+  language: "json",
 };
 
 export default Highlight;

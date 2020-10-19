@@ -1,13 +1,13 @@
 import React from "react";
-import { Router, Route, Switch } from "react-router-dom";
+import { Router, Route, Switch, Redirect } from "react-router-dom";
 import { Container } from "reactstrap";
 
 import PrivateRoute from "./components/PrivateRoute";
 import Loading from "./components/Loading";
 import NavBar from "./components/NavBar";
 import Footer from "./components/Footer";
-import Home from "./views/Home";
 import AboutUs from "./views/AboutUs";
+import Products from "./views/Products";
 import ContactUs from "./views/ContactUs";
 import Documentation from "./views/Documentation";
 import Profile from "./views/Profile";
@@ -34,11 +34,14 @@ const App = () => {
         <NavBar />
         <Container className="flex-grow-1">
           <Switch>
-            <Route path="/" exact component={Home} />
-            <Route path="/AboutUs" exact component={AboutUs} />
-            <Route path="/ContactUs" exact component={ContactUs} />
-            <Route path="/Documentation" exact component={Documentation} />            
+            <Route path="/aboutus" exact component={AboutUs} />
+            <Route path="/contactus" exact component={ContactUs} />
+            <Route path="/documentation" exact component={Documentation} />
             <PrivateRoute path="/profile" component={Profile} />
+            <Route path="/products" component={Products} />
+            <Route path="/">
+              <Redirect to="products/sentinel" />
+            </Route>
           </Switch>
         </Container>
         <Footer />
