@@ -4,12 +4,10 @@ definitions:
     properties:
       attributes:
         $ref: '#/definitions/resource.Attributes'
-        type: object
       id:
         type: string
       relationships:
         $ref: '#/definitions/authorization.Relationships'
-        type: object
       type:
         enum:
         - resource
@@ -35,7 +33,6 @@ definitions:
     properties:
       permissions:
         $ref: '#/definitions/authorization.Permissions'
-        type: object
     type: object
   context.Attributes:
     properties:
@@ -48,12 +45,10 @@ definitions:
     properties:
       attributes:
         $ref: '#/definitions/context.Attributes'
-        type: object
       id:
         type: string
       relationships:
         $ref: '#/definitions/context.Relationships'
-        type: object
       type:
         enum:
         - context
@@ -66,7 +61,6 @@ definitions:
     properties:
       data:
         $ref: '#/definitions/context.InputDetails'
-        type: object
     required:
     - data
     type: object
@@ -74,7 +68,6 @@ definitions:
     properties:
       attributes:
         $ref: '#/definitions/context.Attributes'
-        type: object
       type:
         enum:
         - context
@@ -94,7 +87,6 @@ definitions:
     properties:
       data:
         $ref: '#/definitions/context.Details'
-        type: object
     type: object
   context.Relationship:
     properties:
@@ -109,10 +101,8 @@ definitions:
     properties:
       principals:
         $ref: '#/definitions/context.Relationship'
-        type: object
       target_resources:
         $ref: '#/definitions/context.Relationship'
-        type: object
     required:
     - principals
     - target_resources
@@ -149,15 +139,12 @@ definitions:
     properties:
       attributes:
         $ref: '#/definitions/grant.Attributes'
-        type: object
       context:
         $ref: '#/definitions/grant.Relationship'
-        type: object
       id:
         type: string
       principal:
         $ref: '#/definitions/grant.Relationship'
-        type: object
       type:
         enum:
         - grant
@@ -172,7 +159,6 @@ definitions:
     properties:
       data:
         $ref: '#/definitions/grant.InputDetails'
-        type: object
     required:
     - data
     type: object
@@ -180,7 +166,6 @@ definitions:
     properties:
       attributes:
         $ref: '#/definitions/grant.Attributes'
-        type: object
       type:
         enum:
         - grant
@@ -200,7 +185,6 @@ definitions:
     properties:
       data:
         $ref: '#/definitions/grant.Data'
-        type: object
     type: object
   login.BearerToken:
     properties:
@@ -233,7 +217,6 @@ definitions:
     properties:
       attributes:
         $ref: '#/definitions/permission.Attributes'
-        type: object
       id:
         type: string
       type:
@@ -248,7 +231,6 @@ definitions:
     properties:
       data:
         $ref: '#/definitions/permission.InputDetails'
-        type: object
     required:
     - data
     type: object
@@ -256,7 +238,6 @@ definitions:
     properties:
       attributes:
         $ref: '#/definitions/permission.Attributes'
-        type: object
       type:
         enum:
         - permission
@@ -276,7 +257,6 @@ definitions:
     properties:
       data:
         $ref: '#/definitions/permission.Details'
-        type: object
     type: object
   resource.Attributes:
     properties:
@@ -312,12 +292,10 @@ definitions:
     properties:
       attributes:
         $ref: '#/definitions/resource.Attributes'
-        type: object
       id:
         type: string
       relationships:
         $ref: '#/definitions/resource.Relationships'
-        type: object
       type:
         enum:
         - resource
@@ -327,7 +305,6 @@ definitions:
     properties:
       data:
         $ref: '#/definitions/resource.InputDetails'
-        type: object
     required:
     - data
     type: object
@@ -335,10 +312,8 @@ definitions:
     properties:
       attributes:
         $ref: '#/definitions/resource.Attributes'
-        type: object
       relationships:
         $ref: '#/definitions/resource.InputRelationships'
-        type: object
       type:
         enum:
         - resource
@@ -351,7 +326,6 @@ definitions:
     properties:
       parent:
         $ref: '#/definitions/resource.Parent'
-        type: object
     required:
     - parent
     type: object
@@ -366,13 +340,11 @@ definitions:
     properties:
       data:
         $ref: '#/definitions/resource.Details'
-        type: object
     type: object
   resource.Parent:
     properties:
       data:
         $ref: '#/definitions/resource.Data'
-        type: object
     required:
     - data
     type: object
@@ -380,10 +352,8 @@ definitions:
     properties:
       contexts:
         $ref: '#/definitions/resource.Contexts'
-        type: object
       parent:
         $ref: '#/definitions/resource.Parent'
-        type: object
     type: object
   views.ErrView:
     properties:
@@ -393,7 +363,6 @@ definitions:
         type: string
       source:
         $ref: '#/definitions/views.Source'
-        type: object
       status:
         type: integer
     type: object
@@ -1216,14 +1185,19 @@ paths:
       - application/json
       description: Get all context and details that are granted to this context
       parameters:
-      - description: Resource ID
-        in: path
-        name: id
+      - description: Desired tenant - environment
+        in: header
+        name: x-sentinel-tenant
         required: true
         type: string
       - description: Claimant requesting the operation
         in: query
         name: claimant
+        required: true
+        type: string
+      - description: Resource ID
+        in: path
+        name: id
         required: true
         type: string
       produces:

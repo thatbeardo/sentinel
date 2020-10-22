@@ -11,31 +11,44 @@ import (
 )
 
 var depth4TargetsPresentPermittedAbsentPermissionsPresent = `
-			MATCH(target:Resource)-[:OWNED_BY*0..4]->(ancestors:Resource)
-			WHERE target.id IN ["ghi","jkl"]
-			MATCH (principal:Resource{id: $principal_id})
-			MATCH (context:Context{id:principal.context_id})-[permission:PERMISSION{permitted:"allow"}]->(target)
-			WHERE permission.name IN ["abc","def"]
-			MATCH (principal)<-[grant:GRANTED_TO]-(context)
-			RETURN {target:target, permissions: COLLECT(permission)}`
+			MATCH (principal:Resource { id: $principal_id })
+				<-[:GRANTED_TO]-
+					(context:Context{id: principal.context_id})
+						-[permission:PERMISSION]->
+						(ancestors:Resource)<-[:OWNED_BY*0..4]-
+					(target:Resource)
+				WHERE targets.id IN ["ghi","jkl"] AND permission.permitted IN ["allow"] AND permission.name IN ["abc","def"]  
+			RETURN {target: target, permissions: COLLECT(permission)}`
 
 var depth4TargetsAbsentPermittedAbsentPermissionsPresent = `
-			MATCH(target:Resource)-[:OWNED_BY*0..4]->(ancestors:Resource)
-			
-			MATCH (principal:Resource{id: $principal_id})
-			MATCH (context:Context{id:principal.context_id})-[permission:PERMISSION{permitted:"allow"}]->(target)
-			WHERE permission.name IN ["abc","def"]
-			MATCH (principal)<-[grant:GRANTED_TO]-(context)
-			RETURN {target:target, permissions: COLLECT(permission)}`
+			MATCH (principal:Resource { id: $principal_id })
+				<-[:GRANTED_TO]-
+					(context:Context{id: principal.context_id})
+						-[permission:PERMISSION]->
+						(ancestors:Resource)<-[:OWNED_BY*0..4]-
+					(target:Resource)
+				WHERE permission.permitted IN ["allow"] AND permission.name IN ["abc","def"]  
+			RETURN {target: target, permissions: COLLECT(permission)}`
 
 var depth4TargetsAbsentPermittedAbsentPermissionNamesAbsent = `
-			MATCH(target:Resource)-[:OWNED_BY*0..4]->(ancestors:Resource)
-			
-			MATCH (principal:Resource{id: $principal_id})
-			MATCH (context:Context{id:$context_id})-[permission:PERMISSION{}]->(target)
-			
-			MATCH (principal)<-[grant:GRANTED_TO]-(context)
-			RETURN {target:target, permissions: COLLECT(permission)}`
+			MATCH (principal:Resource { id: $principal_id })
+				<-[:GRANTED_TO]-
+					(context:Context{id: $context_id})
+						-[permission:PERMISSION]->
+						(ancestors:Resource)<-[:OWNED_BY*0..4]-
+					(target:Resource)
+				
+			RETURN {target: target, permissions: COLLECT(permission)}`
+
+var depth4TargetsPresentPermittedAbsentPermissionNamesAbsent = `
+			MATCH (principal:Resource { id: $principal_id })
+				<-[:GRANTED_TO]-
+					(context:Context{id: $context_id})
+						-[permission:PERMISSION]->
+						(ancestors:Resource)<-[:OWNED_BY*0..4]-
+					(target:Resource)
+				WHERE targets.id IN ["abc","def"] 
+			RETURN {target: target, permissions: COLLECT(permission)}`			
 
 var resourceOwnershipStatement = `
 		MATCH (target:Resource{id: $target_id})
@@ -142,6 +155,28 @@ func TestGetAuthorizationForNonPermittedPrincipals_SessionReturnsData_ReturnData
 		"test-principal-id",
 		"test-context-id",
 		authorization.Input{Depth: 4, IncludeDenied: true},
+	)
+
+	assert.Equal(t, testdata.Output, response)
+	assert.Nil(t, err)
+}
+
+func TestGetAuthorizationAllTargetsSpecificPrincipals_SessionReturnsData_ReturnData(t *testing.T) {
+	session := mockSession{
+		ExecuteResponse:   testdata.Output,
+		ExpectedStatement: depth4TargetsPresentPermittedAbsentPermissionNamesAbsent,
+		ExpectedParameter: map[string]interface{}{
+			"principal_id": "test-principal-id",
+			"context_id":   "test-context-id",
+		},
+		t: t,
+	}
+
+	repository := repository.New(session)
+	response, err := repository.GetAuthorizationForPrincipal(
+		"test-principal-id",
+		"test-context-id",
+		authorization.Input{Depth: 4, IncludeDenied: true, Targets: []string{"abc", "def"}},
 	)
 
 	assert.Equal(t, testdata.Output, response)

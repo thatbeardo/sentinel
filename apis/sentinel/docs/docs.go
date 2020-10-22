@@ -1082,9 +1082,9 @@ var doc = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Resource ID",
-                        "name": "id",
-                        "in": "path",
+                        "description": "Desired tenant - environment",
+                        "name": "x-sentinel-tenant",
+                        "in": "header",
                         "required": true
                     },
                     {
@@ -1092,6 +1092,13 @@ var doc = `{
                         "description": "Claimant requesting the operation",
                         "name": "claimant",
                         "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Resource ID",
+                        "name": "id",
+                        "in": "path",
                         "required": true
                     }
                 ],
@@ -1187,14 +1194,12 @@ var doc = `{
             "type": "object",
             "properties": {
                 "attributes": {
-                    "type": "object",
                     "$ref": "#/definitions/resource.Attributes"
                 },
                 "id": {
                     "type": "string"
                 },
                 "relationships": {
-                    "type": "object",
                     "$ref": "#/definitions/authorization.Relationships"
                 },
                 "type": {
@@ -1234,7 +1239,6 @@ var doc = `{
             "type": "object",
             "properties": {
                 "permissions": {
-                    "type": "object",
                     "$ref": "#/definitions/authorization.Permissions"
                 }
             }
@@ -1258,14 +1262,12 @@ var doc = `{
             ],
             "properties": {
                 "attributes": {
-                    "type": "object",
                     "$ref": "#/definitions/context.Attributes"
                 },
                 "id": {
                     "type": "string"
                 },
                 "relationships": {
-                    "type": "object",
                     "$ref": "#/definitions/context.Relationships"
                 },
                 "type": {
@@ -1283,7 +1285,6 @@ var doc = `{
             ],
             "properties": {
                 "data": {
-                    "type": "object",
                     "$ref": "#/definitions/context.InputDetails"
                 }
             }
@@ -1296,7 +1297,6 @@ var doc = `{
             ],
             "properties": {
                 "attributes": {
-                    "type": "object",
                     "$ref": "#/definitions/context.Attributes"
                 },
                 "type": {
@@ -1322,7 +1322,6 @@ var doc = `{
             "type": "object",
             "properties": {
                 "data": {
-                    "type": "object",
                     "$ref": "#/definitions/context.Details"
                 }
             }
@@ -1349,11 +1348,9 @@ var doc = `{
             ],
             "properties": {
                 "principals": {
-                    "type": "object",
                     "$ref": "#/definitions/context.Relationship"
                 },
                 "target_resources": {
-                    "type": "object",
                     "$ref": "#/definitions/context.Relationship"
                 }
             }
@@ -1411,18 +1408,15 @@ var doc = `{
             ],
             "properties": {
                 "attributes": {
-                    "type": "object",
                     "$ref": "#/definitions/grant.Attributes"
                 },
                 "context": {
-                    "type": "object",
                     "$ref": "#/definitions/grant.Relationship"
                 },
                 "id": {
                     "type": "string"
                 },
                 "principal": {
-                    "type": "object",
                     "$ref": "#/definitions/grant.Relationship"
                 },
                 "type": {
@@ -1440,7 +1434,6 @@ var doc = `{
             ],
             "properties": {
                 "data": {
-                    "type": "object",
                     "$ref": "#/definitions/grant.InputDetails"
                 }
             }
@@ -1453,7 +1446,6 @@ var doc = `{
             ],
             "properties": {
                 "attributes": {
-                    "type": "object",
                     "$ref": "#/definitions/grant.Attributes"
                 },
                 "type": {
@@ -1479,7 +1471,6 @@ var doc = `{
             "type": "object",
             "properties": {
                 "data": {
-                    "type": "object",
                     "$ref": "#/definitions/grant.Data"
                 }
             }
@@ -1533,7 +1524,6 @@ var doc = `{
             ],
             "properties": {
                 "attributes": {
-                    "type": "object",
                     "$ref": "#/definitions/permission.Attributes"
                 },
                 "id": {
@@ -1554,7 +1544,6 @@ var doc = `{
             ],
             "properties": {
                 "data": {
-                    "type": "object",
                     "$ref": "#/definitions/permission.InputDetails"
                 }
             }
@@ -1567,7 +1556,6 @@ var doc = `{
             ],
             "properties": {
                 "attributes": {
-                    "type": "object",
                     "$ref": "#/definitions/permission.Attributes"
                 },
                 "type": {
@@ -1593,7 +1581,6 @@ var doc = `{
             "type": "object",
             "properties": {
                 "data": {
-                    "type": "object",
                     "$ref": "#/definitions/permission.Details"
                 }
             }
@@ -1648,14 +1635,12 @@ var doc = `{
             "type": "object",
             "properties": {
                 "attributes": {
-                    "type": "object",
                     "$ref": "#/definitions/resource.Attributes"
                 },
                 "id": {
                     "type": "string"
                 },
                 "relationships": {
-                    "type": "object",
                     "$ref": "#/definitions/resource.Relationships"
                 },
                 "type": {
@@ -1673,7 +1658,6 @@ var doc = `{
             ],
             "properties": {
                 "data": {
-                    "type": "object",
                     "$ref": "#/definitions/resource.InputDetails"
                 }
             }
@@ -1686,11 +1670,9 @@ var doc = `{
             ],
             "properties": {
                 "attributes": {
-                    "type": "object",
                     "$ref": "#/definitions/resource.Attributes"
                 },
                 "relationships": {
-                    "type": "object",
                     "$ref": "#/definitions/resource.InputRelationships"
                 },
                 "type": {
@@ -1708,7 +1690,6 @@ var doc = `{
             ],
             "properties": {
                 "parent": {
-                    "type": "object",
                     "$ref": "#/definitions/resource.Parent"
                 }
             }
@@ -1728,7 +1709,6 @@ var doc = `{
             "type": "object",
             "properties": {
                 "data": {
-                    "type": "object",
                     "$ref": "#/definitions/resource.Details"
                 }
             }
@@ -1740,7 +1720,6 @@ var doc = `{
             ],
             "properties": {
                 "data": {
-                    "type": "object",
                     "$ref": "#/definitions/resource.Data"
                 }
             }
@@ -1749,11 +1728,9 @@ var doc = `{
             "type": "object",
             "properties": {
                 "contexts": {
-                    "type": "object",
                     "$ref": "#/definitions/resource.Contexts"
                 },
                 "parent": {
-                    "type": "object",
                     "$ref": "#/definitions/resource.Parent"
                 }
             }
@@ -1768,7 +1745,6 @@ var doc = `{
                     "type": "string"
                 },
                 "source": {
-                    "type": "object",
                     "$ref": "#/definitions/views.Source"
                 },
                 "status": {

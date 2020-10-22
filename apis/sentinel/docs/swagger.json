@@ -1066,9 +1066,9 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Resource ID",
-                        "name": "id",
-                        "in": "path",
+                        "description": "Desired tenant - environment",
+                        "name": "x-sentinel-tenant",
+                        "in": "header",
                         "required": true
                     },
                     {
@@ -1076,6 +1076,13 @@
                         "description": "Claimant requesting the operation",
                         "name": "claimant",
                         "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Resource ID",
+                        "name": "id",
+                        "in": "path",
                         "required": true
                     }
                 ],
@@ -1171,14 +1178,12 @@
             "type": "object",
             "properties": {
                 "attributes": {
-                    "type": "object",
                     "$ref": "#/definitions/resource.Attributes"
                 },
                 "id": {
                     "type": "string"
                 },
                 "relationships": {
-                    "type": "object",
                     "$ref": "#/definitions/authorization.Relationships"
                 },
                 "type": {
@@ -1218,7 +1223,6 @@
             "type": "object",
             "properties": {
                 "permissions": {
-                    "type": "object",
                     "$ref": "#/definitions/authorization.Permissions"
                 }
             }
@@ -1242,14 +1246,12 @@
             ],
             "properties": {
                 "attributes": {
-                    "type": "object",
                     "$ref": "#/definitions/context.Attributes"
                 },
                 "id": {
                     "type": "string"
                 },
                 "relationships": {
-                    "type": "object",
                     "$ref": "#/definitions/context.Relationships"
                 },
                 "type": {
@@ -1267,7 +1269,6 @@
             ],
             "properties": {
                 "data": {
-                    "type": "object",
                     "$ref": "#/definitions/context.InputDetails"
                 }
             }
@@ -1280,7 +1281,6 @@
             ],
             "properties": {
                 "attributes": {
-                    "type": "object",
                     "$ref": "#/definitions/context.Attributes"
                 },
                 "type": {
@@ -1306,7 +1306,6 @@
             "type": "object",
             "properties": {
                 "data": {
-                    "type": "object",
                     "$ref": "#/definitions/context.Details"
                 }
             }
@@ -1333,11 +1332,9 @@
             ],
             "properties": {
                 "principals": {
-                    "type": "object",
                     "$ref": "#/definitions/context.Relationship"
                 },
                 "target_resources": {
-                    "type": "object",
                     "$ref": "#/definitions/context.Relationship"
                 }
             }
@@ -1395,18 +1392,15 @@
             ],
             "properties": {
                 "attributes": {
-                    "type": "object",
                     "$ref": "#/definitions/grant.Attributes"
                 },
                 "context": {
-                    "type": "object",
                     "$ref": "#/definitions/grant.Relationship"
                 },
                 "id": {
                     "type": "string"
                 },
                 "principal": {
-                    "type": "object",
                     "$ref": "#/definitions/grant.Relationship"
                 },
                 "type": {
@@ -1424,7 +1418,6 @@
             ],
             "properties": {
                 "data": {
-                    "type": "object",
                     "$ref": "#/definitions/grant.InputDetails"
                 }
             }
@@ -1437,7 +1430,6 @@
             ],
             "properties": {
                 "attributes": {
-                    "type": "object",
                     "$ref": "#/definitions/grant.Attributes"
                 },
                 "type": {
@@ -1463,7 +1455,6 @@
             "type": "object",
             "properties": {
                 "data": {
-                    "type": "object",
                     "$ref": "#/definitions/grant.Data"
                 }
             }
@@ -1517,7 +1508,6 @@
             ],
             "properties": {
                 "attributes": {
-                    "type": "object",
                     "$ref": "#/definitions/permission.Attributes"
                 },
                 "id": {
@@ -1538,7 +1528,6 @@
             ],
             "properties": {
                 "data": {
-                    "type": "object",
                     "$ref": "#/definitions/permission.InputDetails"
                 }
             }
@@ -1551,7 +1540,6 @@
             ],
             "properties": {
                 "attributes": {
-                    "type": "object",
                     "$ref": "#/definitions/permission.Attributes"
                 },
                 "type": {
@@ -1577,7 +1565,6 @@
             "type": "object",
             "properties": {
                 "data": {
-                    "type": "object",
                     "$ref": "#/definitions/permission.Details"
                 }
             }
@@ -1632,14 +1619,12 @@
             "type": "object",
             "properties": {
                 "attributes": {
-                    "type": "object",
                     "$ref": "#/definitions/resource.Attributes"
                 },
                 "id": {
                     "type": "string"
                 },
                 "relationships": {
-                    "type": "object",
                     "$ref": "#/definitions/resource.Relationships"
                 },
                 "type": {
@@ -1657,7 +1642,6 @@
             ],
             "properties": {
                 "data": {
-                    "type": "object",
                     "$ref": "#/definitions/resource.InputDetails"
                 }
             }
@@ -1670,11 +1654,9 @@
             ],
             "properties": {
                 "attributes": {
-                    "type": "object",
                     "$ref": "#/definitions/resource.Attributes"
                 },
                 "relationships": {
-                    "type": "object",
                     "$ref": "#/definitions/resource.InputRelationships"
                 },
                 "type": {
@@ -1692,7 +1674,6 @@
             ],
             "properties": {
                 "parent": {
-                    "type": "object",
                     "$ref": "#/definitions/resource.Parent"
                 }
             }
@@ -1712,7 +1693,6 @@
             "type": "object",
             "properties": {
                 "data": {
-                    "type": "object",
                     "$ref": "#/definitions/resource.Details"
                 }
             }
@@ -1724,7 +1704,6 @@
             ],
             "properties": {
                 "data": {
-                    "type": "object",
                     "$ref": "#/definitions/resource.Data"
                 }
             }
@@ -1733,11 +1712,9 @@
             "type": "object",
             "properties": {
                 "contexts": {
-                    "type": "object",
                     "$ref": "#/definitions/resource.Contexts"
                 },
                 "parent": {
-                    "type": "object",
                     "$ref": "#/definitions/resource.Parent"
                 }
             }
@@ -1752,7 +1729,6 @@
                     "type": "string"
                 },
                 "source": {
-                    "type": "object",
                     "$ref": "#/definitions/views.Source"
                 },
                 "status": {

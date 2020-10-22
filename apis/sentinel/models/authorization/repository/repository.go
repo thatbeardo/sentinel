@@ -25,18 +25,17 @@ type repository struct {
 func (repo repository) GetAuthorizationForPrincipal(principalID, contextID string, input authorization.Input) (output authorization.Output, err error) {
 	return repo.session.Execute(
 		fmt.Sprintf(`
-			MATCH(target:Resource)-[:OWNED_BY*0..%s]->(ancestors:Resource)
-			%s
-			MATCH (principal:Resource{id: $principal_id})
-			MATCH (context:Context{id:%s})-[permission:PERMISSION{%s}]->(target)
-			%s
-			MATCH (principal)<-[grant:GRANTED_TO]-(context)
-			RETURN {target:target, permissions: COLLECT(permission)}`,
-			strconv.Itoa(input.Depth),
-			generateQueryFilter(input.Targets, "target", "id"),
+			MATCH (principal:Resource { id: $principal_id })
+				<-[:GRANTED_TO]-
+					(context:Context{id: %s})
+						-[permission:PERMISSION]->
+						(ancestors:Resource)<-[:OWNED_BY*0..%s]-
+					(target:Resource)
+				%s
+			RETURN {target: target, permissions: COLLECT(permission)}`,
 			generateContextFilter(contextID),
-			generatePermittedFilter(input),
-			generateQueryFilter(input.Permissions, "permission", "name"),
+			strconv.Itoa(input.Depth),
+			generateQueryFilter(input),
 		),
 		map[string]interface{}{
 			"principal_id": principalID,
@@ -101,16 +100,40 @@ func generateOwnershipInspectionQuery() string {
 		RETURN {target: target, permissions: COLLECT(clientPermission)}`
 }
 
-func generateQueryFilter(elements []string, property string, field string) (properties string) {
-	if len(elements) != 0 {
-		properties = fmt.Sprintf(`WHERE %s.%s IN ["%s"]`, property, field, strings.Join(elements, "\",\""))
+func generateQueryFilter(input authorization.Input) (filter string) {
+	targetsFilter := generateTargetFilter(input)
+	permissionsFilter := generatePermissionFilter(input)
+
+	if len(targetsFilter) == 0 && len(permissionsFilter) == 0 {
+		return
+	} else if len(targetsFilter) != 0 && len(permissionsFilter) == 0 { 
+		filter = fmt.Sprintf(`WHERE %s `, targetsFilter)
+	} else if len(targetsFilter) == 0 && len(permissionsFilter) != 0 { 
+		filter = fmt.Sprintf(`WHERE %s `, permissionsFilter)
+	} else {
+		filter = fmt.Sprintf(`WHERE %s AND %s `,  targetsFilter, permissionsFilter)
+	}
+
+	return
+}
+
+func generatePermissionFilter(input authorization.Input) (filter string) {
+	if !input.IncludeDenied {
+		filter += `permission.permitted IN ["allow"] `
+	}
+	if len(input.Permissions) != 0 {
+		if len(filter) != 0 {
+			filter += `AND ` 
+		}
+ 		filter += fmt.Sprintf(`permission.name IN ["%s"] `, strings.Join(input.Permissions, "\",\""))
 	}
 	return
 }
 
-func generatePermittedFilter(input authorization.Input) (properties string) {
-	if !input.IncludeDenied {
-		properties = `permitted:"allow"`
+
+func generateTargetFilter(input authorization.Input) (properties string) {
+	if len(input.Targets) != 0 {
+		properties = fmt.Sprintf(`targets.id IN ["%s"]`, strings.Join(input.Targets, "\",\""))
 	}
 	return
 }

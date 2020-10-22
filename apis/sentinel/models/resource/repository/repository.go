@@ -168,7 +168,7 @@ func (repo *repository) GetAllContexts(id string) (context.Output, error) {
 		WITH context
 		OPTIONAL MATCH(context)-[:PERMISSION]->(target:Resource)
 		OPTIONAL MATCH(context)-[:GRANTED_TO]->(principal:Resource)
-		RETURN {context:Context, principals:COLLECT(principal), targets:COLLECT(target)}`,
+		RETURN {context:context, principals:COLLECT(principal), targets:COLLECT(target)}`,
 		map[string]interface{}{
 			"id": id,
 		})

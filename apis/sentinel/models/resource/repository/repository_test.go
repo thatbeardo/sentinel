@@ -90,7 +90,7 @@ var getAassociatedContextsStatement = `
 		WITH context
 		OPTIONAL MATCH(context)-[:PERMISSION]->(target:Resource)
 		OPTIONAL MATCH(context)-[:GRANTED_TO]->(principal:Resource)
-		RETURN {context:Context, principals:COLLECT(principal), targets:COLLECT(target)}`
+		RETURN {context:context, principals:COLLECT(principal), targets:COLLECT(target)}`
 
 var deleteStatement = `
 		MATCH (n:Resource { id: $id }) DETACH DELETE n`
