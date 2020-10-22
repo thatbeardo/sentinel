@@ -169,8 +169,8 @@ import (
 
 func main() {
 	statsdClient, err := statsd.New(os.Getenv("STATSD_HOST"), os.Getenv("STATSD_PORT"))
-
-	runner := neo4j.NewRunner()
+	driver := server.CreateDatabaseDriver()
+	runner := neo4j.NewRunner(driver)
 
 	contextsSession := contextSession.NewNeo4jSession(runner)
 	contextRepository := contextRepository.New(contextsSession)
@@ -211,6 +211,6 @@ func main() {
 	contexts.Routes(router, contextService, authorizationService)
 	grants.Routes(router, grantService, authorizationService)
 	authorizations.Routes(router, authorizationService)
-
-	server.Orchestrate(engine)
+  
+	server.Orchestrate(engine, driver)
 }

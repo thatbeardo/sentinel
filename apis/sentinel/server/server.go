@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/bithippie/guard-my-app/apis/sentinel/docs"
+	"github.com/neo4j/neo4j-go-driver/neo4j"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"gopkg.in/alexcesaro/statsd.v2"
@@ -37,6 +38,23 @@ func GenerateStatsdClient(host, port string) (*statsd.Client, error) {
 			fmt.Sprintf("%s:%s", host, port)))
 }
 
+// CreateDatabaseDriver creates a driver to be used and returns a cleanup function when shutting down
+func CreateDatabaseDriver() (neo4j.Driver) {
+	// initialize driver to connect to DB with ID and password
+	var (
+		driver neo4j.Driver
+		err error
+	)
+	dbURI := os.Getenv("DB_URI")
+	fmt.Println("Now connecting " + dbURI)
+	if driver, err = neo4j.NewDriver(dbURI, neo4j.BasicAuth(os.Getenv("USERNAME"), os.Getenv("PASSWORD"), ""), func(c *neo4j.Config) {
+		c.Encrypted = true
+	}); err != nil {
+		fmt.Println("Error while establishing graph connection")
+	}
+	return driver
+}
+
 func setupSwagger(r *gin.Engine) {
 	hostURL := fmt.Sprintf("https://%s", os.Getenv("HOST"))
 	docs.SwaggerInfo.Host = hostURL
@@ -47,7 +65,7 @@ func setupSwagger(r *gin.Engine) {
 }
 
 // Orchestrate begins listening on PORT and gracefully shuts down the server incase of interrupt
-func Orchestrate(router *gin.Engine) {
+func Orchestrate(router *gin.Engine, driver neo4j.Driver) {
 	srv := &http.Server{
 		Addr:    ":" + os.Getenv("PORT"),
 		Handler: router,
@@ -75,6 +93,8 @@ func Orchestrate(router *gin.Engine) {
 	// the request it is currently handling
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
+	defer driver.Close()
+
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Fatal("Server forced to shutdown:", err)
 	}

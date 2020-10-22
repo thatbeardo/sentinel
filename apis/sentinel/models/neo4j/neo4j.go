@@ -2,7 +2,6 @@ package neo4j
 
 import (
 	"fmt"
-	"os"
 	"github.com/neo4j/neo4j-go-driver/neo4j"
 )
 
@@ -28,16 +27,19 @@ type Runner interface {
 }
 
 type runner struct {
+	driver neo4j.Driver
 }
 
-// New is a factory method to isntantiate Runner objects
-func NewRunner() Runner {
-	return runner{}
+// NewRunner is a factory method to isntantiate Runner objects
+func NewRunner(driver neo4j.Driver) Runner {
+	return runner{
+		driver: driver,
+	}
 }
 
 func (n runner) Run(statement string, parameters map[string]interface{}) (data []map[string]interface{}, err error) {
 	fmt.Println(statement)
-	cleanup, session := Initialize()
+	cleanup, session := Initialize(n.driver)
 	defer cleanup()
 	
 	result, err := session.Run(statement, parameters)
@@ -54,34 +56,24 @@ func (n runner) Run(statement string, parameters map[string]interface{}) (data [
 }
 
 // Initialize connects to the database and returns a shut down function
-func Initialize() (func(), neo4j.Session) {
-	session, driver, err := ConnectToDB()
+func Initialize(driver neo4j.Driver) (func(), neo4j.Session) {
+	session, err := ConnectToDB(driver)
 	fmt.Println(err)
 	return func() {
 		session.Close()
-		driver.Close()
 	}, session
 }
 
 // ConnectToDB establishes connection to the neo4j database
-func ConnectToDB() (neo4j.Session, neo4j.Driver, error) {
-	// define driver, session and result vars
+func ConnectToDB(driver neo4j.Driver) (neo4j.Session, error) {
 	var (
-		driver  neo4j.Driver
 		session neo4j.Session
 		err     error
 	)
-	// initialize driver to connect to DB with ID and password
-	dbURI := os.Getenv("DB_URI")
-	fmt.Println("Now connecting " + dbURI)
-	if driver, err = neo4j.NewDriver(dbURI, neo4j.BasicAuth(os.Getenv("USERNAME"), os.Getenv("PASSWORD"), ""), func(c *neo4j.Config) {
-		c.Encrypted = true
-	}); err != nil {
-		fmt.Println("Error while establishing graph connection")
-	}
+	
 	// Open a new session with write access
 	if session, err = driver.Session(neo4j.AccessModeWrite); err != nil {
-		return nil, nil, err
+		return nil, err
 	}
-	return session, driver, nil
+	return session, nil
 }

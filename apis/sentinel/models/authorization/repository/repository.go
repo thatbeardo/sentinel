@@ -54,7 +54,6 @@ func (repo repository) IsTargetOwnedByClient(clientID, tenant, targetID string) 
 			"target_id": targetID,
 		},
 	)
-	fmt.Println(results)
 	return err == nil && len(results.Data) > 0
 }
 
