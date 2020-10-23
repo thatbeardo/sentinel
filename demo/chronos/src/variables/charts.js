@@ -251,11 +251,24 @@ let chartExample2 = {
   options: chart1_2_options,
 };
 
+const sales = {
+  USA: 100,
+  CU: 150,
+  CAN: 120,
+  PA: 130,
+
+  // Asia Pacific
+  IND: 100,
+  TAI: 80,
+  NZ: 90,
+  SG: 120,
+};
+
 // #########################################
 // // // used inside src/views/Dashboard.js
 // #########################################
 const dailySales = (regions) => {
-  let data = regions.map((_) => Math.floor(Math.random() * 100) + 30);
+  let data = regions.map((region) => sales[region]);
   return {
     data: (canvas) => {
       let ctx = canvas.getContext("2d");

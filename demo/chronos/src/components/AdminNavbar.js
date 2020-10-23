@@ -55,13 +55,16 @@ const AdminNavbar = (props) => {
           </button>
           <Collapse navbar isOpen={false}>
             <Nav className="ml-auto" navbar>
-              <select onChange={contextChangeHandler} name="cars" id="cars">
+              <select
+                onChange={contextChangeHandler}
+                name="contexts"
+                id="contexts"
+              >
                 {contexts.map((context) => (
-                  <option key={context} value={context}>
-                    {context}
+                  <option key={context.name} value={context.value}>
+                    {context.name}
                   </option>
                 ))}
-                <option value="">Default</option>
               </select>
               <UncontrolledDropdown nav>
                 <DropdownToggle
