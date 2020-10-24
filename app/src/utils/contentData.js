@@ -3,7 +3,7 @@ const contentData = [
     title: "Cost Effective",
     link: "https://auth0.com/docs/connections",
     description:
-      "All the abilities at a fraction of the cost. To implement a Sentinel like solution you may need a team of in house experts. Sentinel allows you to focus on your business problems while not worrying about authorization.",
+      "Sentinel provides all the authorization abilities at a fraction of the cost. To implement a Sentinel like solution you may need a team of in house experts. Sentinel allows you to focus on your business problems while not worrying about authorization.",
   },
   {
     title: "Fails Closed",
