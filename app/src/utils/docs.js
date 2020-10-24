@@ -1,6 +1,6 @@
 const docs = `
 ## Getting Started
-We are thrilled to have you onboard. This guide allows you to understand how to leverage Sentinel capabilities and implement Authorization like a boss! 😎 
+We are thrilled to have you onboard. This guide allows you to understand how to leverage Sentinel's capabilities and implement Authorization like a boss! 😎 
 
 - [The Basics](#the-basics)
   - [Resources](#resources)
@@ -296,6 +296,6 @@ and the response like before will look like this
 }
 \`\`\`
 
-This response is strictly about the Principal we provided in the request. In this case, it is about Linus. Sentinel is telling us that Linus has only \`enginerd:rolce:read\`  permissions for Target resource \`salary\`. With this, we have a basic idea about storing permissions with Sentinel. Next up, let's look at some advanced use cases.`
+This response is strictly about the Principal we provided in the request. In this case, it is about Linus. Sentinel is telling us that Linus has only \`enginerd:rolce:read\`  permissions for Target resource \`salary\`. With this, we have a basic idea about storing permissions with Sentinel. Next up, let's look at some advanced use cases.`;
 
 export default docs;
