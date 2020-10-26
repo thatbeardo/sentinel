@@ -42,7 +42,7 @@ module elastic_beanstalk_environment {
     dns_zone_id                        = var.dns_zone_id
     elastic_beanstalk_application_name = module.elastic_beanstalk_application.elastic_beanstalk_application_name
 
-    instance_type           = "m4.large"
+    instance_type           = "m5.xlarge"
     autoscale_min           = 1
     autoscale_max           = 2
     updating_min_in_service = 0
