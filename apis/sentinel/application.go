@@ -165,6 +165,8 @@ import (
 	authorizationSession "github.com/bithippie/guard-my-app/apis/sentinel/models/authorization/session"
 	"github.com/bithippie/guard-my-app/apis/sentinel/server"
 	"github.com/gin-gonic/gin"
+
+	log "github.com/sirupsen/logrus"
 )
 
 func main() {
@@ -196,6 +198,7 @@ func main() {
 	router := server.GenerateRouter(engine)
 
 	if err == nil {
+		log.Info("StatsD connection established. Tracking data")
 		router.Use(middleware.Metrics(statsdClient))
 	}
 
