@@ -36,7 +36,7 @@ module elastic_beanstalk_environment {
     namespace                          = var.namespace
     stage                              = var.stage
     name                               = var.name
-    description                        = "Test elastic_beanstalk_environment"
+    description                        = "Test elastic_beanstalk_environment "
     region                             = var.region
     availability_zone_selector         = "Any 2"
     dns_zone_id                        = var.dns_zone_id
