@@ -29,11 +29,11 @@ jobs:
           cd infrastructure/beanstalk
           terraform init
           terraform plan
-          terraform apply 
-            -var 'username=${{ secrets.USERNAME }}' 
-            -var 'password=${{ secrets.PASSWORD }}' 
-            -var 'db_uri=${{ secrets.DB_URI }}' 
-            -var 'acm_certificate_arn=${{ secrets.ACM_CERTIFICATE_ARN }}' 
+          terraform apply |
+            -var 'username=${{ secrets.USERNAME }}' | 
+            -var 'password=${{ secrets.PASSWORD }}' |
+            -var 'db_uri=${{ secrets.DB_URI }}' |
+            -var 'acm_certificate_arn=${{ secrets.ACM_CERTIFICATE_ARN }}' |
             -var 'newrelicLicense=${{ secrets.NEW_RELIC_LICENSE }}' -auto-approve
           echo "::set-env name=WEBSITE_BUCKET::$(terraform output website_bucket_id)"
           echo "::set-env name=APPLICATION_NAME::$(terraform output application_name)"
