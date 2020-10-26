@@ -43,8 +43,8 @@ module elastic_beanstalk_environment {
     elastic_beanstalk_application_name = module.elastic_beanstalk_application.elastic_beanstalk_application_name
 
     instance_type           = "t2.micro"
-    autoscale_min           = 2
-    autoscale_max           = 2
+    autoscale_min           = 5
+    autoscale_max           = 5
     updating_min_in_service = 0
     updating_max_batch      = 1
 
