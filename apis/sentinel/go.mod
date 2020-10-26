@@ -18,6 +18,8 @@ require (
 	github.com/mailru/easyjson v0.7.6 // indirect
 	github.com/mitchellh/mapstructure v1.3.2
 	github.com/neo4j/neo4j-go-driver v1.8.0
+	github.com/newrelic/go-agent v3.9.0+incompatible
+	github.com/newrelic/go-agent/v3 v3.9.0
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/sirupsen/logrus v1.7.0
 	github.com/stretchr/objx v0.2.0 // indirect

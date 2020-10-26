@@ -87,6 +87,11 @@ module elastic_beanstalk_environment {
         namespace = "aws:elasticbeanstalk:application:environment"
         name      = "PORT"
         value     = "5000"
+      },
+      {
+        namespace = "aws:elasticbeanstalk:application:environment"
+        name      = "NEW_RELIC_LICENSE"
+        value     = var.newrelicLicense
       }
     ]
   }

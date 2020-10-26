@@ -15,7 +15,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"gopkg.in/alexcesaro/statsd.v2"
-
+	"github.com/newrelic/go-agent"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -36,6 +36,16 @@ func GenerateStatsdClient(host, port string) (*statsd.Client, error) {
 	return statsd.New(
 		statsd.Address(
 			fmt.Sprintf("%s:%s", host, port)))
+}
+
+// InitNewRelicApp creates and returns a newrelic application
+func InitNewRelicApp() (app newrelic.Application) {
+	cfg := newrelic.NewConfig("Sentinel", os.Getenv("NEW_RELIC_LICENSE"))
+	app, err := newrelic.NewApplication(cfg)
+	if err != nil {
+		panic("Initialization failed")
+	}
+	return app
 }
 
 // CreateDatabaseDriver creates a driver to be used and returns a cleanup function when shutting down

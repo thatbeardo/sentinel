@@ -146,6 +146,12 @@ variable password {
     default = ""
 }
 
+variable newrelicLicense {
+    type = string
+    description = "License to get access to new relic"
+    default = ""
+}
+
 variable "availability_zone_selector" {
   type        = string
   default     = "Any 2"
