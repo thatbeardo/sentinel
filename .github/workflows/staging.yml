@@ -29,8 +29,8 @@ jobs:
           cd infrastructure/beanstalk
           terraform init
           terraform plan
-          terraform apply -var 
-            'username=${{ secrets.USERNAME }}' 
+          terraform apply 
+            -var 'username=${{ secrets.USERNAME }}' 
             -var 'password=${{ secrets.PASSWORD }}' 
             -var 'db_uri=${{ secrets.DB_URI }}' 
             -var 'acm_certificate_arn=${{ secrets.ACM_CERTIFICATE_ARN }}' 
