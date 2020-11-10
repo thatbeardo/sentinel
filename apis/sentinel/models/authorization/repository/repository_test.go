@@ -11,44 +11,44 @@ import (
 )
 
 var depth4TargetsPresentPermittedAbsentPermissionsPresent = `
-			MATCH (principal:Resource { id: $principal_id })
+			MATCH path=(principal:Resource { id: $principal_id })
 				<-[:GRANTED_TO]-
 					(context:Context{id: principal.context_id})
 						-[permission:PERMISSION]->
 						(ancestors:Resource)<-[:OWNED_BY*0..4]-
 					(target:Resource)
 				WHERE targets.id IN ["ghi","jkl"] AND permission.permitted IN ["allow"] AND permission.name IN ["abc","def"]  
-			RETURN {target: target, permissions: COLLECT(permission)}`
+			RETURN {target: target, permissions: COLLECT(permission), length: length(path)}`
 
 var depth4TargetsAbsentPermittedAbsentPermissionsPresent = `
-			MATCH (principal:Resource { id: $principal_id })
+			MATCH path=(principal:Resource { id: $principal_id })
 				<-[:GRANTED_TO]-
 					(context:Context{id: principal.context_id})
 						-[permission:PERMISSION]->
 						(ancestors:Resource)<-[:OWNED_BY*0..4]-
 					(target:Resource)
 				WHERE permission.permitted IN ["allow"] AND permission.name IN ["abc","def"]  
-			RETURN {target: target, permissions: COLLECT(permission)}`
+			RETURN {target: target, permissions: COLLECT(permission), length: length(path)}`
 
 var depth4TargetsAbsentPermittedAbsentPermissionNamesAbsent = `
-			MATCH (principal:Resource { id: $principal_id })
+			MATCH path=(principal:Resource { id: $principal_id })
 				<-[:GRANTED_TO]-
 					(context:Context{id: $context_id})
 						-[permission:PERMISSION]->
 						(ancestors:Resource)<-[:OWNED_BY*0..4]-
 					(target:Resource)
 				
-			RETURN {target: target, permissions: COLLECT(permission)}`
+			RETURN {target: target, permissions: COLLECT(permission), length: length(path)}`
 
 var depth4TargetsPresentPermittedAbsentPermissionNamesAbsent = `
-			MATCH (principal:Resource { id: $principal_id })
+			MATCH path=(principal:Resource { id: $principal_id })
 				<-[:GRANTED_TO]-
 					(context:Context{id: $context_id})
 						-[permission:PERMISSION]->
 						(ancestors:Resource)<-[:OWNED_BY*0..4]-
 					(target:Resource)
 				WHERE targets.id IN ["abc","def"] 
-			RETURN {target: target, permissions: COLLECT(permission)}`			
+			RETURN {target: target, permissions: COLLECT(permission), length: length(path)}`			
 
 var resourceOwnershipStatement = `
 		MATCH (target:Resource{id: $target_id})

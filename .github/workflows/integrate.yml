@@ -1,54 +1,68 @@
 on: [push, pull_request]
-name: Sentinel Community Integration 
+name: Sentinel Community Integration
 jobs:
   test:
     strategy:
-        matrix:
-            go-version: [1.14.x]
+      matrix:
+        go-version: [1.14.x]
     runs-on: ubuntu-latest
     steps:
-        - name: Install Go
-          uses: actions/setup-go@v2
-          with:
-              go-version: ${{ matrix.go-version }}
-        
-        - name: Checkout code
-          uses: actions/checkout@v2
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go-version }}
 
-        - name: Install seabolt Dependencies
-          run: |
-            sudo apt-get install -y libssl1.0.0 
-            wget https://github.com/neo4j-drivers/seabolt/releases/download/v1.7.4/seabolt-1.7.4-Linux-ubuntu-$(lsb_release -rs).deb
-            sudo dpkg -i seabolt-1.7.4-Linux-ubuntu-$(lsb_release -rs).deb
-            sudo git clone -b 1.7 https://github.com/neo4j-drivers/seabolt.git /seabolt
-            
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-        - name: Run tests
-          run: |
-            cd apis/sentinel
-            sudo go test ./... -v -coverprofile=coverage.out 
+      - name: Build the docker-compose test stack
+        run: |
+          cd apis/sentinel
+          docker-compose up -d
 
-        - name: Upload coverage to Codecov
-          uses: codecov/codecov-action@v1
-          with:
-            token: ${{ secrets.CODECOV_TOKEN }}
-            file: ./apis/sentinel/coverage.out
-            flags: unittests
-            env_vars: OS,GO
-            name: codecov-umbrella
-            fail_ci_if_error: true
-        
-        - name: Setup Terraform
-          uses: hashicorp/setup-terraform@v1
+      - name: Check running containers
+        run: docker ps
 
-        - name: Begin Terraform
-          run: |
-                cd infrastructure/dev
-                terraform init
-                terraform plan
-                terraform validate
-          env:
-            AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            AWS_REGION: ${{ secrets.AWS_REGION }}
-        
+      - name: Run integration test suite
+        run: |
+          cd apis/sentinel/integration-tests
+          go run integration.go
+        env:
+          BITHIPPIE_CLIENT_ID: ${{ secrets.BITHIPPIE_CLIENT_ID }}
+          BITHIPPIE_CLIENT_SECRET: ${{ secrets.BITHIPPIE_CLIENT_SECRET }}
+
+      - name: Install seabolt Dependencies
+        run: |
+          sudo apt-get install -y libssl1.0.0 
+          wget https://github.com/neo4j-drivers/seabolt/releases/download/v1.7.4/seabolt-1.7.4-Linux-ubuntu-$(lsb_release -rs).deb
+          sudo dpkg -i seabolt-1.7.4-Linux-ubuntu-$(lsb_release -rs).deb
+          sudo git clone -b 1.7 https://github.com/neo4j-drivers/seabolt.git /seabolt
+
+      - name: Run tests
+        run: |
+          cd apis/sentinel
+          sudo go test ./... -v -coverprofile=coverage.out
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./apis/sentinel/coverage.out
+          flags: unittests
+          env_vars: OS,GO
+          name: codecov-umbrella
+          fail_ci_if_error: true
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: Begin Terraform
+        run: |
+          cd infrastructure/dev
+          terraform init
+          terraform plan
+          terraform validate
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}

@@ -27,7 +27,7 @@ Resources are granted access to other resources through Contexts. It is possible
 
 Resource may be owned by other resources. Resource inheritance will help reduce redundant permissions to similar resources if the principal has the same level of access to a class of resource. E.g. System Admins can read/write all accounts.
 
-When creating a new Resource, you don't have to mention if it is a Principal or a Target. The terms Principal and Targets only become meaningful when you are setting granting a context to a Principal or setting permissions to a target.
+When creating a new Resource, you don't have to mention if it is a Principal or a Target. The terms Principal and Targets only become meaningful when granting a context to a Principal or permissions to a target.
 
 ## Contexts
 

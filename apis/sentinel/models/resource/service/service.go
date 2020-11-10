@@ -4,6 +4,8 @@ import (
 	"context"
 	"strings"
 
+	"fmt"
+
 	dto "github.com/bithippie/guard-my-app/apis/sentinel/models/context/dto"
 	resource "github.com/bithippie/guard-my-app/apis/sentinel/models/resource/dto"
 	"github.com/bithippie/guard-my-app/apis/sentinel/models/resource/injection"
@@ -59,6 +61,7 @@ func (service *service) GetAllAssociatedContexts(id string) (dto.Output, error) 
 
 func (service *service) Create(ctx context.Context, input *resource.Input) (resource.OutputDetails, error) {
 	scope := injection.ExtractClaims(ctx, "scope")
+	fmt.Println("Scope" + scope)
 	if strings.Contains(scope, "create:resource") {
 		return service.repository.CreateMetaResource(input)
 	}

@@ -68,7 +68,7 @@ func decodeEdges(results map[string]interface{}, field string) (permissions []pe
 }
 
 func generateOutputData(results []map[string]interface{}) (details []authorization.Details, err error) {
-
+	entitlements := make(map[target]map[string]entitlement)
 	for _, result := range results {
 		var target target
 		err = injection.NodeDecoder(result, "target", &target)
@@ -82,20 +82,45 @@ func generateOutputData(results []map[string]interface{}) (details []authorizati
 			return
 		}
 
-		var permissionsData []permission.Attributes
-		for _, permission := range permissions {
-			permissionsData = append(permissionsData, permission)
-		}
-		details = append(details, generateDetail(target, permissionsData))
-
+		var length int64 
+		if len, ok := result["length"]; ok {
+			length = len.(int64)
+		}	
+		updateEntitlementsMap(entitlements, target, permissions, length)
 	}
+	for t, p := range entitlements {
+		details = append(details, generateDetail(t, p))
+	}
+	fmt.Println(entitlements)
 	return
 }
 
-func generateDetail(target target, permissions []permission.Attributes) authorization.Details {
-	if len(permissions) == 0 {
+func updateEntitlementsMap(input map[target]map[string]entitlement, target target, permissions []permission.Attributes, length int64) map[target]map[string]entitlement  {
+	if _, ok := input[target]; !ok {
+		input[target] = make(map[string]entitlement)
+	}
+	for _, permission := range permissions {
+		e := input[target]
+		if permissionDetails, ok := e[permission.Name]; ok {
+			if length < permissionDetails.Length {
+				e[permission.Name] = entitlement{Permission: permission, Length: length}
+			}
+		} else {
+			e[permission.Name] = entitlement{Permission: permission, Length: length}
+		}
+	}
+	return input
+}
+
+func generateDetail(target target, entitlements map[string]entitlement) authorization.Details {
+	if len(entitlements) == 0 {
 		return authorization.Details{}
 	}
+	var permissions []permission.Attributes
+	for _, entitlement := range entitlements {
+		permissions = append(permissions, entitlement.Permission)
+	}
+
 	return authorization.Details{
 		ID:   target.ID,
 		Type: "resource",
@@ -127,4 +152,9 @@ type target struct {
 type edge struct {
 	Name      string `mapstructure:"name"`
 	Permitted string `mapstructure:"permitted"`
+}
+
+type entitlement struct {
+	Permission permission.Attributes
+	Length int64 
 }

@@ -71,7 +71,6 @@ func TestExecute_DecodingTargetFails_ReturnError(t *testing.T) {
 }
 
 func TestExecute_DecodingPermissionsFails_ReturnError(t *testing.T) {
-
 	response := generateMockResponse()
 	response[0]["permissions"] = "invalid-entry"
 	session := session.NewNeo4jSession(mockNeo4jSession{
@@ -98,6 +97,22 @@ func TestExecute_DBReturnsCleanData_ReturnOutput(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func TestExecute_DbReturnsDataWithMultiplePermissions_ReturnShortestPath(t *testing.T) {
+	response := generateMultiLengthPermissions()
+	expectedResponse := testdata.Output
+
+	session := session.NewNeo4jSession(mockNeo4jSession{
+		ExpectedStatement:  testStatement,
+		ExpectedParameters: testParameters,
+		RunResponse:        response,
+		t:                  t,
+	})
+
+	output, err := session.Execute("cypher-query", testParameters)
+	assert.Equal(t, expectedResponse, output)
+	assert.Nil(t, err)
+}
+
 func TestExecute_DBReturnsCleanDataNoPermissions_ReturnOutput(t *testing.T) {
 	response := generateMockResponse()
 	expectedResponse := testdata.Output
@@ -115,6 +130,7 @@ func TestExecute_DBReturnsCleanDataNoPermissions_ReturnOutput(t *testing.T) {
 	assert.Equal(t, expectedResponse, output)
 	assert.Nil(t, err)
 }
+
 
 func generateMockResponse() []map[string]interface{} {
 	result := map[string]interface{}{
@@ -134,4 +150,44 @@ func generateMockResponse() []map[string]interface{} {
 			}),
 	}
 	return []map[string]interface{}{result}
+}
+
+func generateMultiLengthPermissions() []map[string]interface{} {
+	shortestLengthResult := map[string]interface{}{
+		"length": int64(2),
+		"permissions": []interface{}{
+			mocks.NewRelationship(1, 0, 0, "Permission",
+				map[string]interface{}{
+					"permitted": "allow",
+					"name":      "test-permission",
+				}),
+		},
+		"target": mocks.NewNode(1,
+			[]string{"Resource"},
+			map[string]interface{}{
+				"id":        "test-target-id",
+				"name":      "test-target",
+				"source_id": "test-target-source-id",
+			}),
+	}
+
+	longerLengthResult := map[string]interface{}{
+		"length": int64(5),
+		"permissions": []interface{}{
+			mocks.NewRelationship(1, 0, 0, "Permission",
+				map[string]interface{}{
+					"permitted": "deny",
+					"name":      "test-permission",
+				}),
+		},
+		"target": mocks.NewNode(1,
+			[]string{"Resource"},
+			map[string]interface{}{
+				"id":        "test-target-id",
+				"name":      "test-target",
+				"source_id": "test-target-source-id",
+			}),
+	}
+
+	return []map[string]interface{}{longerLengthResult, shortestLengthResult}
 }

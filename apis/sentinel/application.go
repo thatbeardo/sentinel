@@ -165,7 +165,7 @@ import (
 	authorizationSession "github.com/bithippie/guard-my-app/apis/sentinel/models/authorization/session"
 	"github.com/bithippie/guard-my-app/apis/sentinel/server"
 	"github.com/gin-gonic/gin"
-	"github.com/newrelic/go-agent/_integrations/nrgin/v1"
+	// "github.com/newrelic/go-agent/_integrations/nrgin/v1"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -204,7 +204,7 @@ func main() {
 
 	healthcheck.Routes(router)
 	login.Routes(router)
-	router.Use(nrgin.Middleware(server.InitNewRelicApp()))
+	// router.Use(nrgin.Middleware(server.InitNewRelicApp()))
 	router.Use(middleware.VerifyClaimant)
 	router.Use(middleware.VerifyToken)
 	router.Use(middleware.VerifyTenant)

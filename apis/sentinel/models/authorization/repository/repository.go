@@ -25,14 +25,14 @@ type repository struct {
 func (repo repository) GetAuthorizationForPrincipal(principalID, contextID string, input authorization.Input) (output authorization.Output, err error) {
 	return repo.session.Execute(
 		fmt.Sprintf(`
-			MATCH (principal:Resource { id: $principal_id })
+			MATCH path=(principal:Resource { id: $principal_id })
 				<-[:GRANTED_TO]-
 					(context:Context{id: %s})
 						-[permission:PERMISSION]->
 						(ancestors:Resource)<-[:OWNED_BY*0..%s]-
 					(target:Resource)
 				%s
-			RETURN {target: target, permissions: COLLECT(permission)}`,
+			RETURN {target: target, permissions: COLLECT(permission), length: length(path)}`,
 			generateContextFilter(contextID),
 			strconv.Itoa(input.Depth),
 			generateQueryFilter(input),

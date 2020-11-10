@@ -19,7 +19,7 @@ import (
 // @Param context_id path string true "context ID"
 // @Param resource_id path string true "Resource ID"
 // @Param input body permission.Input true "Details about the permission to be added"
-// @Success 204 {object} permission.OutputDetails	"ok"
+// @Success 202 {object} permission.OutputDetails	"ok"
 // @Success 404 {object} views.ErrView
 // @Security ApiKeyAuth
 // @Router /v1/permissions/{context_id}/resources/{resource_id} [put]
