@@ -2,16 +2,16 @@ package admin
 
 import (
 	"fmt"
-	 "os"
+	"os"
 )
 
 var loginPayload = fmt.Sprintf(
 	`{
 		"client_id": "%s",
 		"client_secret": "%s"
-	}`, 
+	}`,
 	os.Getenv("BITHIPPIE_CLIENT_ID"),
-	os.Getenv("BITHIPPIE_CLIENT_SECRET"), 
+	os.Getenv("BITHIPPIE_CLIENT_SECRET"),
 )
 
 func createResourcePayload(name, sourceID string) string {
@@ -26,7 +26,7 @@ func createResourcePayload(name, sourceID string) string {
 				"type": "resource"
 			}
 		}`,
-		name, 
+		name,
 		sourceID,
 	)
 }
@@ -40,7 +40,7 @@ func createContextPayload(name string) string {
     	"type": "context"
   	}
 	}`,
-	name)
+		name)
 }
 
 const createPermissionPayload = `
