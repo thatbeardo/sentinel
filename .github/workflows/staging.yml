@@ -47,7 +47,6 @@ jobs:
           application_name: ${{ env.APPLICATION_NAME }}
           environment_name: ${{ env.ENVIRONMENT_NAME }}
           version_label: ${{ github.sha }}
-          version_description: ${{ github.SHA }}
           region: us-east-1
           deployment_package: ./apis/sentinel/deploy.zip
 
