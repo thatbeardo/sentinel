@@ -26,13 +26,13 @@ jobs:
       - name: Terraform Apply
         id: terraform-apply
         run: |
-            cd infrastructure/beanstalk
-            terraform init
-            terraform plan
-            terraform apply -var 'username=${{ secrets.USERNAME }}' -var 'password=${{ secrets.PASSWORD }}' -var 'db_uri=${{ secrets.DB_URI }}' -var 'acm_certificate_arn=${{ secrets.ACM_CERTIFICATE_ARN }}' -var 'newrelicLicense=${{ secrets.NEW_RELIC_LICENSE }}' -auto-approve
-            echo "WEBSITE_BUCKET=$(terraform output website_bucket_id)" >> $GITHUB_ENV
-	    echo "APPLICATION_NAME=$(terraform output application_name)" >> $GITHUB_ENV
-	    echo "ENVIRONMENT_NAME=$(terraform output environment_name)" >> $GITHUB_ENV
+          cd infrastructure/beanstalk
+          terraform init
+          terraform plan
+          terraform apply -var 'username=${{ secrets.USERNAME }}' -var 'password=${{ secrets.PASSWORD }}' -var 'db_uri=${{ secrets.DB_URI }}' -var 'acm_certificate_arn=${{ secrets.ACM_CERTIFICATE_ARN }}' -var 'newrelicLicense=${{ secrets.NEW_RELIC_LICENSE }}' -auto-approve
+          echo "WEBSITE_BUCKET=$(terraform output website_bucket_id)" >> $GITHUB_ENV
+          echo "APPLICATION_NAME=$(terraform output application_name)" >> $GITHUB_ENV
+          echo "ENVIRONMENT_NAME=$(terraform output environment_name)" >> $GITHUB_ENV
 
       - name: Generate deployment zip
         run: |
