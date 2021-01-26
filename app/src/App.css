@@ -49,3 +49,7 @@ td {
 table tr:nth-child(2n) {
   background: #f6f8fa;
 }
+
+.footer {
+  font-size: 12px;
+}

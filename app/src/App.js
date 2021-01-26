@@ -8,6 +8,8 @@ import NavBar from "./components/NavBar";
 import Footer from "./components/Footer";
 import AboutUs from "./views/AboutUs";
 import Products from "./views/Products";
+import PrivacyPolicy from "./views/PrivacyPolicy";
+import TermsOfUse from "./views/TermsOfUse";
 import ContactUs from "./views/ContactUs";
 import Documentation from "./views/Documentation";
 import Profile from "./views/Profile";
@@ -39,6 +41,8 @@ const App = () => {
             <Route path="/documentation" exact component={Documentation} />
             <PrivateRoute path="/profile" component={Profile} />
             <Route path="/products" component={Products} />
+            <Route path="/terms" component={TermsOfUse} />
+            <Route path="/privacy" component={PrivacyPolicy} />
             <Route path="/">
               <Redirect to="products/sentinel" />
             </Route>
