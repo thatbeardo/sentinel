@@ -27,8 +27,8 @@ jobs:
         id: terraform-apply
         run: |
           cd infrastructure/beanstalk
-          terraform state replace-provider registry.terraform.io/-/aws hashicorp/aws
           terraform init
+          terraform state replace-provider registry.terraform.io/-/aws hashicorp/aws
           terraform plan
           terraform apply -var 'username=${{ secrets.USERNAME }}' -var 'password=${{ secrets.PASSWORD }}' -var 'db_uri=${{ secrets.DB_URI }}' -var 'acm_certificate_arn=${{ secrets.ACM_CERTIFICATE_ARN }}' -var 'newrelicLicense=${{ secrets.NEW_RELIC_LICENSE }}' -auto-approve
           echo "WEBSITE_BUCKET=$(terraform output -json | jq -r .website_bucket_id.value)" >> $GITHUB_ENV

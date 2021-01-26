@@ -59,8 +59,8 @@ jobs:
       - name: Begin Terraform
         run: |
           cd infrastructure/dev
-          terraform state replace-provider registry.terraform.io/-/aws hashicorp/aws
           terraform init
+          terraform state replace-provider registry.terraform.io/-/aws hashicorp/aws
           terraform plan
           terraform validate
         env:
