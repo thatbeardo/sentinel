@@ -23,13 +23,13 @@ jobs:
       - name: Check running containers
         run: docker ps
 
-      - name: Run integration test suite
-        run: |
-          cd apis/sentinel/integration-tests
-          go run integration.go
-        env:
-          BITHIPPIE_CLIENT_ID: ${{ secrets.BITHIPPIE_CLIENT_ID }}
-          BITHIPPIE_CLIENT_SECRET: ${{ secrets.BITHIPPIE_CLIENT_SECRET }}
+      # - name: Run integration test suite
+      #   run: |
+      #     cd apis/sentinel/integration-tests
+      #     go run integration.go
+      #   env:
+      #     BITHIPPIE_CLIENT_ID: ${{ secrets.BITHIPPIE_CLIENT_ID }}
+      #     BITHIPPIE_CLIENT_SECRET: ${{ secrets.BITHIPPIE_CLIENT_SECRET }}
 
       - name: Install seabolt Dependencies
         run: |
