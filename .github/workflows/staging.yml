@@ -1,4 +1,4 @@
-name: Sentinel Community Deployment
+name: Sentinel Deployment
 
 on:
   push:
