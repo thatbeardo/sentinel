@@ -41,8 +41,8 @@ const App = () => {
             <Route path="/documentation" exact component={Documentation} />
             <PrivateRoute path="/profile" component={Profile} />
             <Route path="/products" component={Products} />
-            <Route path="/terms" component={TermsOfUse} />
-            <Route path="/privacy" component={PrivacyPolicy} />
+            <Route path="/terms-of-use" component={TermsOfUse} />
+            <Route path="/privacy-policy" component={PrivacyPolicy} />
             <Route path="/">
               <Redirect to="products/sentinel" />
             </Route>

@@ -5,9 +5,9 @@ const Footer = () => (
     <div className="container">      
       <div className="grid">
         <div className="row">
-          <a href="/privacy">Privacy Policy </a>
+          <a href="/privacy-policy">Privacy Policy </a>
           &nbsp;&nbsp;
-          <a href="/terms">Terms of Use</a>
+          <a href="/terms-of-use">Terms of Use</a>
         </div>
 
         <div className="row">
