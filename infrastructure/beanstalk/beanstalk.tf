@@ -41,7 +41,6 @@ module elastic_beanstalk_environment {
     availability_zone_selector         = "Any 2"
     dns_zone_id                        = var.dns_zone_id
     elastic_beanstalk_application_name = module.elastic_beanstalk_application.elastic_beanstalk_application_name
-    s3_bucket_mfa_delete               = false
 
     instance_type           = "t2.micro"
     autoscale_min           = 1
