@@ -1,4 +1,5 @@
 /* Fix for use only flexbox in content area */
+@import '../../../../styles/variables';
 
 .next-steps .fa-link {
   margin-right: 5px;
@@ -16,4 +17,19 @@
   .next-steps .col-md-5 {
     margin-bottom: 0;
   }
+}
+
+.feature-icon {
+  width: 100px;
+  height: 100px;
+}
+
+.feature-title {
+  text-transform: uppercase;
+  font-weight: lighter;
+  letter-spacing: 0.13rem;
+}
+
+.feature-description {
+  color: $greyText !important
 }
