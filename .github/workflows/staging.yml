@@ -60,7 +60,7 @@ jobs:
         run: |
           cd dashboard
           npm install
-          npm build
+          npm run build
 
       # - name: Deploy Website
       #   env:
