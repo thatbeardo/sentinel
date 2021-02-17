@@ -1,0 +1,18 @@
+@import './variables';
+
+.font-weight-normal{
+  font-weight: 400!important;
+}
+
+.list-unstyled {
+  list-style: none;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.outline-btn {
+  background-color: rgba(255, 255, 255, 0) !important;
+  color:$greenText;
+}

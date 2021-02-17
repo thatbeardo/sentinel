@@ -1,0 +1,28 @@
+@import "~bootstrap/scss/bootstrap";
+@import "_variables";
+@import "../../styles/variables";
+
+.navbar {
+    background: $darkFilm;
+    opacity: 1;
+    transition: top 0.2s ease;
+}
+
+.navbar.active {
+    background: $background;
+    border-bottom: solid 1px #333;
+}
+
+.navbar-hide {
+    pointer-events: none;
+    top: -70px;
+}
+
+.navbar-brand img{
+    height: 2.5rem
+}
+
+.bithippie-toggle {
+    background: rgba(0,0,0,0)!important;
+    border-style: none!important;
+}

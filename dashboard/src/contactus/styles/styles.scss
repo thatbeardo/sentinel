@@ -1,0 +1,26 @@
+@import '../../styles/variables';
+
+.contact-us{
+  text-transform: uppercase;
+  height: 100vh;
+}
+
+label{
+  font-size: small;
+  color: #777;
+  font-weight: 500;
+  letter-spacing: 0.05rem;
+}
+
+button, input {
+  border-radius: 4px !important
+}
+
+button {
+  background: $greenText !important;
+  border: solid 1px $greenText !important;
+}
+
+.form-input {
+  height: 50px;
+}

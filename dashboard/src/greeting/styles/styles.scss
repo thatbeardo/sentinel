@@ -1,0 +1,8 @@
+@import "_variables";
+@import "../../styles/variables";
+
+.greeting {
+  height: 100vh;
+  background: $background;
+  width: 100%;
+}

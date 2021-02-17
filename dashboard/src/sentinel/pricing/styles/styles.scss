@@ -1,0 +1,40 @@
+@import '../../../styles/styles.scss';
+
+.pricing {
+  height: 100vh;
+}
+
+.pricing-header {
+  max-width: 700px;
+}
+
+.box-shadow{
+  box-shadow: 0rem 0.25rem 0.75rem rgba(0, 0, 0, 0.05)
+}
+
+.pricing-btn {
+  border-radius: 4px !important;
+}
+
+.pricing-row {
+  width: 80vw;
+}
+
+.pricing-card-title {
+  font-weight: normal;
+  font-size: 1rem;
+  padding: 1rem;
+}
+
+.icon {
+  width: 30px;
+  height: 30px;
+}
+
+.cost {
+  height: 48px;
+}
+
+del {
+  color: $greyText
+}
