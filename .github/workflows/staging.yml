@@ -50,8 +50,8 @@ jobs:
           region: us-east-1
           deployment_package: ./apis/sentinel/deploy.zip
 
-      - name: Install Yarn
-        uses: borales/actions-yarn@v2.1.0
+      - name: Install Node
+        uses: actions/setup-node@v2
 
       # - name: Install AWS CLI
       #   uses: chrislennon/action-aws-cli@v1.1
@@ -59,8 +59,8 @@ jobs:
       - name: Build Website
         run: |
           cd dashboard
-          yarn install
-          yarn build
+          npm install
+          npm build
 
       # - name: Deploy Website
       #   env:
