@@ -6,7 +6,7 @@ const Sentinel = () => {
   return (
     <div className="pt-5 mt-3">
       <NavBar />
-      <Container className="my-5 pb-2">
+      <Container className="pb-2">
         <Outlet/>
       </Container>
     </div>

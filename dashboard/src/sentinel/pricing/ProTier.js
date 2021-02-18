@@ -38,4 +38,5 @@ export const ProTier = () => <Col xs={12} md={12} lg={4}>
     </Button>
   </Card.Body>
 </Card>
+<small className="pricing-appendix">*Or 5 cents per resource or permission</small>
 </Col>

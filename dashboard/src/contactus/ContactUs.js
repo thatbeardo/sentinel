@@ -23,8 +23,9 @@ function ContactUs() {
   return (
   <Container className="contact-us py-5 mt-5">
     <div>
-  		  <div id="hubspotForm"></div>
-  		</div>
+      <div className="pt-4 display-4 d-flex justify-content-center">Contact Us</div>
+      <div id="hubspotForm"></div>
+    </div>
   </Container>)
 }
 
