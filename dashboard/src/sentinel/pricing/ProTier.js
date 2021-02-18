@@ -14,11 +14,11 @@ export const ProTier = () => <Col xs={12} md={12} lg={4}>
       <div className="list-unstyled my-4">
           <div className="mb-3 d-flex">
             <img alt="icon unavailable" src={group} className="mr-2 icon" />
-            <div className="pt-1 mt-1"> 1000 Resources</div>
+            <div className="pt-1 mt-1">Per 1000 Resources</div>
           </div>
           <div className="mb-3 d-flex">
             <img alt="icon unavailable" src={permission} className="mr-2 icon" />
-            <div className="pt-1 mt-1">1000 Permissions</div>
+            <div className="pt-1 mt-1">Per 1000 Permissions</div>
           </div>
           <div className="mb-3 d-flex">
             <img alt="icon unavailable" src={headset} className="mr-2 icon" />
@@ -33,7 +33,9 @@ export const ProTier = () => <Col xs={12} md={12} lg={4}>
     <Card.Text>
         <h2 className="cost">$100<small className="text-muted"> /mo</small></h2>
     </Card.Text>
-    <Button className="pricing-btn" variant="primary" size="lg" block>Get Started</Button>
+    <Button className="pricing-btn" variant="primary" size="lg" block>
+      <a className="button-link" href="/contact-us">Get Started</a>
+    </Button>
   </Card.Body>
 </Card>
 </Col>

@@ -31,9 +31,13 @@ export const EnterpriseTier = () => <Col xs={12} md={12} lg={4}>
       </div>  
     </Card.Title>
     <Card.Text>
-      <Button className="outline-btn" block size="lg">Learn More</Button>
+      <Button className="outline-btn" block size="lg">
+      <a className="learn-link" href="/contact-us">Learn More</a>
+      </Button>
     </Card.Text>
-    <Button className="pricing-btn" size="lg" block>Contact Us</Button>
+    <Button className="pricing-btn" size="lg" block>
+      <a className="button-link" href="/contact-us">Contact Us</a>
+    </Button>
   </Card.Body>
 </Card>
 </Col>

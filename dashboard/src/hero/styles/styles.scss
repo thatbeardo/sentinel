@@ -45,7 +45,7 @@ video {
   position: relative;
   width: 100%;
   min-height: 100vh;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.8);
 }
 
 .caption{
@@ -63,8 +63,8 @@ video {
 }
 
 .get-started {
-  color: white!important;
   border: solid 1px white !important;
+  width: 200px;
 }
 
 a:hover {
