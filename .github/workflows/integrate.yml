@@ -33,7 +33,7 @@ jobs:
 
       - name: Install seabolt Dependencies
         run: |
-          sudo apt-get install -y libssl1.0.0 
+          sudo apt-get install -y libssl1.1
           wget https://github.com/neo4j-drivers/seabolt/releases/download/v1.7.4/seabolt-1.7.4-Linux-ubuntu-$(lsb_release -rs).deb
           sudo dpkg -i seabolt-1.7.4-Linux-ubuntu-$(lsb_release -rs).deb
           sudo git clone -b 1.7 https://github.com/neo4j-drivers/seabolt.git /seabolt
