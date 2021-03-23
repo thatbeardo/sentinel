@@ -24,20 +24,14 @@ import "./App.css";
 import initFontAwesome from "./utils/initFontAwesome";
 initFontAwesome();
 
-const trackingId = "G-CE9JDJWW4F"; // Replace with your Google Analytics tracking ID
-ReactGA.initialize(trackingId);
-ReactGA.set({
-  userId: "bithippie",
-  // any data that is relevant to the user session
-  // that you would like to track with google analytics
-})  
-
-ReactGA.event({
-  category: "Test",
-  action: "Value",
-});
-
+const trackingId = "G-CE9JDJWW4F"; 
 const App = () => {
+
+  useEffect(() => {
+    ReactGA.initialize(trackingId);
+    ReactGA.pageView('/')
+  }, [])
+
   const { loading } = useAuth0();
 
   if (loading) {
